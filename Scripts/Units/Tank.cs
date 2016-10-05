@@ -14,6 +14,12 @@ public class Tank : Unit
 		set { _spriteRenderer = value; }
 	}
 
+	private bool _isAlive;
+	public override bool isAlive {
+		get { return _isAlive; }
+		set { _isAlive = value; }
+	}
+
 	public Sprite[] _sprites;
 
 	public override Sprite[] sprites {

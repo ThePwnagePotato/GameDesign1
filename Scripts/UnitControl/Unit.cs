@@ -9,6 +9,8 @@ public abstract class Unit : MonoBehaviour
 
 	public abstract bool isFriendly ();
 
+	public abstract bool isAlive { get; set; }
+
 	public abstract GameObject[] abilities { get; set; }
 
 	public abstract List<StatusEffect> statusEffects ();
@@ -56,6 +58,9 @@ public abstract class Unit : MonoBehaviour
 		gameManager = GameObject.FindGameObjectWithTag ("GameManager").GetComponent<GameManager> ();
 		if (gameManager == null)
 			Debug.Log ("Unit: GameManager not found)");
+
+		// setting initial state to being alive
+		isAlive = true;
 
 		// add itself to the unitMap and relevant lists. This is for testing purposes, normally the boardManager does this while spawning unit
 		Debug.Log("TEST: Adding itself to unitmap");
@@ -313,7 +318,7 @@ public abstract class Unit : MonoBehaviour
 		// choose correct sprite
 		if (dz + dx > 0) spriteRenderer.sprite = sprites[0];
 		else spriteRenderer.sprite = sprites[1];
-		if (dx < 0 || dz > 0) spriteRenderer.flipX = false;
+		if (dx > 0 || dz < 0) spriteRenderer.flipX = false;
 		else spriteRenderer.flipX = true;
 
 		// while not at target position

@@ -390,6 +390,8 @@ public abstract class Unit : MonoBehaviour
 			}
 			transform.position = target; // make sure that the unit is exactly at target position
 		}
+		// let sprite face camera after movements
+		spriteRenderer.sprite = sprites [0];
 		// modify unitMap to reflect new situation
 		boardManager.unitMap[(int)startOrigin.x,(int)startOrigin.z] = null;
 		boardManager.unitMap[(int)endTarget.x,(int)endTarget.z] = this;

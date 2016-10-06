@@ -168,20 +168,27 @@ public abstract class Ability : MonoBehaviour
 				// get the projection of the current position onto the direct line between the origin and target
 				// first calculate the scalar projection of the currentPos to the noHeight position
 				float scalarProjection = Vector3.Dot(newPos - origin, target - origin) / ((target - origin).magnitude);
+				//Debug.Log (Vector3.Dot(newPos - origin, target - origin));
+				//Debug.Log (((target - origin).magnitude));
+
 				newPos = (target - origin).normalized * scalarProjection + origin;
 
-				newPos = Vector3.MoveTowards (newPos, target, (switchPointDistance)*projectileSpeed*0.14f); // newPos is now the newPosition without the height of the parabola
+				newPos = Vector3.MoveTowards (newPos, target, (switchPointDistance)*projectileSpeed*0.10f); // newPos is now the newPosition without the height of the parabola
 
 				float progress = ((newPos-origin).magnitude)/switchPointDistance; // A value from 0-1 that represent what fraction of the parabola has been travelled
-				float height = 2; // this is the max height of the parabola
+				float height = 3; // this is the max height of the parabola
 
-				float sinAngle = Mathf.Abs(origin.y - target.y) / switchPointDistance;
+				Plane plane = new Plane (origin, target, target + Vector3.up);
+				Vector3 normal = Vector3.Cross (plane.normal, target - origin).normalized;
 
+				//float sinAngle = Mathf.Abs(origin.y - target.y) / switchPointDistance;
+				//Vector3 heightVector = Vector3.up*(-4*Mathf.Pow(progress, 2)+4*progress)*height;
+				//newPos = newPos + (heightVector * (1-sinAngle)); // we now add the height of the parabola to get the real position
 
-				Vector3 heightVector = Vector3.up*(-4*Mathf.Pow(progress, 2)+4*progress)*height;
-				newPos = newPos + (heightVector * (1-sinAngle)); // we now add the height of the parabola to get the real position
+				float heightC = (-4*Mathf.Pow(progress, 2)+4*progress)*(switchPointDistance / height);
+				normal = normal * heightC;
+				newPos += normal;
 				projectile.transform.position = newPos;
-
 
 				yield return new WaitForFixedUpdate ();
 			}

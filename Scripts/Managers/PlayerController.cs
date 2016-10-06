@@ -83,9 +83,13 @@ public class PlayerController : MonoBehaviour
 					if (hitInfo.collider.CompareTag ("Terrain")) { 
 						Unit selected = gameState.evoker.GetComponent<Unit>();
 						if (boardManager.unitMap[(int)hitInfo.collider.transform.position.x, (int)hitInfo.collider.transform.position.z] == null) { // if target not occupied
-							gameManager.Pop ();
-							selected.Move(hitInfo.collider.transform.position+Vector3.up); // move to one above the selected block
-							Debug.Log (selected.getName () + " moved");
+							Vector3 clickedTarget = hitInfo.collider.transform.position;
+							Vector3 finalTarget = new Vector3((int) clickedTarget.x, boardManager.heightMap[(int) clickedTarget.x, (int) clickedTarget.z], (int) clickedTarget.z);
+							if (clickedTarget == finalTarget) {
+								gameManager.Pop ();
+								selected.Move(finalTarget+Vector3.up); // move to one above the selected block
+								Debug.Log (selected.getName () + " moved");
+							}
 						}
 					}
 					// if the selected player is selected
@@ -106,10 +110,15 @@ public class PlayerController : MonoBehaviour
 				RaycastHit hitInfo = MouseRaycast ();
 				if (hitInfo.collider != null) {
 					if (hitInfo.collider.CompareTag ("Terrain")) { // if terrain is selected
-						Ability ability = gameState.evoker.GetComponentInChildren<Ability>();
+						Ability ability = gameState.evoker.GetComponentInChildren<Ability> ();
 						ability.transform.position = gameState.evoker.transform.position;
-						gameManager.Pop();
-						ability.ActivateAbility (hitInfo.collider.transform.position+Vector3.up);
+
+						Vector3 clickedTarget = hitInfo.collider.transform.position;
+						Vector3 finalTarget = new Vector3((int) clickedTarget.x, boardManager.heightMap[(int) clickedTarget.x, (int) clickedTarget.z], (int) clickedTarget.z);
+						if (clickedTarget == finalTarget) {
+							gameManager.Pop ();
+							ability.ActivateAbility (finalTarget + Vector3.up);
+						}
 					}
 				}
 			}

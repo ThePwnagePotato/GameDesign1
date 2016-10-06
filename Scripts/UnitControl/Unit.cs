@@ -128,20 +128,18 @@ public abstract class Unit : MonoBehaviour
 
 	}
 
-	private List<Vector3> possibleMoveList = new List<Vector3> ();
+	public List<Vector3> possibleMoveList = new List<Vector3> ();
 	private int[,] heightMap;
 
 	// Returns all the possible locations the unit can move to with the current move stats
 	// uses the recursive method
-	public List<Vector3> GetPossibleMoves (int[,] heightMap)
+	public List<Vector3> UpdatePossibleMoves (int[,] heightMap)
 	{
 		possibleMoveList.Clear ();
 
 		this.heightMap = heightMap;
 
 		PositionSearch (transform.position, currentMoves, currentMovesUp, currentMovesDown, currentMovesSide, Direction.NONE);
-
-		// remove duplicates from possiblemovelist?
 
 		return possibleMoveList;
 	}

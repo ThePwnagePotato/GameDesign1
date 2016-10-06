@@ -128,20 +128,18 @@ public abstract class Unit : MonoBehaviour
 
 	}
 
-	private List<Vector3> possibleMoveList = new List<Vector3> ();
+	public List<Vector3> possibleMoveList = new List<Vector3> ();
 	private int[,] heightMap;
 
 	// Returns all the possible locations the unit can move to with the current move stats
 	// uses the recursive method
-	public List<Vector3> GetPossibleMoves (int[,] heightMap)
+	public List<Vector3> UpdatePossibleMoves (int[,] heightMap)
 	{
 		possibleMoveList.Clear ();
 
 		this.heightMap = heightMap;
 
 		PositionSearch (transform.position - new Vector3(0, 1, 0), currentMoves, currentMovesUp, currentMovesDown, currentMovesSide, Direction.NONE);
-
-		// remove duplicates from possiblemovelist?
 
 		return possibleMoveList;
 	}
@@ -390,6 +388,8 @@ public abstract class Unit : MonoBehaviour
 			}
 			transform.position = target; // make sure that the unit is exactly at target position
 		}
+		// let sprite face camera after movements
+		spriteRenderer.sprite = sprites [0];
 		// modify unitMap to reflect new situation
 		boardManager.unitMap[(int)startOrigin.x,(int)startOrigin.z] = null;
 		boardManager.unitMap[(int)endTarget.x,(int)endTarget.z] = this;

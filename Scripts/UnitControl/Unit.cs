@@ -139,7 +139,7 @@ public abstract class Unit : MonoBehaviour
 
 		this.heightMap = heightMap;
 
-		PositionSearch (transform.position, currentMoves, currentMovesUp, currentMovesDown, currentMovesSide, Direction.NONE);
+		PositionSearch (transform.position - new Vector3(0, 1, 0), currentMoves, currentMovesUp, currentMovesDown, currentMovesSide, Direction.NONE);
 
 		// remove duplicates from possiblemovelist?
 
@@ -396,98 +396,8 @@ public abstract class Unit : MonoBehaviour
 		// signal that animation is done to GameManager:
 		gameState.active = false;
 	}
-	/*
-	private IEnumerator ExecuteMovement (Vector3 endTarget, GameState gameState)
-	{
-		Vector3 startOrigin = transform.position; // saved to move unit on unitMap in boardManager at end of animation
 
-		int dx, dz; // used for path calculation
-		if (endTarget.x == transform.position.x) dx = 0;
-		else dx = endTarget.x > transform.position.x ? 1 : -1;
-		if (endTarget.z == transform.position.z) dz = 0;
-		else dz = endTarget.z > transform.position.z ? 1 : -1;
 
-		// choose correct sprite
-		if (dz + dx > 0) spriteRenderer.sprite = sprites[0];
-		else spriteRenderer.sprite = sprites[1];
-		if (dx < 0 || dz > 0) spriteRenderer.flipX = false;
-		else spriteRenderer.flipX = true;
 
-		// while not at target position
-		while (transform.position != endTarget) {
-			// check height of current and next position to know whether we need to "jump"
-			int currHeight = boardManager.heightMap[(int)transform.position.x, (int)transform.position.z]+1;
-			int nextHeight = boardManager.heightMap[(int)transform.position.x + dx, (int)transform.position.z + dz]+1;
-
-			// this unit is the "projectile", the script is almost identical to moving a projectile
-			GameObject projectile = this.gameObject;
-			// the target for this "step"
-			Vector3 target = new Vector3 (transform.position.x + dx, nextHeight, transform.position.z + dz);
-
-			if (nextHeight != currHeight) { // we need to jump
-				Vector3 origin = transform.position;
-				// The trajectory is split up in two phases: In one phase the projectile moves straight up or down to get to the same height as the target
-				// In the second phase the projectile moves horizontally in a parabola towards the target.
-				// The order of the phases depends on how the height of the origin relates to the height of the target
-				bool parabolaFirst = origin.y > target.y ? true : false; // calculate which phase is first
-				Vector3 switchPoint; // calculate the switching point between the two phases
-				float switchPointDistance; // distance beteen switchPoint and origin/target will be used later
-				if (parabolaFirst) {
-					switchPoint = target;
-					switchPoint.y = origin.y;
-					switchPointDistance = (switchPoint - origin).magnitude;
-				} else {
-					switchPoint = origin;
-					switchPoint.y = target.y;
-					switchPointDistance = (switchPoint - target).magnitude;
-				}
-				while (Mathf.Abs ((projectile.transform.position - switchPoint).magnitude) > 0.1f) { // while projectile is not at switchpoint
-					if (parabolaFirst) { // if the parabola is first, then move in parabola to switchpoint
-						// we use the fraction of (how much the projectile has moved in the x,z plane) / (how much needs to be moved in the x,z plane)
-						// to calculate the height of the parabola at that point
-						Vector3 newPos = projectile.transform.position; // we calculate the new position by first taking the current position
-						newPos.y = switchPoint.y; // reset y to what y would be without the added parabola height
-						newPos = Vector3.MoveTowards (newPos, switchPoint, movementSpeed * 0.5f); // newPos is now the newPosition without the height of the parabola
-						float progress = ((newPos - origin).magnitude) / switchPointDistance; // A value from 0-1 that represent what fraction of the parabola has been travelled
-						float height = 0.5f; // this is the max height of the parabola
-						newPos = newPos + Vector3.up * (-4 * Mathf.Pow (progress, 2) + 4 * progress) * height; // we now add the height of the parabola to get the real position
-						projectile.transform.position = newPos;
-					} else { // if ascent is fist, then move to switchpointin straight line
-						projectile.transform.position = Vector3.MoveTowards (projectile.transform.position, switchPoint, movementSpeed*2);
-					}
-					yield return new WaitForFixedUpdate ();
-				}
-				while (Mathf.Abs ((projectile.transform.position - target).magnitude) > 0.1f) { // while projectile is not at target
-					if (parabolaFirst) {
-						// in the second phase descent towards target
-						projectile.transform.position = Vector3.MoveTowards (projectile.transform.position, target, movementSpeed*2);
-					} else { // after ascending, move in parabola to target
-						// we use the fraction of (how much the projectile has moved in the x,z plane) / (how much needs to be moved in the x,z plane)
-						// to calculate the height of the parabola at that point
-						Vector3 newPos = projectile.transform.position; // we calculate the new position by first taking the current position
-						newPos.y = target.y; // reset y to what y would be without the added parabola height
-						newPos = Vector3.MoveTowards (newPos, target, movementSpeed * 0.5f); // newPos is now the newPosition without the height of the parabola
-						float progress = ((newPos - switchPoint).magnitude) / switchPointDistance; // A value from 0-1 that represent what fraction of the parabola has been travelled
-						float height = 0.5f; // this is the max height of the parabola
-						newPos = newPos + Vector3.up * (-4 * Mathf.Pow (progress, 2) + 4 * progress) * height; // we now add the height of the parabola to get the real position
-						projectile.transform.position = newPos;
-					}
-					yield return new WaitForFixedUpdate ();
-				}
-			} else { // we do not need to jump, just move in a flat plane
-				while (transform.position != target) {
-					projectile.transform.position = Vector3.MoveTowards (projectile.transform.position, target, movementSpeed);
-					yield return new WaitForFixedUpdate ();
-				}
-			}
-			transform.position = target; // make sure that the unit is exactly at target position
-		}
-		// modify unitMap to reflect new situation
-		boardManager.unitMap[(int)startOrigin.x,(int)startOrigin.z] = null;
-		boardManager.unitMap[(int)endTarget.x,(int)endTarget.z] = this;
-		// signal that animation is done to GameManager:
-		gameState.active = false;
-	}
-	*/
 }
 

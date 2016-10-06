@@ -87,6 +87,7 @@ public abstract class Ability : MonoBehaviour
 		StartCoroutine (LaunchProjectile (target, gameState));
 	}
 
+	/*
 	// This function launches and animates the projectile trajectory and impact.
 	// It then applies its effect to the target position and marks its associated ANIMATION GameState as inactive
 	private IEnumerator LaunchProjectile (Vector3 target, GameState gameState)
@@ -150,6 +151,73 @@ public abstract class Ability : MonoBehaviour
 		// signal that animation is done to GameManager:
 		gameState.active = false;
 	}
+	*/
+
+	private IEnumerator LaunchProjectile (Vector3 target, GameState gameState)
+	{
+		Vector3 origin = transform.position;
+		if (target != origin) { // only bother with trajectory and projectile creation if it's not a self-cast
+			GameObject projectile = Instantiate (model, origin, Quaternion.identity) as GameObject; // instantiate projectile
+
+			float switchPointDistance = (target - origin).magnitude; // distance beteen switchPoint and origin/target will be used later
+
+			while (Mathf.Abs ((projectile.transform.position - target).magnitude) > 0.1f) { // while projectile is not at target
+				// we use the fraction of (how much the projectile has moved in the x,z plane) / (how much needs to be moved in the x,z plane)
+				// to calculate the height of the parabola at that point
+				Vector3 newPos = projectile.transform.position; // we calculate the new position by first taking the current position
+				// get the projection of the current position onto the direct line between the origin and target
+				// first calculate the scalar projection of the currentPos to the noHeight position
+				float scalarProjection = Vector3.Dot(newPos - origin, target - origin) / ((target - origin).magnitude);
+				newPos = (target - origin).normalized * scalarProjection + origin;
+
+				newPos = Vector3.MoveTowards (newPos, target, (switchPointDistance)*projectileSpeed*0.14f); // newPos is now the newPosition without the height of the parabola
+
+				float progress = ((newPos-origin).magnitude)/switchPointDistance; // A value from 0-1 that represent what fraction of the parabola has been travelled
+				float height = 2; // this is the max height of the parabola
+
+				float sinAngle = Mathf.Abs(origin.y - target.y) / switchPointDistance;
+
+
+				Vector3 heightVector = Vector3.up*(-4*Mathf.Pow(progress, 2)+4*progress)*height;
+				newPos = newPos + (heightVector * (1-sinAngle)); // we now add the height of the parabola to get the real position
+				projectile.transform.position = newPos;
+
+
+				yield return new WaitForFixedUpdate ();
+			}
+
+			Destroy (projectile); // destroy projectile at impact
+		}
+		// 			code for hit-art/animation should be placed here
+		// 			code for effect giving to units in or around target area should be placed here
+		// signal that animation is done to GameManager:
+		gameState.active = false;
+	}
+
+	/*
+
+//direct line from origin to target
+
+		Vector3 origin = transform.position;
+		if (target != origin) { // only bother with trajectory and projectile creation if it's not a self-cast
+			GameObject projectile = Instantiate (model, origin, Quaternion.identity) as GameObject; // instantiate projectile
+
+			float switchPointDistance = (target - origin).magnitude; // distance beteen switchPoint and origin/target will be used later
+
+			while (Mathf.Abs ((projectile.transform.position - target).magnitude) > 0.1f) { 
+				Vector3 newPos = projectile.transform.position; // we calculate the new position by first taking the current position
+				float scalarProjection = Vector3.Dot(newPos - origin, target - origin) / ((target - origin).magnitude);
+				newPos = (projectile.transform.position - origin).normalized * scalarProjection + origin;
+				newPos = Vector3.MoveTowards (newPos, target, (switchPointDistance)*projectileSpeed*0.14f); // newPos is now the newPosition without the height of the parabola
+				projectile.transform.position = newPos;
+				yield return new WaitForFixedUpdate ();
+			}
+
+			Destroy (projectile); // destroy projectile at impact
+		}
+		gameState.active = false;
+
+	 * */
 }
 
 /* Abilities

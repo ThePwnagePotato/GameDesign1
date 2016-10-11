@@ -77,16 +77,18 @@ public class GameManager : MonoBehaviour
 	public void Push (GameState gameState) {
 		switch (gameState.type) {
 		case GameStateType.SELECTEDUNIT:
-			gameState.evoker.GetComponent<SpriteRenderer> ().color = new Color (255, 255, 0, 255); // make sprite yellow
+			gameState.evoker.GetComponent<SpriteRenderer> ().color = new Color (1, 1, 0, 1); // make sprite yellow
 			// activate unit info (selected UI)
 			selectedUIHolder.SetActive (true);
 			selectedUI.updateValues (gameState.evoker.GetComponent<Unit>());
-			/*List<Vector3> traversable = gameState.evoker.GetComponent<Unit> ().GetPossibleMoves (boardManager.heightMap);
-			Vector3[] traversableArray = traversable.ToArray ();
-			for (int i = 0; i < traversableArray.Length; i++) {
-				GameObject newHighlight = Instantiate (highlighter, traversableArray[i], Quaternion.identity) as GameObject;
+			List<ReachableTile> traversable = gameState.evoker.GetComponent<Unit> ().GetPossibleMoves ();
+			foreach (ReachableTile tile in traversable) {
+				GameObject newHighlight = Instantiate (highlighter, tile.position, Quaternion.identity) as GameObject;
+				if (tile.straight) {
+					newHighlight.GetComponentInChildren<SpriteRenderer> ().color = new Color (1, 1, 0, 1);
+				}
 				spawnedObjects.Add (newHighlight);
-			}*/
+			}
 			break;
 		default:
 			break;
@@ -98,8 +100,13 @@ public class GameManager : MonoBehaviour
 		GameState gameState = gameStack.Peek ();
 		switch (gameState.type) {
 		case GameStateType.SELECTEDUNIT:
-			gameState.evoker.GetComponent<SpriteRenderer> ().color = new Color (255, 255, 255, 255); // "unselectify" - make sprite regular color
+			gameState.evoker.GetComponent<SpriteRenderer> ().color = new Color (1, 1, 1, 1); // "unselectify" - make sprite regular color
+			selectedUI.Clear();
 			selectedUIHolder.SetActive (false); // disable "selected UI" 
+			foreach (GameObject spawned in spawnedObjects) {
+				DestroyObject (spawned);
+			}
+			spawnedObjects.Clear ();
 			break;
 		default:
 			break;

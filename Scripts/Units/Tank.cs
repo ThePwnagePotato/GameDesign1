@@ -20,6 +20,12 @@ public class Tank : Unit
 		set { _isAlive = value; }
 	}
 
+	private bool _isExhausted;
+	public override bool isExhausted {
+		get { return _isExhausted; }
+		set { _isExhausted = value; }
+	}
+
 	public Sprite[] _sprites;
 
 	public override Sprite[] sprites {
@@ -60,8 +66,8 @@ public class Tank : Unit
 		return _isFriendly;
 	}
 
-	public GameObject[] _abilities;
-	public override GameObject[] abilities
+	public List<GameObject> _abilities;
+	public override List<GameObject> abilities
 	{
 		get { return _abilities; }
 		set { _abilities = value; }
@@ -166,6 +172,7 @@ public class Tank : Unit
 		_currentMovesUp = _totalMovesUp;
 		_currentMovesDown = _totalMovesDown;
 		_currentMovesSide = _totalMovesSide;
+		isExhausted = true;
 
 		//_abilities.Add (new Stab ());
 	}

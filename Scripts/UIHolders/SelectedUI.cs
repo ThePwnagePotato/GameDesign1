@@ -1,9 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.UI;
 
 
 public class SelectedUI : MonoBehaviour {
+
+	public GameObject abilityHolder;
+	public GameObject abilityWindow;
+	public float abilityHolderYOffset;
 
 	public Text hpText;
 	public Text powText;
@@ -17,6 +22,8 @@ public class SelectedUI : MonoBehaviour {
 	public Text downMoveText;
 	public Text sideMoveText;
 
+	private List<GameObject> abilityList;
+
 	public void updateValues(Unit selected) {
 		hpText.text = selected.maxHealth.ToString();
 		powText.text = selected.power.ToString();
@@ -29,5 +36,22 @@ public class SelectedUI : MonoBehaviour {
 		upMoveText.text = selected.currentMovesUp.ToString();
 		downMoveText.text = selected.currentMovesDown.ToString();
 		sideMoveText.text = selected.currentMovesSide.ToString();
+
+		if (abilityList == null) abilityList = new List<GameObject> ();
+
+		for (int i = 0; i < selected.abilities.Count; i++) {
+			GameObject newAbility = Instantiate (abilityWindow) as GameObject;
+			newAbility.transform.SetParent (abilityHolder.transform, false);
+			newAbility.transform.position += i*abilityHolderYOffset*Vector3.up;
+			newAbility.GetComponent<AbilityUI> ().updateValues (selected.abilities[i].GetComponent<Ability>(), selected);
+			abilityList.Add (newAbility);
+		}
+	}
+
+	public void Clear () {
+		foreach (GameObject abilityHolder in abilityList) {
+			Destroy (abilityHolder);
+		}
+		abilityList.Clear ();
 	}
 }

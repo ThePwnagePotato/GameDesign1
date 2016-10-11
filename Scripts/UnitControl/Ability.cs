@@ -18,6 +18,10 @@ public abstract class Ability : MonoBehaviour
 
 	public abstract int maxHeight ();
 
+	public abstract int upScale { get; set;}
+
+	public abstract int downScale { get; set;}
+
 	public abstract int damage (int power);
 
 	public abstract float projectileSpeed { get; set; }
@@ -85,6 +89,14 @@ public abstract class Ability : MonoBehaviour
 		gameManager.Push (gameState);
 		// now start coroutine to draw animation, the coroutine needs the gameState to declare it inactive once it's finished
 		StartCoroutine (LaunchProjectile (target, gameState));
+	}
+
+	public bool isValidTarget (Vector3 origin, Vector3 target) {
+		int range = (int) Mathf.Abs (origin.x - target.x) + (int) Mathf.Abs (origin.z - target.z);
+		if (range > maxRange() || range < minRange()) return false;
+		int hDelta = (int)(target.y - origin.y);
+		//if cannot reach because of vertical traversal return false
+		return true;
 	}
 
 	/*

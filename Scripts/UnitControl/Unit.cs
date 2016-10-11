@@ -2,6 +2,35 @@
 using System.Collections;
 using System.Collections.Generic;
 
+// class that is used for path calculation/display
+public class ReachableTile {
+	// the position of this path element
+	public Vector3 position;
+	// the tile is reachable by moving in a straight line (without going through enemy units or passing through <=0-value's on the heightmap)
+	public bool straight;
+
+	// this stores how much movement points the unit has left after moving
+	public int totalMove;
+	public int upMove;
+	public int downMove;
+	public int sideMove;
+
+	public ReachableTile (Vector3 position, bool straight, int currentMoves, int currentMovesUp, int currentMovesDown, int currentMovesSide) {
+		this.position = position;
+		this.straight = straight;
+		totalMove = currentMoves;
+		upMove = currentMovesUp;
+		downMove = currentMovesDown;
+		sideMove = currentMovesSide;
+	}
+}
+
+enum Direction {
+	NONE,
+	X,
+	Z
+}
+
 public abstract class Unit : MonoBehaviour
 {
 
@@ -11,7 +40,9 @@ public abstract class Unit : MonoBehaviour
 
 	public abstract bool isAlive { get; set; }
 
-	public abstract GameObject[] abilities { get; set; }
+	public abstract bool isExhausted { get; set; }
+
+	public abstract List<GameObject> abilities { get; set; }
 
 	public abstract List<StatusEffect> statusEffects ();
 
@@ -70,9 +101,14 @@ public abstract class Unit : MonoBehaviour
 		else
 			boardManager.enemyUnits.Add (this);
 
-		for (int i = 0; i < abilities.Length; i++) {
+		for (int i = 0; i < abilities.Count; i++) {
 			Instantiate (abilities[i], this.transform);
 		}
+	}
+
+	// reset relevant variables at start of turn
+	void turnRest () {
+
 	}
 
 	/* damages the characted, calls Die() if health goes below 0
@@ -117,170 +153,18 @@ public abstract class Unit : MonoBehaviour
 
 	}
 
-
-	private enum Direction
-	{
-		NE,
-		SE,
-		SW,
-		NW,
-		NONE
-
-	}
-
-	public List<Vector3> possibleMoveList = new List<Vector3> ();
-	private int[,] heightMap;
-
-	// Returns all the possible locations the unit can move to with the current move stats
-	// uses the recursive method
-	public List<Vector3> UpdatePossibleMoves (int[,] heightMap)
-	{
-		possibleMoveList.Clear ();
-
-		this.heightMap = heightMap;
-
-		PositionSearch (transform.position - new Vector3(0, 1, 0), currentMoves, currentMovesUp, currentMovesDown, currentMovesSide, Direction.NONE);
-
-		return possibleMoveList;
-	}
-
-
-
-	// checks all the possible moves from a position, then recursively searches using that next position and moves left.
-	private void PositionSearch (Vector3 currentPosition, int possibleMoves, int possibleMovesUp, int possibleMovesDown, int possibleMovesSide, Direction direction)
-	{
-		int currentX = (int)currentPosition.x;
-		int currentY = (int)currentPosition.y;
-		int currentZ = (int)currentPosition.z;
-
-		if (direction != Direction.SW && (currentX > 0)) {
-			// x-, , only up
-
-			// get the height of the block in this direction
-			int newHeight = heightMap [currentX - 1, currentZ];
-
-			// if there is no block there, skip everything
-			if (newHeight > 0) {
-
-				// check how much the height difference is.
-				int heightDifference = newHeight - currentY;
-
-				//if that difference is positive, check the possibleMovesUp
-				if (heightDifference > 0 && possibleMovesUp >= heightDifference) {
-					// if so, this block can be moved to
-					// make the new position vector and add that to the possibleMoveList
-					Vector3 newPosition = new Vector3 (currentX - 1, newHeight, currentZ);
-					AddNonDuplicate (possibleMoveList, newPosition);
-
-					//if there is a possible move after this, search again
-					if (possibleMoves - heightDifference > 0) {
-						PositionSearch (newPosition, possibleMoves - 1, possibleMovesUp - heightDifference, possibleMovesDown, possibleMovesSide, Direction.NE);
-					}
-				} 
-				// if the difference is 0 (no vertical movement), check possibleMovesSide
-				else if (heightDifference == 0 && possibleMovesSide > 0) {
-					// if so, this block can be moved to
-					// make the new position vector and add that to the possibleMoveList
-					Vector3 newPosition = new Vector3 (currentX - 1, newHeight, currentZ);
-					AddNonDuplicate (possibleMoveList, newPosition);
-
-					//if there is a possible move after this, search again
-					if (possibleMoves > 1) {
-						PositionSearch (newPosition, possibleMoves - 1, possibleMovesUp, possibleMovesDown, possibleMovesSide - 1, Direction.NE);
-					}
-				}
-			}
-			/*
-			 * not possible to go down in this direction
-			 
-			// if the difference is negative, check possibleMovesDown
-			else if (heightDifference < 0 && possibleMovesDown >= -heightDifference) {
-				// if so, this block can be moved to
-				// make the new position vector and add that to the possibleMoveList
-				Vector3 newPosition = new Vector3 (currentX - 1, newHeight, currentZ);
-				possibleMoveList.Add (newPosition);
-
-				//if there is a possible move after this, search again
-				if (possibleMoves > 1) {
-					PositionSearch (newPosition, possibleMoves - 1, possibleMovesUp, possibleMovesDown - -heightDifference, possibleMovesSide, Direction.NE);
-				}
-			}
-			*/
-
-		} 
-		if (direction != Direction.NW && (currentZ < boardManager.dimensions.z - 1)) {
-			// z+, only down
-
-			int newHeight = heightMap [currentX, currentZ + 1];
-			if (newHeight > 0) {
-				int heightDifference = newHeight - currentY;
-				if (heightDifference < 0 && possibleMovesDown >= -heightDifference) {
-					Vector3 newPosition = new Vector3 (currentX, newHeight, currentZ + 1);
-					AddNonDuplicate (possibleMoveList, newPosition);
-					if (possibleMoves - -heightDifference > 0) {
-						PositionSearch (newPosition, possibleMoves - -heightDifference, possibleMovesUp, possibleMovesDown - -heightDifference, possibleMovesSide, Direction.SE);
-					}
-				} else if (heightDifference == 0 && possibleMovesSide > 0) {
-					Vector3 newPosition = new Vector3 (currentX, newHeight, currentZ + 1);
-					AddNonDuplicate (possibleMoveList, newPosition);
-					if (possibleMoves > 1) {
-						PositionSearch (newPosition, possibleMoves - 1, possibleMovesUp, possibleMovesDown, possibleMovesSide - 1, Direction.SE);
-					}
-				}
-			}
-		} 
-		if (direction != Direction.NE && (currentX < boardManager.dimensions.x - 1)) {
-			// x+, , only down
-
-			int newHeight = heightMap [currentX + 1, currentZ];
-			if (newHeight > 0) {
-				int heightDifference = newHeight - currentY;
-				if (heightDifference < 0 && possibleMovesDown >= -heightDifference) {
-					Vector3 newPosition = new Vector3 (currentX + 1, newHeight, currentZ);
-					AddNonDuplicate (possibleMoveList, newPosition);
-					if (possibleMoves - -heightDifference > 0) {
-						PositionSearch (newPosition, possibleMoves - -heightDifference, possibleMovesUp, possibleMovesDown - -heightDifference, possibleMovesSide, Direction.SW);
-					}
-				} else if (heightDifference == 0 && possibleMovesSide > 0) {
-					Vector3 newPosition = new Vector3 (currentX + 1, newHeight, currentZ);
-					AddNonDuplicate (possibleMoveList, newPosition);
-					if (possibleMoves > 1) {
-						PositionSearch (newPosition, possibleMoves - 1, possibleMovesUp, possibleMovesDown, possibleMovesSide - 1, Direction.SW);
-					}
-				} 
-			}
-		} 
-		if (direction != Direction.SE && (currentZ > 0)) {
-			// z-, only up
-
-			int newHeight = heightMap [currentX, currentZ - 1];
-			if (newHeight > 0) {
-				int heightDifference = newHeight - currentY;
-				if (heightDifference > 0 && possibleMovesUp >= heightDifference) {
-					Vector3 newPosition = new Vector3 (currentX, newHeight, currentZ - 1);
-					AddNonDuplicate (possibleMoveList, newPosition);
-					if (possibleMoves - heightDifference > 0) {
-						PositionSearch (newPosition, possibleMoves - heightDifference, possibleMovesUp - heightDifference, possibleMovesDown, possibleMovesSide, Direction.NW);
-					}
-				} else if (heightDifference == 0 && possibleMovesSide > 0) {
-					Vector3 newPosition = new Vector3 (currentX, newHeight, currentZ - 1);
-					AddNonDuplicate (possibleMoveList, newPosition);
-					if (possibleMoves > 1) {
-						PositionSearch (newPosition, possibleMoves - 1, possibleMovesUp, possibleMovesDown, possibleMovesSide - 1, Direction.NW);
-					}
-				} 
-			}
-		}
-	}
-
 	// loop through all the elements of the list
 	// if a vector equal to the new vector is found, return
 	// if none is found, add the new vector to the list
-	private void AddNonDuplicate (List<Vector3> list, Vector3 element)
+	private void AddNonDuplicate (List<ReachableTile> list, ReachableTile element)
 	{
-		foreach (Vector3 vector in list) {
-			if (vector == element) {
-				return;
+		foreach (ReachableTile tile in list) {
+			if (tile.position == element.position) {
+				if (!tile.straight && element.straight) {
+					tile.straight = true;
+					return;
+				}
+				else return;
 			}
 		}
 
@@ -397,7 +281,62 @@ public abstract class Unit : MonoBehaviour
 		gameState.active = false;
 	}
 
+	private List<ReachableTile> possibleMoveList = new List<ReachableTile> ();
+	private int[,] heightMap;
 
+	// Returns all the possible locations the unit can move to with the current move stats
+	// uses the recursive method
+	public List<ReachableTile> GetPossibleMoves ()
+	{
+		possibleMoveList.Clear ();
 
+		this.heightMap = boardManager.heightMap;
+
+		PositionSearch (transform.position-Vector3.up, currentMoves, currentMovesUp, currentMovesDown, currentMovesSide, true, Direction.NONE);
+
+		return possibleMoveList;
+	}
+
+	void InitiateTargetSearch(Vector3 targetPosition, Vector3 position, int currentMoves, int currentMovesUp, int currentMovesDown, int currentMovesSide, bool straight, Direction direction) {
+		currentMovesSide--;
+		currentMoves--;
+		if (targetPosition.y > position.y) {
+			int heightDelta = (int)targetPosition.y - (int)position.y;
+			currentMovesUp -= heightDelta;
+			currentMoves -= heightDelta;
+		}
+		else if (targetPosition.y < position.y) {
+			int heightDelta = (int)position.y - (int)targetPosition.y;
+			currentMovesDown -= heightDelta;
+			currentMoves -= heightDelta;
+		}
+		// calculate if this is still straight on the path
+		PositionSearch (targetPosition, currentMoves, currentMovesUp, currentMovesDown, currentMovesSide, straight, direction);
+	}
+
+	void PositionSearch (Vector3 position, int currentMoves, int currentMovesUp, int currentMovesDown, int currentMovesSide, bool straight, Direction direction) {
+		if (currentMoves < 0 || currentMovesUp < 0 || currentMovesDown < 0 || currentMovesSide < 0
+			|| (boardManager.unitMap[(int)position.x, (int)position.z] != null && boardManager.unitMap[(int)position.x, (int)position.z].isFriendly() != isFriendly())) {
+			return;
+		}
+		// this is a legitimate movement
+		AddNonDuplicate(possibleMoveList, new ReachableTile(position+Vector3.up, straight, currentMoves, currentMovesUp, currentMovesDown, currentMovesSide));
+		if (position.x > 0) {
+			Vector3 targetPosition = new Vector3 (position.x-1, boardManager.heightMap[(int)position.x-1, (int)position.z], position.z);
+			InitiateTargetSearch (targetPosition, position, currentMoves, currentMovesUp, currentMovesDown, currentMovesSide, direction == Direction.Z ? false : true, Direction.X);
+		}
+		if (position.x < boardManager.dimensions.x - 1) {
+			Vector3 targetPosition = new Vector3 (position.x+1, boardManager.heightMap[(int)position.x+1, (int)position.z], position.z);
+			InitiateTargetSearch (targetPosition, position, currentMoves, currentMovesUp, currentMovesDown, currentMovesSide, direction == Direction.Z ? false : true, Direction.X);
+		}
+		if (position.z > 0) {
+			Vector3 targetPosition = new Vector3 (position.x, boardManager.heightMap[(int)position.x, (int)position.z-1], position.z-1);
+			InitiateTargetSearch (targetPosition, position, currentMoves, currentMovesUp, currentMovesDown, currentMovesSide, direction == Direction.X ? false : true, Direction.Z);
+		}
+		if (position.z < boardManager.dimensions.z - 1) {
+			Vector3 targetPosition = new Vector3 (position.x, boardManager.heightMap[(int)position.x, (int)position.z+1], position.z+1);
+			InitiateTargetSearch (targetPosition, position, currentMoves, currentMovesUp, currentMovesDown, currentMovesSide, direction == Direction.X ? false : true, Direction.Z);
+		}
+	}
 }
 

@@ -18,23 +18,33 @@ public abstract class Ability : MonoBehaviour
 
 	public abstract int maxHeight ();
 
+<<<<<<< HEAD
 	public abstract int upScale { get; set;}
 
 	public abstract int downScale { get; set;}
 
 	public abstract int damage (int power);
+=======
+	public abstract int getDamage (int power);
+>>>>>>> origin/master
 
 	public abstract float projectileSpeed { get; set; }
+
+	public abstract float projectileHeight { get; set; }
 
 	public abstract GameObject model { get; set; }
 
 	public abstract GameManager gameManager { get; set; }
+
+	public abstract void HitTarget (Unit caster, Unit target);
 
 	public void Start () {
 		// connect dependencies
 		gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
 		if (gameManager == null)
 			Debug.Log ("Ability: GameManager not found)");
+
+		cooldown = 0;
 	}
 
 	public List<Vector3> getPossibleTargets (Unit caster, int[,] heightMap)
@@ -185,21 +195,22 @@ public abstract class Ability : MonoBehaviour
 
 				newPos = (target - origin).normalized * scalarProjection + origin;
 
-				newPos = Vector3.MoveTowards (newPos, target, (switchPointDistance)*projectileSpeed*0.10f); // newPos is now the newPosition without the height of the parabola
+				newPos = Vector3.MoveTowards (newPos, target, (Mathf.Sqrt(switchPointDistance))*projectileSpeed*0.07f); // newPos is now the newPosition without the height of the parabola
 
 				float progress = ((newPos-origin).magnitude)/switchPointDistance; // A value from 0-1 that represent what fraction of the parabola has been travelled
-				float height = 3; // this is the max height of the parabola
 
-				Plane plane = new Plane (origin, target, target + Vector3.up);
-				Vector3 normal = Vector3.Cross (plane.normal, target - origin).normalized;
+				if (projectileHeight != 0) {
+					Plane plane = new Plane (origin, target, target + Vector3.up);
+					Vector3 normal = Vector3.Cross (plane.normal, target - origin).normalized;
 
-				//float sinAngle = Mathf.Abs(origin.y - target.y) / switchPointDistance;
-				//Vector3 heightVector = Vector3.up*(-4*Mathf.Pow(progress, 2)+4*progress)*height;
-				//newPos = newPos + (heightVector * (1-sinAngle)); // we now add the height of the parabola to get the real position
+					//float sinAngle = Mathf.Abs(origin.y - target.y) / switchPointDistance;
+					//Vector3 heightVector = Vector3.up*(-4*Mathf.Pow(progress, 2)+4*progress)*height;
+					//newPos = newPos + (heightVector * (1-sinAngle)); // we now add the height of the parabola to get the real position
 
-				float heightC = (-4*Mathf.Pow(progress, 2)+4*progress)*(switchPointDistance / height);
-				normal = normal * heightC;
-				newPos += normal;
+					float heightC = (-4*Mathf.Pow(progress, 2)+4*progress)*(switchPointDistance / (projectileHeight*3));
+					normal = normal * heightC;
+					newPos += normal;
+				}
 				projectile.transform.position = newPos;
 
 				yield return new WaitForFixedUpdate ();
@@ -208,7 +219,19 @@ public abstract class Ability : MonoBehaviour
 			Destroy (projectile); // destroy projectile at impact
 		}
 		// 			code for hit-art/animation should be placed here
+
 		// 			code for effect giving to units in or around target area should be placed here
+		// get the caster from the origin of the ability, then check if it is null.
+		Unit caster = gameManager.boardManager.unitMap[(int) origin.x, (int) origin.z];
+		Unit targetUnit = gameManager.boardManager.unitMap[(int) target.x, (int) target.z];
+		if (caster == null) {
+			Debug.Log ("ERROR: No caster found at ability origin!");
+		} else if (targetUnit == null) {
+			Debug.Log ("ERROR: No target found at target vector!");
+		} else {
+			HitTarget (caster, targetUnit);
+		}
+
 		// signal that animation is done to GameManager:
 		gameState.active = false;
 	}

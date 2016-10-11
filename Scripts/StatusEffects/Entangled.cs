@@ -1,14 +1,15 @@
-﻿
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
-public class Weakness : StatusEffect
-{
-	//Lowers power stat temporarily
+public class Entangled : StatusEffect {
+
+	//can not move (trapped by vines)
+	//ups defense (vines protect you)
+	//DoT? (prickly vines?)
 
 	public override string GetName ()
 	{
-		return "Weakness";
+		return "Entangled";
 	}
 
 	public override bool IsPositive ()
@@ -41,13 +42,15 @@ public class Weakness : StatusEffect
 	}
 
 
-	public Weakness (Unit evoker, Unit target, int power, int duration) : base (evoker, target, power, duration)
+	public Entangled (Unit evoker, Unit target, int power, int duration) : base (evoker, target, power, duration)
 	{
+		target.canMove = false;
+		target.currentDefense += power;
 	}
 
 	public override void OnTurnStart () {
-		//subtract power of the effect from power of the unit
-		target.currentDefense -= power;
+		target.canMove = false;
+		target.currentDefense += power;
 	}
 	public override void OnTurnEnd () {
 
@@ -64,17 +67,17 @@ public class Weakness : StatusEffect
 	public override void OnTakeDamage () {
 
 	}
-		
+
 
 	// Use this for initialization
 	void Start ()
 	{
-	
+
 	}
-	
+
 	// Update is called once per frame
 	void Update ()
 	{
-	
+
 	}
 }

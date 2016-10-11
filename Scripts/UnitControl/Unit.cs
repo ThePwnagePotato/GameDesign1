@@ -46,13 +46,21 @@ public abstract class Unit : MonoBehaviour
 
 	public abstract List<StatusEffect> statusEffects ();
 
+	public abstract bool canMove { get; set; }
+
+	public abstract bool canAttack { get; set; }
+
 	public abstract int maxHealth { get; set; }
 
 	public abstract int currentHealth { get; set; }
 
 	public abstract int power { get; set; }
 
+	public abstract int currentPower { get; set; }
+
 	public abstract int defense { get; set; }
+
+	public abstract int currentDefense { get; set; }
 
 	public abstract int totalMoves { get; set; }
 
@@ -119,22 +127,15 @@ public abstract class Unit : MonoBehaviour
 	 * */
 	public void TakeDamage (int damage)
 	{
-		int tempDef = defense;
-
 		// Go through the list of statuseffects, get the ones that affect the DEF stat
 		// then apply that effect to the tempDef value
+
 		foreach (StatusEffect effect in statusEffects ()) {
-			if (effect.GetEffectType () == EffectType.DEFBUFF) {
-				tempDef += effect.power;
-			} else if (effect.GetEffectType () == EffectType.DEFDEBUFF) {
-				tempDef -= effect.power;
-			}
+			effect.OnTakeDamage ();
 		}
 
 		// calculate the final damage using the tempDef value
-		int finalDamage = System.Math.Max (damage - tempDef, 1);
-
-		//check for status effects
+		int finalDamage = Mathf.Max (damage - currentDefense, 1);
 
 		currentHealth = currentHealth - finalDamage;
 
@@ -153,6 +154,190 @@ public abstract class Unit : MonoBehaviour
 
 	}
 
+<<<<<<< HEAD
+=======
+	//resets all temporary (current) values, then adds StatusEffects to them
+	//this allows easy display of effects onto the actual stats (if currentpower = power + 3, then +3 power from effects)
+	//set values under 0 to 0 at the end to make sure all effects are properly added (-2 going under 0 and then +3 will be fine)
+	public void ResetTurn() {
+		currentPower = power;
+		currentDefense = defense;
+		currentMoves = totalMoves;
+		currentMovesUp = totalMovesUp;
+		currentMovesDown = totalMovesDown;
+		currentMovesSide = totalMovesSide;
+		canMove = true;
+		canAttack = true;
+
+		foreach (StatusEffect effect in statusEffects ()) {
+			effect.OnTurnStart ();
+		}
+
+		if (currentPower < 0) { currentPower = 0; }
+		if (currentDefense < 0) { currentDefense = 0; }
+		if (currentMoves < 0) { currentMoves = 0; }
+		if (currentMovesUp < 0) { currentMovesUp = 0; }
+		if (currentMovesDown < 0) { currentMovesDown = 0; }
+		if (currentMovesSide < 0) { currentMovesSide = 0; }
+	}
+
+
+	private enum Direction
+	{
+		NE,
+		SE,
+		SW,
+		NW,
+		NONE
+
+	}
+
+	public List<Vector3> possibleMoveList = new List<Vector3> ();
+	private int[,] heightMap;
+
+	// Returns all the possible locations the unit can move to with the current move stats
+	// uses the recursive method
+	public List<Vector3> UpdatePossibleMoves (int[,] heightMap)
+	{
+		possibleMoveList.Clear ();
+
+		this.heightMap = heightMap;
+
+		PositionSearch (transform.position - new Vector3(0, 1, 0), currentMoves, currentMovesUp, currentMovesDown, currentMovesSide, Direction.NONE);
+
+		return possibleMoveList;
+	}
+
+
+
+	// checks all the possible moves from a position, then recursively searches using that next position and moves left.
+	private void PositionSearch (Vector3 currentPosition, int possibleMoves, int possibleMovesUp, int possibleMovesDown, int possibleMovesSide, Direction direction)
+	{
+		int currentX = (int)currentPosition.x;
+		int currentY = (int)currentPosition.y;
+		int currentZ = (int)currentPosition.z;
+
+		if (direction != Direction.SW && (currentX > 0)) {
+			// x-, , only up
+
+			// get the height of the block in this direction
+			int newHeight = heightMap [currentX - 1, currentZ];
+
+			// if there is no block there, skip everything
+			if (newHeight > 0) {
+
+				// check how much the height difference is.
+				int heightDifference = newHeight - currentY;
+
+				//if that difference is positive, check the possibleMovesUp
+				if (heightDifference > 0 && possibleMovesUp >= heightDifference) {
+					// if so, this block can be moved to
+					// make the new position vector and add that to the possibleMoveList
+					Vector3 newPosition = new Vector3 (currentX - 1, newHeight, currentZ);
+					AddNonDuplicate (possibleMoveList, newPosition);
+
+					//if there is a possible move after this, search again
+					if (possibleMoves - heightDifference > 0) {
+						PositionSearch (newPosition, possibleMoves - 1, possibleMovesUp - heightDifference, possibleMovesDown, possibleMovesSide, Direction.NE);
+					}
+				} 
+				// if the difference is 0 (no vertical movement), check possibleMovesSide
+				else if (heightDifference == 0 && possibleMovesSide > 0) {
+					// if so, this block can be moved to
+					// make the new position vector and add that to the possibleMoveList
+					Vector3 newPosition = new Vector3 (currentX - 1, newHeight, currentZ);
+					AddNonDuplicate (possibleMoveList, newPosition);
+
+					//if there is a possible move after this, search again
+					if (possibleMoves > 1) {
+						PositionSearch (newPosition, possibleMoves - 1, possibleMovesUp, possibleMovesDown, possibleMovesSide - 1, Direction.NE);
+					}
+				}
+			}
+			/*
+			 * not possible to go down in this direction
+			 
+			// if the difference is negative, check possibleMovesDown
+			else if (heightDifference < 0 && possibleMovesDown >= -heightDifference) {
+				// if so, this block can be moved to
+				// make the new position vector and add that to the possibleMoveList
+				Vector3 newPosition = new Vector3 (currentX - 1, newHeight, currentZ);
+				possibleMoveList.Add (newPosition);
+
+				//if there is a possible move after this, search again
+				if (possibleMoves > 1) {
+					PositionSearch (newPosition, possibleMoves - 1, possibleMovesUp, possibleMovesDown - -heightDifference, possibleMovesSide, Direction.NE);
+				}
+			}
+			*/
+
+		} 
+		if (direction != Direction.NW && (currentZ < boardManager.dimensions.z - 1)) {
+			// z+, only down
+
+			int newHeight = heightMap [currentX, currentZ + 1];
+			if (newHeight > 0) {
+				int heightDifference = newHeight - currentY;
+				if (heightDifference < 0 && possibleMovesDown >= -heightDifference) {
+					Vector3 newPosition = new Vector3 (currentX, newHeight, currentZ + 1);
+					AddNonDuplicate (possibleMoveList, newPosition);
+					if (possibleMoves - -heightDifference > 0) {
+						PositionSearch (newPosition, possibleMoves - -heightDifference, possibleMovesUp, possibleMovesDown - -heightDifference, possibleMovesSide, Direction.SE);
+					}
+				} else if (heightDifference == 0 && possibleMovesSide > 0) {
+					Vector3 newPosition = new Vector3 (currentX, newHeight, currentZ + 1);
+					AddNonDuplicate (possibleMoveList, newPosition);
+					if (possibleMoves > 1) {
+						PositionSearch (newPosition, possibleMoves - 1, possibleMovesUp, possibleMovesDown, possibleMovesSide - 1, Direction.SE);
+					}
+				}
+			}
+		} 
+		if (direction != Direction.NE && (currentX < boardManager.dimensions.x - 1)) {
+			// x+, , only down
+
+			int newHeight = heightMap [currentX + 1, currentZ];
+			if (newHeight > 0) {
+				int heightDifference = newHeight - currentY;
+				if (heightDifference < 0 && possibleMovesDown >= -heightDifference) {
+					Vector3 newPosition = new Vector3 (currentX + 1, newHeight, currentZ);
+					AddNonDuplicate (possibleMoveList, newPosition);
+					if (possibleMoves - -heightDifference > 0) {
+						PositionSearch (newPosition, possibleMoves - -heightDifference, possibleMovesUp, possibleMovesDown - -heightDifference, possibleMovesSide, Direction.SW);
+					}
+				} else if (heightDifference == 0 && possibleMovesSide > 0) {
+					Vector3 newPosition = new Vector3 (currentX + 1, newHeight, currentZ);
+					AddNonDuplicate (possibleMoveList, newPosition);
+					if (possibleMoves > 1) {
+						PositionSearch (newPosition, possibleMoves - 1, possibleMovesUp, possibleMovesDown, possibleMovesSide - 1, Direction.SW);
+					}
+				} 
+			}
+		} 
+		if (direction != Direction.SE && (currentZ > 0)) {
+			// z-, only up
+
+			int newHeight = heightMap [currentX, currentZ - 1];
+			if (newHeight > 0) {
+				int heightDifference = newHeight - currentY;
+				if (heightDifference > 0 && possibleMovesUp >= heightDifference) {
+					Vector3 newPosition = new Vector3 (currentX, newHeight, currentZ - 1);
+					AddNonDuplicate (possibleMoveList, newPosition);
+					if (possibleMoves - heightDifference > 0) {
+						PositionSearch (newPosition, possibleMoves - heightDifference, possibleMovesUp - heightDifference, possibleMovesDown, possibleMovesSide, Direction.NW);
+					}
+				} else if (heightDifference == 0 && possibleMovesSide > 0) {
+					Vector3 newPosition = new Vector3 (currentX, newHeight, currentZ - 1);
+					AddNonDuplicate (possibleMoveList, newPosition);
+					if (possibleMoves > 1) {
+						PositionSearch (newPosition, possibleMoves - 1, possibleMovesUp, possibleMovesDown, possibleMovesSide - 1, Direction.NW);
+					}
+				} 
+			}
+		}
+	}
+
+>>>>>>> origin/master
 	// loop through all the elements of the list
 	// if a vector equal to the new vector is found, return
 	// if none is found, add the new vector to the list

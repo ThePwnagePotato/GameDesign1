@@ -43,16 +43,16 @@ public abstract class Ability : MonoBehaviour
 		cooldown = 0;
 	}
 
-	public List<Vector3> getPossibleTargets (Unit caster, int[,] heightMap)
+	public List<Vector3> getPossibleTargets ()
 	{
+		int[,] heightMap = gameManager.boardManager.heightMap;
 		// the list to return
 		List<Vector3> possibleTargets = new List<Vector3> ();
 
 		// get the current position
-		Vector3 casterPos = caster.transform.position;
-		int casterX = (int)casterPos.x;
-		int casterY = (int)casterPos.y;
-		int casterZ = (int)casterPos.z;
+		int casterX = (int)transform.position.x;
+		int casterY = (int)transform.position.y;
+		int casterZ = (int)transform.position.z;
 
 		//start in  xz(-maxRange) coordinates, then check all coordinates from there
 		int x, z;

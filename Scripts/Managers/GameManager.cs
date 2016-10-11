@@ -90,6 +90,20 @@ public class GameManager : MonoBehaviour
 				spawnedObjects.Add (newHighlight);
 			}
 			break;
+		case GameStateType.SELECTEDABILITY:
+			// first wipe the tiles that show possible movement
+			foreach (GameObject spawned in spawnedObjects) {
+				DestroyObject (spawned);
+			}
+			spawnedObjects.Clear ();
+			// now add tiles that show possible targets
+			List<Vector3> targets = gameState.evoker.GetComponent<Ability> ().getPossibleTargets ();
+			foreach (Vector3 target in targets) {
+				GameObject newHighlight = Instantiate (highlighter, target, Quaternion.identity) as GameObject;
+				newHighlight.GetComponentInChildren<SpriteRenderer> ().color = new Color (1, 0, 0, 1);
+				spawnedObjects.Add (newHighlight);
+			}
+			break;
 		default:
 			break;
 		}
@@ -97,6 +111,8 @@ public class GameManager : MonoBehaviour
 	}
 
 	public void Pop () {
+		if (gameStack.Count == 0)
+			return;
 		GameState gameState = gameStack.Peek ();
 		switch (gameState.type) {
 		case GameStateType.SELECTEDUNIT:
@@ -107,6 +123,9 @@ public class GameManager : MonoBehaviour
 				DestroyObject (spawned);
 			}
 			spawnedObjects.Clear ();
+			break;
+		case GameStateType.SELECTEDABILITY:
+			gameStack.Pop (); // pop itself, so gameManager will pop underlying SELECTEDUNIT gameState
 			break;
 		default:
 			break;

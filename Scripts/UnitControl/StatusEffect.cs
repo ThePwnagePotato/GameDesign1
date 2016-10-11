@@ -36,7 +36,9 @@ public abstract class StatusEffect : MonoBehaviour {
 	//input[6] = currentMovesSide
 	//input[7] = canMove
 	//input[8] = canAttack
-	public abstract void OnTurnStart ();
+	public virtual void OnTurnStart () {
+		duration--;
+	}
 
 	public abstract void OnTurnEnd ();
 

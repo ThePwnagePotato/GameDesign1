@@ -16,7 +16,7 @@ public class LookAtCamera : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void FixedUpdate () {
+	void Update () {
 		if (_camera.transform.rotation != prevRotation) {
 			transform.rotation = _camera.transform.rotation;
 			transform.RotateAround (transform.position, transform.up, 180);

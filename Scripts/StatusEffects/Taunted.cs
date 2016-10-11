@@ -1,14 +1,13 @@
-﻿
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
-public class Weakness : StatusEffect
-{
-	//Lowers power stat temporarily
+public class Taunted : StatusEffect {
+
+	//fixes the enemy's target to a specific unit
 
 	public override string GetName ()
 	{
-		return "Weakness";
+		return "Taunted";
 	}
 
 	public override bool IsPositive ()
@@ -41,15 +40,17 @@ public class Weakness : StatusEffect
 	}
 
 
-	public Weakness (Unit evoker, Unit target, int power, int duration) : base (evoker, target, power, duration)
+	public Taunted (Unit evoker, Unit target, int power, int duration) : base (evoker, target, power, duration)
 	{
+		EnemyUnit unit = (EnemyUnit) target;
+		unit.targetUnit = evoker;
 	}
 
 	public override void OnTurnStart () {
 		base.OnTurnStart ();
 
-		//subtract power of the effect from power of the unit
-		target.currentDefense -= power;
+		EnemyUnit unit = (EnemyUnit) target;
+		unit.targetUnit = evoker;
 	}
 	public override void OnTurnEnd () {
 
@@ -67,16 +68,4 @@ public class Weakness : StatusEffect
 
 	}
 		
-
-	// Use this for initialization
-	void Start ()
-	{
-	
-	}
-	
-	// Update is called once per frame
-	void Update ()
-	{
-	
-	}
 }

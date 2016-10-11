@@ -49,6 +49,8 @@ public class Entangled : StatusEffect {
 	}
 
 	public override void OnTurnStart () {
+		base.OnTurnStart ();
+
 		target.canMove = false;
 		target.currentDefense += power;
 	}

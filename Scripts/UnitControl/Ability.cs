@@ -18,15 +18,11 @@ public abstract class Ability : MonoBehaviour
 
 	public abstract int maxHeight ();
 
-<<<<<<< HEAD
 	public abstract int upScale { get; set;}
 
 	public abstract int downScale { get; set;}
 
-	public abstract int damage (int power);
-=======
 	public abstract int getDamage (int power);
->>>>>>> origin/master
 
 	public abstract float projectileSpeed { get; set; }
 

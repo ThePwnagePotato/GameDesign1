@@ -10,6 +10,20 @@ public class BowShot : Ability
 		return "Shoot";
 	}
 
+	public int _upScale;
+	public override int upScale
+	{
+		get { return _upScale; }
+		set { _upScale = value; }
+	}
+
+	public int _downScale;
+	public override int downScale
+	{
+		get { return _downScale; }
+		set { _downScale = value; }
+	}
+
 	public GameObject _model;
 	public override GameObject model
 	{

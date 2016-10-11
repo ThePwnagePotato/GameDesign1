@@ -16,7 +16,7 @@ public class AbilityUI : MonoBehaviour {
 	public Text totalDownMoveText;
 
 	public void updateValues(Ability selectedAbility, Unit selectedUnit) {
-		powText.text = selectedAbility.damage(selectedUnit.power).ToString();
+		powText.text = selectedAbility.getDamage(selectedUnit.power).ToString();
 		upScaleText.text = selectedAbility.upScale.ToString();
 		downScaleText.text = selectedAbility.downScale.ToString();
 		maxMoveText.text = selectedAbility.maxRange().ToString();

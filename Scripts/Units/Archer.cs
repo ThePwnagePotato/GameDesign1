@@ -59,8 +59,8 @@ public class Archer : Unit {
 		return _isFriendly;
 	}
 
-	public GameObject[] _abilities;
-	public override GameObject[] abilities
+	public List<GameObject> _abilities;
+	public override List<GameObject> abilities
 	{
 		get { return _abilities; }
 		set { _abilities = value; }

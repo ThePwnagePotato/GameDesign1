@@ -43,7 +43,7 @@ public class SelectedUI : MonoBehaviour {
 			GameObject newAbility = Instantiate (abilityWindow) as GameObject;
 			newAbility.transform.SetParent (abilityHolder.transform, false);
 			newAbility.transform.position += i*abilityHolderYOffset*Vector3.up;
-			newAbility.GetComponent<AbilityUI> ().updateValues (selected.abilities[i].GetComponent<Ability>(), selected);
+			newAbility.GetComponent<AbilityUI> ().UpdateValues (selected.abilities[i].GetComponent<Ability>(), selected);
 			abilityList.Add (newAbility);
 		}
 	}

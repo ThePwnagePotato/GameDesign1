@@ -1,14 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Fireball : Ability
-{
-	public string _name;
+public class Snipe : Ability {
 
+	//long range archer attack
+	//same damage as normal attack
 
 	public override string getName ()
 	{
-		return _name;
+		return "Snipe";
 	}
 
 	public GameObject _model;
@@ -25,27 +25,27 @@ public class Fireball : Ability
 		set { _gameManager = value; }
 	}
 
-	public float _projectileSpeed;
+	public float _projectileSpeed = 1.5f;
 	public override float projectileSpeed
 	{
 		get { return _projectileSpeed; }
 		set { _projectileSpeed = value; }
 	}
 
-	public float _projectileHeight = 1;
+	public float _projectileHeight = 2;
 	public override float projectileHeight
 	{
 		get { return _projectileHeight; }
 		set { _projectileHeight = value; }
 	}
 
-	public int _maxCooldown;
+	public int maxCoolDown = 3;
 	public override int maxCooldown ()
 	{
-		return _maxCooldown;
+		return maxCoolDown;
 	}
 
-	private int _cooldown = 0;
+	private int _cooldown;
 	public override int cooldown {
 		get { return _cooldown; }
 		set { _cooldown = value; }
@@ -54,29 +54,29 @@ public class Fireball : Ability
 	public int _minRange;
 	public override int minRange ()
 	{
-		return _minRange;
+		return 4;
 	}
 
 	public int _maxRange;
 	public override int maxRange ()
 	{
-		return _maxRange;
+		return 10;
 	}
 
 	public int _minHeight;
 	public override int minHeight ()
 	{
-		return _minHeight;;
+		return -6;
 	}
 
 	public int _maxHeight;
 	public override int maxHeight ()
 	{
-		return _maxHeight;
+		return 6;
 	}
 
-	public int flatDamage;
-	public float powerModifier;
+	public int flatDamage = 2;
+	public float powerModifier = 1;
 	public override int getDamage (int power)
 	{
 		return flatDamage + (int)(power*powerModifier);

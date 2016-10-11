@@ -1,14 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Fireball : Ability
+public class BowShot : Ability
 {
-	public string _name;
-
+	//basic archer attack
 
 	public override string getName ()
 	{
-		return _name;
+		return "Shoot";
 	}
 
 	public GameObject _model;
@@ -25,7 +24,7 @@ public class Fireball : Ability
 		set { _gameManager = value; }
 	}
 
-	public float _projectileSpeed;
+	public float _projectileSpeed = 1.5f;
 	public override float projectileSpeed
 	{
 		get { return _projectileSpeed; }
@@ -39,13 +38,13 @@ public class Fireball : Ability
 		set { _projectileHeight = value; }
 	}
 
-	public int _maxCooldown;
+	public int maxCoolDown = 0;
 	public override int maxCooldown ()
 	{
-		return _maxCooldown;
+		return maxCoolDown;
 	}
 
-	private int _cooldown = 0;
+	private int _cooldown;
 	public override int cooldown {
 		get { return _cooldown; }
 		set { _cooldown = value; }
@@ -54,29 +53,29 @@ public class Fireball : Ability
 	public int _minRange;
 	public override int minRange ()
 	{
-		return _minRange;
+		return 1;
 	}
 
 	public int _maxRange;
 	public override int maxRange ()
 	{
-		return _maxRange;
+		return 6;
 	}
 
 	public int _minHeight;
 	public override int minHeight ()
 	{
-		return _minHeight;;
+		return -4;
 	}
 
 	public int _maxHeight;
 	public override int maxHeight ()
 	{
-		return _maxHeight;
+		return 4;
 	}
 
-	public int flatDamage;
-	public float powerModifier;
+	public int flatDamage = 2;
+	public float powerModifier = 1;
 	public override int getDamage (int power)
 	{
 		return flatDamage + (int)(power*powerModifier);

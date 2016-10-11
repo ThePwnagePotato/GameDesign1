@@ -15,13 +15,21 @@ public abstract class Unit : MonoBehaviour
 
 	public abstract List<StatusEffect> statusEffects ();
 
+	public abstract bool canMove { get; set; }
+
+	public abstract bool canAttack { get; set; }
+
 	public abstract int maxHealth { get; set; }
 
 	public abstract int currentHealth { get; set; }
 
 	public abstract int power { get; set; }
 
+	public abstract int currentPower { get; set; }
+
 	public abstract int defense { get; set; }
+
+	public abstract int currentDefense { get; set; }
 
 	public abstract int totalMoves { get; set; }
 
@@ -83,22 +91,15 @@ public abstract class Unit : MonoBehaviour
 	 * */
 	public void TakeDamage (int damage)
 	{
-		int tempDef = defense;
-
 		// Go through the list of statuseffects, get the ones that affect the DEF stat
 		// then apply that effect to the tempDef value
+
 		foreach (StatusEffect effect in statusEffects ()) {
-			if (effect.GetEffectType () == EffectType.DEFBUFF) {
-				tempDef += effect.power;
-			} else if (effect.GetEffectType () == EffectType.DEFDEBUFF) {
-				tempDef -= effect.power;
-			}
+			effect.OnTakeDamage ();
 		}
 
 		// calculate the final damage using the tempDef value
-		int finalDamage = System.Math.Max (damage - tempDef, 1);
-
-		//check for status effects
+		int finalDamage = Mathf.Max (damage - currentDefense, 1);
 
 		currentHealth = currentHealth - finalDamage;
 
@@ -115,6 +116,31 @@ public abstract class Unit : MonoBehaviour
 	public void Die ()
 	{
 
+	}
+
+	//resets all temporary (current) values, then adds StatusEffects to them
+	//this allows easy display of effects onto the actual stats (if currentpower = power + 3, then +3 power from effects)
+	//set values under 0 to 0 at the end to make sure all effects are properly added (-2 going under 0 and then +3 will be fine)
+	public void ResetTurn() {
+		currentPower = power;
+		currentDefense = defense;
+		currentMoves = totalMoves;
+		currentMovesUp = totalMovesUp;
+		currentMovesDown = totalMovesDown;
+		currentMovesSide = totalMovesSide;
+		canMove = true;
+		canAttack = true;
+
+		foreach (StatusEffect effect in statusEffects ()) {
+			effect.OnTurnStart ();
+		}
+
+		if (currentPower < 0) { currentPower = 0; }
+		if (currentDefense < 0) { currentDefense = 0; }
+		if (currentMoves < 0) { currentMoves = 0; }
+		if (currentMovesUp < 0) { currentMovesUp = 0; }
+		if (currentMovesDown < 0) { currentMovesDown = 0; }
+		if (currentMovesSide < 0) { currentMovesSide = 0; }
 	}
 
 

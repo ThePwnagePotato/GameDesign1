@@ -2,8 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Tank : Unit
-{
+public class Archer : Unit {
 
 	public string _Name;
 
@@ -187,7 +186,19 @@ public class Tank : Unit
 	new void Start ()
 	{
 		base.Start ();
+		_Name = "Archer";
+
+		_maxHealth = 25;
+		_power = 3;
+		_defense = 3;
+		_totalMoves = 5;
+		_totalMovesUp = 2;
+		_totalMovesDown = 2;
+		_totalMovesSide = 4;
+
 		_currentHealth = _maxHealth;
+		_currentPower = _power;
+		_currentDefense = _defense;
 		_currentMoves = _totalMoves;
 		_currentMovesUp = _totalMovesUp;
 		_currentMovesDown = _totalMovesDown;
@@ -199,5 +210,4 @@ public class Tank : Unit
 	void Update () {
 
 	}
-
 }

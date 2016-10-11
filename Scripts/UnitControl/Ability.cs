@@ -77,7 +77,7 @@ public abstract class Ability : MonoBehaviour
 				//check if the height on [x,z] is within range, if so add it to the list possibleTargets
 				int posHeight = heightMap [x, z];
 				if (posHeight >= casterY - minHeight () && posHeight <= casterY + maxHeight ()) {
-					possibleTargets.Add (new Vector3 (x, posHeight, z));
+					possibleTargets.Add (new Vector3 (x, posHeight + 1, z));
 					continue;
 				}
 			}
@@ -97,13 +97,7 @@ public abstract class Ability : MonoBehaviour
 		StartCoroutine (LaunchProjectile (target, gameState));
 	}
 
-	public bool isValidTarget (Vector3 origin, Vector3 target) {
-		int range = (int) Mathf.Abs (origin.x - target.x) + (int) Mathf.Abs (origin.z - target.z);
-		if (range > maxRange() || range < minRange()) return false;
-		int hDelta = (int)(target.y - origin.y);
-		//if cannot reach because of vertical traversal return false
-		return true;
-	}
+
 
 	/*
 	// This function launches and animates the projectile trajectory and impact.

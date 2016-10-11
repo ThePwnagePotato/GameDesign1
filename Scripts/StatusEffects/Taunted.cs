@@ -1,15 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Entangled : StatusEffect {
+public class Taunted : StatusEffect {
 
-	//can not move (trapped by vines)
-	//ups defense (vines protect you)
-	//DoT? (prickly vines?)
+	//fixes the enemy's target to a specific unit
 
 	public override string GetName ()
 	{
-		return "Entangled";
+		return "Taunted";
 	}
 
 	public override bool IsPositive ()
@@ -44,8 +42,8 @@ public class Entangled : StatusEffect {
 	public override void OnTurnStart () {
 		base.OnTurnStart ();
 
-		target.canMove = false;
-		target.currentDefense += power;
+		EnemyUnit unit = (EnemyUnit) target;
+		unit.targetUnit = evoker;
 	}
 	public override void OnTurnEnd () {
 
@@ -62,17 +60,5 @@ public class Entangled : StatusEffect {
 	public override void OnTakeDamage () {
 
 	}
-
-	// Use this for initialization
-	void Start ()
-	{
-		target.canMove = false;
-		target.currentDefense += power;
-	}
-
-	// Update is called once per frame
-	void Update ()
-	{
-
-	}
+		
 }

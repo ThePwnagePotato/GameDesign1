@@ -42,7 +42,7 @@ public abstract class Unit : MonoBehaviour
 
 	public abstract List<GameObject> abilities { get; set; }
 
-	public abstract List<StatusEffect> statusEffects ();
+	public abstract List<GameObject> statusEffects ();
 
 	public abstract bool canMove { get; set; }
 
@@ -112,11 +112,6 @@ public abstract class Unit : MonoBehaviour
 		}
 	}
 
-	// reset relevant variables at start of turn
-	void turnRest () {
-
-	}
-
 	/* damages the characted, calls Die() if health goes below 0
 	 * minimum damage is 1
 	 * 
@@ -128,8 +123,9 @@ public abstract class Unit : MonoBehaviour
 		// Go through the list of statuseffects, get the ones that affect the DEF stat
 		// then apply that effect to the tempDef value
 
-		foreach (StatusEffect effect in statusEffects ()) {
-			effect.OnTakeDamage ();
+		foreach (GameObject effectObject in statusEffects ()) {
+			effectObject.GetComponent<StatusEffect>().OnTakeDamage ();
+
 		}
 
 		// calculate the final damage using the tempDef value
@@ -165,8 +161,15 @@ public abstract class Unit : MonoBehaviour
 		canMove = true;
 		canAttack = true;
 
-		foreach (StatusEffect effect in statusEffects ()) {
+		for (int i = statusEffects ().Count - 1; i >= 0; i--) {
+			GameObject effectObject = statusEffects ()[i];
+			StatusEffect effect = effectObject.GetComponent<StatusEffect> ();
 			effect.OnTurnStart ();
+
+			if (effect.duration <= 0) {
+				statusEffects ().RemoveAt (i);
+				Destroy (effect.gameObject);
+			}
 		}
 
 		if (currentPower < 0) { currentPower = 0; }
@@ -315,15 +318,12 @@ public abstract class Unit : MonoBehaviour
 	}
 
 	private List<ReachableTile> possibleMoveList = new List<ReachableTile> ();
-	private int[,] heightMap;
 
 	// Returns all the possible locations the unit can move to with the current move stats
 	// uses the recursive method
 	public List<ReachableTile> GetPossibleMoves ()
 	{
 		possibleMoveList.Clear ();
-
-		this.heightMap = boardManager.heightMap;
 
 		PositionSearch (transform.position-Vector3.up, currentMoves, currentMovesUp, currentMovesDown, currentMovesSide, true, Direction.NONE);
 

@@ -67,8 +67,8 @@ public class Tank : Unit
 		set { _abilities = value; }
 	}
 
-	public List<StatusEffect> _statusEffects = new List<StatusEffect> ();
-	public override List<StatusEffect> statusEffects ()
+	public List<GameObject> _statusEffects = new List<GameObject> ();
+	public override List<GameObject> statusEffects ()
 	{
 		return _statusEffects;
 	}

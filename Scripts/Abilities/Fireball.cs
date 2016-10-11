@@ -46,7 +46,7 @@ public class Fireball : Ability
 		set { _projectileSpeed = value; }
 	}
 
-	public float _projectileHeight = 1;
+	public float _projectileHeight;
 	public override float projectileHeight
 	{
 		get { return _projectileHeight; }
@@ -59,7 +59,7 @@ public class Fireball : Ability
 		return _maxCooldown;
 	}
 
-	private int _cooldown = 0;
+	private int _cooldown;
 	public override int cooldown {
 		get { return _cooldown; }
 		set { _cooldown = value; }
@@ -98,6 +98,22 @@ public class Fireball : Ability
 
 	new void Start () {
 		base.Start ();
+
+		_upScale = 0;
+		_downScale = 0;
+
+		_projectileSpeed = 1f;
+		_projectileHeight = 1f;
+
+		_maxCooldown = 1;
+
+		_minRange = 1;
+		_maxRange = 6;
+		_minHeight = 3;
+		_maxHeight = 3;
+
+		flatDamage = 2;
+		powerModifier = 1f;
 	}
 
 	public override void HitTarget (Unit caster, Unit target) {

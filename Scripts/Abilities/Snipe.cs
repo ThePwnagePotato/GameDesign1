@@ -4,7 +4,7 @@ using System.Collections;
 public class Snipe : Ability {
 
 	//long range archer attack
-	//same damage as normal attack
+	//higher damage than normal
 
 	public override string getName ()
 	{
@@ -39,24 +39,24 @@ public class Snipe : Ability {
 		set { _gameManager = value; }
 	}
 
-	public float _projectileSpeed = 1.5f;
+	public float _projectileSpeed;
 	public override float projectileSpeed
 	{
 		get { return _projectileSpeed; }
 		set { _projectileSpeed = value; }
 	}
 
-	public float _projectileHeight = 2;
+	public float _projectileHeight;
 	public override float projectileHeight
 	{
 		get { return _projectileHeight; }
 		set { _projectileHeight = value; }
 	}
 
-	public int maxCoolDown = 3;
+	public int _maxCooldown;
 	public override int maxCooldown ()
 	{
-		return maxCoolDown;
+		return _maxCooldown;
 	}
 
 	private int _cooldown;
@@ -68,29 +68,29 @@ public class Snipe : Ability {
 	public int _minRange;
 	public override int minRange ()
 	{
-		return 4;
+		return _minRange;
 	}
 
 	public int _maxRange;
 	public override int maxRange ()
 	{
-		return 10;
+		return _maxRange;
 	}
 
 	public int _minHeight;
 	public override int minHeight ()
 	{
-		return -6;
+		return _minHeight;
 	}
 
 	public int _maxHeight;
 	public override int maxHeight ()
 	{
-		return 6;
+		return _maxHeight;
 	}
 
-	public int flatDamage = 2;
-	public float powerModifier = 1;
+	public int flatDamage;
+	public float powerModifier;
 	public override int getDamage (int power)
 	{
 		return flatDamage + (int)(power*powerModifier);
@@ -98,6 +98,22 @@ public class Snipe : Ability {
 
 	new void Start () {
 		base.Start ();
+
+		_upScale = 0;
+		_downScale = 0;
+
+		_projectileSpeed = 1.5f;
+		_projectileHeight = 2f;
+
+		_maxCooldown = 4;
+
+		_minRange = 3;
+		_maxRange = 10;
+		_minHeight = 6;
+		_maxHeight = 6;
+
+		flatDamage = 2;
+		powerModifier = 1f;
 	}
 
 	public override void HitTarget (Unit caster, Unit target) {

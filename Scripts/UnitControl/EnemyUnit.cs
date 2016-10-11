@@ -13,10 +13,22 @@ public abstract class EnemyUnit : Unit {
 	*/
 
 	new public void ResetTurn() {
+		targetUnit = null;
 		base.ResetTurn();
 	}
 
 	public void DoTurn() {
+		int maxRange = 0;
+
+		//find the longest range ability, and highest damage ability.
+		foreach (GameObject abilityObject in abilities) {
+			Ability ability = abilityObject.GetComponent<Ability>();
+			if (ability.maxRange () > maxRange) {
+				maxRange = ability.maxRange ();
+			}
+
+		}
+
 		//if the enemy does not have a target yet, acquire one
 		if (targetUnit == null) {
 

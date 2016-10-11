@@ -41,13 +41,6 @@ public class Entangled : StatusEffect {
 		set { _target = value; }
 	}
 
-
-	public Entangled (Unit evoker, Unit target, int power, int duration) : base (evoker, target, power, duration)
-	{
-		target.canMove = false;
-		target.currentDefense += power;
-	}
-
 	public override void OnTurnStart () {
 		base.OnTurnStart ();
 
@@ -70,11 +63,11 @@ public class Entangled : StatusEffect {
 
 	}
 
-
 	// Use this for initialization
 	void Start ()
 	{
-
+		target.canMove = false;
+		target.currentDefense += power;
 	}
 
 	// Update is called once per frame

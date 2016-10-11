@@ -39,13 +39,6 @@ public class Taunted : StatusEffect {
 		set { _target = value; }
 	}
 
-
-	public Taunted (Unit evoker, Unit target, int power, int duration) : base (evoker, target, power, duration)
-	{
-		EnemyUnit unit = (EnemyUnit) target;
-		unit.targetUnit = evoker;
-	}
-
 	public override void OnTurnStart () {
 		base.OnTurnStart ();
 

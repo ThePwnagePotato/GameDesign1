@@ -42,7 +42,7 @@ public abstract class Unit : MonoBehaviour
 
 	public abstract List<GameObject> abilities { get; set; }
 
-	public abstract List<StatusEffect> statusEffects ();
+	public abstract List<GameObject> statusEffects ();
 
 	public abstract bool canMove { get; set; }
 
@@ -123,8 +123,9 @@ public abstract class Unit : MonoBehaviour
 		// Go through the list of statuseffects, get the ones that affect the DEF stat
 		// then apply that effect to the tempDef value
 
-		foreach (StatusEffect effect in statusEffects ()) {
-			effect.OnTakeDamage ();
+		foreach (GameObject effectObject in statusEffects ()) {
+			effectObject.GetComponent<StatusEffect>().OnTakeDamage ();
+
 		}
 
 		// calculate the final damage using the tempDef value
@@ -161,7 +162,8 @@ public abstract class Unit : MonoBehaviour
 		canAttack = true;
 
 		for (int i = statusEffects ().Count - 1; i >= 0; i--) {
-			StatusEffect effect = statusEffects ()[i];
+			GameObject effectObject = statusEffects ()[i];
+			StatusEffect effect = effectObject.GetComponent<StatusEffect> ();
 			effect.OnTurnStart ();
 
 			if (effect.duration <= 0) {

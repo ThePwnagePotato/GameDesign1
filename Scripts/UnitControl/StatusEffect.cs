@@ -12,6 +12,7 @@ public abstract class StatusEffect : MonoBehaviour {
 	public abstract Unit evoker { get; set; }
 	public abstract Unit target { get; set; }
 
+	/*
 	public StatusEffect (Unit evoker, Unit target, int power, int duration) {
 		this.power = power;
 		this.duration = duration;
@@ -19,6 +20,7 @@ public abstract class StatusEffect : MonoBehaviour {
 		this.evoker = evoker;
 		this.target = target;
 	}
+	*/
 
 	// Lowers duration by one. If 0 or less afterwards, return true
 	public bool UpdateDuration () {
@@ -49,6 +51,12 @@ public abstract class StatusEffect : MonoBehaviour {
 	public abstract void OnDoDamage ();
 
 	public abstract void OnTakeDamage ();
+
+	public void initialize (Unit evoker, int power, int duration) {
+		this.evoker = evoker;
+		this.power = power;
+		this.duration = duration;
+	}
 
 	// Use this for initialization
 	void Start () {

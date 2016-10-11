@@ -40,11 +40,6 @@ public class Weakness : StatusEffect
 		set { _target = value; }
 	}
 
-
-	public Weakness (Unit evoker, Unit target, int power, int duration) : base (evoker, target, power, duration)
-	{
-	}
-
 	public override void OnTurnStart () {
 		base.OnTurnStart ();
 

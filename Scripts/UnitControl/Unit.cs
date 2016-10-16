@@ -126,13 +126,10 @@ public abstract class Unit : MonoBehaviour
 
 		foreach (GameObject effectObject in statusEffects ()) {
 			effectObject.GetComponent<StatusEffect>().OnTakeDamage ();
-
 		}
 
-		int randomDamage = (int) ((Random.value * 0.2 + 0.8) * damage);
-
 		// calculate the final damage using the tempDef value
-		int finalDamage = Mathf.Max (randomDamage - currentDefense, 1);
+		int finalDamage = Mathf.Max (damage - currentDefense, 1);
 
 		currentHealth = currentHealth - finalDamage;
 

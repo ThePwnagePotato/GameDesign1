@@ -6,6 +6,8 @@ public abstract class Ability : MonoBehaviour
 {
 	public abstract string getName ();
 
+	public abstract string[] getDescription ();
+
 	public abstract int maxCooldown ();
 
 	public abstract int cooldown { get; set; }
@@ -26,6 +28,8 @@ public abstract class Ability : MonoBehaviour
 
 	public abstract int getDamage (int power);
 
+	public abstract int getRawDamage (int power);
+
 	public abstract float projectileSpeed { get; set; }
 
 	public abstract float projectileHeight { get; set; }
@@ -34,7 +38,9 @@ public abstract class Ability : MonoBehaviour
 
 	public abstract GameManager gameManager { get; set; }
 
-	public abstract void HitTarget (Unit caster, Unit target);
+	public abstract void HitTarget (Unit caster, Vector3 target);
+
+	public virtual float critChance { get { return 0.1f; } set { critChance = value; }}
 
 	public void Start () {
 		// connect dependencies
@@ -148,10 +154,8 @@ public abstract class Ability : MonoBehaviour
 		Unit targetUnit = gameManager.boardManager.unitMap[(int) target.x, (int) target.z];
 		if (caster == null) {
 			Debug.Log ("ERROR: No caster found at ability origin!");
-		} else if (targetUnit == null) {
-			Debug.Log ("ERROR: No target found at target vector!");
 		} else {
-			HitTarget (caster, targetUnit);
+			HitTarget (caster, target);
 		}
 
 		// signal that animation is done to GameManager:

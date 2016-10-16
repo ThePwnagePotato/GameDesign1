@@ -1,19 +1,19 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Taunted : StatusEffect {
-
-	//fixes the enemy's target to a specific unit
+public class Bleeding : StatusEffect
+{
+	//deals damage every turn
 
 	public override string GetName ()
 	{
-		return "Taunted";
+		return "Bleeding";
 	}
 
 	public override string[] getDescription ()
 	{
 		return new string[] {
-			"Forced to target " + _evoker.getName ()
+			"Blood drips from your wounds, dealing damage every turn"
 		};
 	}
 
@@ -48,12 +48,10 @@ public class Taunted : StatusEffect {
 
 	public override void OnTurnStart () {
 		base.OnTurnStart ();
-
-		EnemyUnit unit = (EnemyUnit) target;
-		unit.targetUnit = evoker;
 	}
 	public override void OnTurnEnd () {
-
+		//bleed, do damage
+		target.TakeDamage(10 + _power);
 	}
 	public override void OnMovement () {
 
@@ -70,5 +68,5 @@ public class Taunted : StatusEffect {
 	public override void OnRemoval () {
 
 	}
-		
+
 }

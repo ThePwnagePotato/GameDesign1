@@ -1,19 +1,19 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Taunted : StatusEffect {
+public class Stunned : StatusEffect {
 
-	//fixes the enemy's target to a specific unit
+	//disables movement ant attack for the duration
 
 	public override string GetName ()
 	{
-		return "Taunted";
+		return "Stunned";
 	}
 
 	public override string[] getDescription ()
 	{
 		return new string[] {
-			"Forced to target " + _evoker.getName ()
+			"Unable to move or attack"
 		};
 	}
 
@@ -49,8 +49,9 @@ public class Taunted : StatusEffect {
 	public override void OnTurnStart () {
 		base.OnTurnStart ();
 
-		EnemyUnit unit = (EnemyUnit) target;
-		unit.targetUnit = evoker;
+		//disable movement and attack
+		target.canAttack = false;
+		target.canMove = false;
 	}
 	public override void OnTurnEnd () {
 
@@ -70,5 +71,4 @@ public class Taunted : StatusEffect {
 	public override void OnRemoval () {
 
 	}
-		
 }

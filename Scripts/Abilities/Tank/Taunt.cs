@@ -1,14 +1,23 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Snipe : Ability {
+public class Taunt : Ability {
 
-	//long range archer attack
-	//higher damage than normal
+	//med range
+	//taunts enemy, changes target in AI to caster for 4? turns
+
+	public GameObject taunted;
 
 	public override string getName ()
 	{
-		return "Snipe";
+		return "Taunt";
+	}
+
+	public override string[] getDescription ()
+	{
+		return new string[] {
+			"Force an enemy to target you"
+		};
 	}
 
 	public int _upScale;
@@ -99,10 +108,20 @@ public class Snipe : Ability {
 	public float powerModifier;
 	public override int getDamage (int power)
 	{
-		return flatDamage + (int)(power*powerModifier);
+		return 0;
 	}
 
-	public override void HitTarget (Unit caster, Unit target) {
-		target.TakeDamage (getDamage(caster.currentPower));
+	public override int getRawDamage (int power) {
+		return 0;
+	}
+
+	public override void HitTarget (Unit caster, Vector3 targetPosition) {
+		Unit target = gameManager.boardManager.unitMap[(int) targetPosition.x, (int) targetPosition.z];
+		if (target != null) {
+			
+			GameObject effect = Instantiate (taunted, target.gameObject.transform) as GameObject;
+			target.statusEffects().Add (effect);
+			effect.GetComponent<StatusEffect> ().initialize(caster, caster.currentPower, 4);
+		}
 	}
 }

@@ -9,6 +9,7 @@ public class AbilityUI : MonoBehaviour {
 	private Unit unit;
 	private GameManager gameManager;
 
+	public Text nameText;
 	public Text powText;
 	public Text upScaleText;
 	public Text downScaleText;

@@ -12,6 +12,13 @@ public class Entangled : StatusEffect {
 		return "Entangled";
 	}
 
+	public override string[] getDescription ()
+	{
+		return new string[] {
+			"Unable to move, but can still attack"
+		};
+	}
+
 	public override bool IsPositive ()
 	{
 		return false;
@@ -60,6 +67,9 @@ public class Entangled : StatusEffect {
 
 	}
 	public override void OnTakeDamage () {
+
+	}
+	public override void OnRemoval () {
 
 	}
 

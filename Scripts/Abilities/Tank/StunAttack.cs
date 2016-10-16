@@ -1,14 +1,24 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Fireball : Ability
-{
-	public string _name;
+public class StunAttack : Ability {
 
+	//short range
+	//low damage
+	//stuns for 1 turn
+
+	public GameObject stunned;
 
 	public override string getName ()
 	{
-		return _name;
+		return "Bash";
+	}
+
+	public override string[] getDescription ()
+	{
+		return new string[] {
+			"Swing your hammer, damaging and stunning an enemy"
+		};
 	}
 
 	public int _upScale;
@@ -99,10 +109,32 @@ public class Fireball : Ability
 	public float powerModifier;
 	public override int getDamage (int power)
 	{
-		return flatDamage + (int)(power*powerModifier);
+		//standard damage
+		int damage = getRawDamage(power);
+		//randomness
+		damage = (int)((Random.value * 0.2 + 0.8) * damage);
+		//crit
+		if (Random.value < critChance) {
+			damage = (int)(damage * 1.5);
+		}
+
+		return damage;
 	}
 
-	public override void HitTarget (Unit caster, Unit target) {
-		target.TakeDamage (getDamage(caster.currentPower));
+	public override int getRawDamage (int power)
+	{
+		//standard damage
+		int damage = flatDamage + (int)(power * powerModifier);
+		return damage;
+	}
+
+	public override void HitTarget (Unit caster, Vector3 targetPosition) {
+		Unit target = gameManager.boardManager.unitMap[(int) targetPosition.x, (int) targetPosition.z];
+		if (target != null) {
+
+			GameObject effect = Instantiate (stunned, target.gameObject.transform) as GameObject;
+			target.statusEffects().Add (effect);
+			effect.GetComponent<StatusEffect> ().initialize(caster, caster.currentPower, 1);
+		}
 	}
 }

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 // StateType describes what kind of state the game is in
 public enum GameStateType
 {
-	ROOT,				// Rhe lowest GameState on the stack is always ROOT
+	ROOT,				// The lowest GameState on the stack is always ROOT
 
 	PLAYERTURN,			// select unit
 	SELECTEDUNIT,		// can move, select ability
@@ -55,6 +55,7 @@ public class GameManager : MonoBehaviour
 
 	public GameObject selectedUIHolder;
 	public SelectedUI selectedUI;
+	public GameObject playerTurnUIHolder;
 
 	private List<GameObject> spawnedObjects;
 	public Stack<GameState> gameStack;
@@ -76,6 +77,20 @@ public class GameManager : MonoBehaviour
 
 	public void Push (GameState gameState) {
 		switch (gameState.type) {
+		case GameStateType.PLAYERTURN:
+			playerTurnUIHolder.SetActive (true);
+			foreach (Unit unit in boardManager.friendlyUnits) {
+				if(unit.isAlive) unit.ResetTurn ();
+			}
+			break;
+		case GameStateType.ENEMYTURN:
+			if (boardManager.enemyUnits.Count == 0)
+				gameState.active = false;
+			else
+			foreach (Unit unit in boardManager.enemyUnits) {
+				if(unit.isAlive) unit.ResetTurn ();
+			}
+			break;
 		case GameStateType.SELECTEDUNIT:
 			gameState.evoker.GetComponent<SpriteRenderer> ().color = new Color (1, 1, 0, 1); // make sprite yellow
 			// activate unit info (selected UI)
@@ -115,6 +130,17 @@ public class GameManager : MonoBehaviour
 			return;
 		GameState gameState = gameStack.Peek ();
 		switch (gameState.type) {
+		case GameStateType.PLAYERTURN:
+			playerTurnUIHolder.SetActive (false);
+			foreach (Unit unit in boardManager.friendlyUnits) {
+				//if(unit.isAlive) ;
+			}
+			break;
+		case GameStateType.ENEMYTURN:
+			foreach (Unit unit in boardManager.friendlyUnits) {
+				//if(unit.isAlive) ;
+			}
+			break;
 		case GameStateType.SELECTEDUNIT:
 			gameState.evoker.GetComponent<SpriteRenderer> ().color = new Color (1, 1, 1, 1); // "unselectify" - make sprite regular color
 			selectedUI.Clear();
@@ -128,6 +154,17 @@ public class GameManager : MonoBehaviour
 			break;
 		}
 		gameStack.Pop ();
+
+		// TESTING CODE
+		if(gameState.type == GameStateType.ENEMYTURN) Push(new GameState(GameStateType.PLAYERTURN));
+	}
+
+	// End player turn and start enemy turn
+	public void EndPlayerTurn () {
+		while (gameStack.Peek ().type != GameStateType.ROOT)
+			Pop ();
+		GameState newState = new GameState (GameStateType.ENEMYTURN);
+		Push (newState);
 	}
 
 	void ResetSpawnedObjects () {

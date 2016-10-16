@@ -46,7 +46,7 @@ public class PlayerController : MonoBehaviour
 		bool overUI = UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject ();
 
 		// if player clicks left mouse button
-		if (Input.GetMouseButtonDown (0)) {
+		if (Input.GetMouseButtonDown (0) && !Input.GetKey("left alt")) {
 			if (!overUI) {
 				// if it's the player turn, check what the player selected
 				if (gameState.type == GameStateType.PLAYERTURN) {
@@ -109,7 +109,7 @@ public class PlayerController : MonoBehaviour
 				clickedTarget += Vector3.up;
 			// check if it's a valid move, activate if it is
 			Ability ability = gameState.evoker.GetComponentInChildren<Ability> ();
-			if (!gameState.evoker.GetComponentInParent<Unit> ().canAttack)
+			if (!gameState.evoker.GetComponentInParent<Unit> ().canAttack && ability.cooldown <= 0)
 				return;
 			if (ability.getPossibleTargets ().Contains (clickedTarget)) {
 				// pop off the SELECTEDABILITY gamestate

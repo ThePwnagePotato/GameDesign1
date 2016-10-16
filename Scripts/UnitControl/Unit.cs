@@ -108,7 +108,8 @@ public abstract class Unit : MonoBehaviour
 			boardManager.enemyUnits.Add (this);
 
 		for (int i = 0; i < abilities.Count; i++) {
-			Instantiate (abilities[i], this.transform);
+			GameObject newAbility = Instantiate (abilities[i], this.transform) as GameObject;
+			newAbility.transform.position = this.transform.position;
 		}
 	}
 

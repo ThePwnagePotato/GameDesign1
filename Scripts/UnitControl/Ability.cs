@@ -14,9 +14,11 @@ public abstract class Ability : MonoBehaviour
 
 	public abstract int maxRange ();
 
-	public abstract int minHeight ();
+	public abstract int sideRange ();
 
-	public abstract int maxHeight ();
+	public abstract int upRange ();
+
+	public abstract int downRange ();
 
 	public abstract int upScale { get; set;}
 
@@ -56,30 +58,26 @@ public abstract class Ability : MonoBehaviour
 
 		//start in  xz(-maxRange) coordinates, then check all coordinates from there
 		int x, z;
-		for (x = System.Math.Max (casterX - maxRange (), 0); x <= casterX + maxRange (); x++) {
+		for (x = System.Math.Max (casterX - maxRange (), 0); x <= Mathf.Min(casterX + maxRange (), gameManager.boardManager.dimensions.x-1); x++) {
 			//x starts at 0 or higher, if x is out of bounds, stop (since x always goes from low to high)
-			if (x > heightMap.Rank) {
-				break;
-			}
 
-			for (z = System.Math.Max (casterZ - maxRange (), 0); z <= casterZ + maxRange (); z++) {
+			for (z = System.Math.Max (casterZ - maxRange (), 0); z <= Mathf.Min(casterZ + maxRange (), gameManager.boardManager.dimensions.z-1); z++) {
 				//z starts at 0 or higher, increase until not anymore, if z is out of bounds, go to next x value
-				if (z > heightMap.GetLength (0)) {
-					break;
-				}
+
+				// distances
+				int horDistance = System.Math.Abs (casterX - x) + System.Math.Abs (casterZ - z);
+				int verDistance = Mathf.Abs(heightMap [x, z] + 1 - casterY);
+				int distance = horDistance + verDistance;
 
 				//check if x,z is in range horizontally
-				int distance = System.Math.Abs (casterX - x) + System.Math.Abs (casterZ - z);
 				if (distance < minRange () || distance > maxRange ()) {
 					continue;
 				}
 
 				//check if the height on [x,z] is within range, if so add it to the list possibleTargets
-				int posHeight = heightMap [x, z];
-				if (posHeight >= casterY - minHeight () && posHeight <= casterY + maxHeight ()) {
-					possibleTargets.Add (new Vector3 (x, posHeight + 1, z));
-					continue;
-				}
+				//if (posHeight >= casterY - minHeight () && posHeight <= casterY + maxHeight ()) {
+				//	possibleTargets.Add (new Vector3 (x, posHeight, z));
+				//}
 			}
 		}
 			
@@ -91,7 +89,7 @@ public abstract class Ability : MonoBehaviour
 	{
 		// first create and push a ANIMATION gamestate to restrict input and whatever
 		GameState gameState = new GameState (GameStateType.ANIMATION, this.gameObject);
-		gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+		//gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
 		gameManager.Push (gameState);
 		// now start coroutine to draw animation, the coroutine needs the gameState to declare it inactive once it's finished
 		StartCoroutine (LaunchProjectile (target, gameState));

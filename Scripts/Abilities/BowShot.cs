@@ -76,16 +76,22 @@ public class BowShot : Ability
 		return _maxRange;
 	}
 
-	public int _minHeight;
-	public override int minHeight ()
+	public int _downRange;
+	public override int downRange()
 	{
-		return _minHeight;
+		return _downRange;
 	}
 
-	public int _maxHeight;
-	public override int maxHeight ()
+	public int _sideRange;
+	public override int sideRange()
 	{
-		return _maxHeight;
+		return _sideRange;
+	}
+
+	public int _upRange;
+	public override int upRange()
+	{
+		return _upRange;
 	}
 
 	public int flatDamage;
@@ -93,26 +99,6 @@ public class BowShot : Ability
 	public override int getDamage (int power)
 	{
 		return flatDamage + (int)(power*powerModifier);
-	}
-
-	new void Start () {
-		base.Start ();
-
-		_upScale = 0;
-		_downScale = 0;
-
-		_projectileSpeed = 1.5f;
-		_projectileHeight = 1f;
-
-		_maxCooldown = 1;
-
-		_minRange = 1;
-		_maxRange = 6;
-		_minHeight = 4;
-		_maxHeight = 4;
-
-		flatDamage = 2;
-		powerModifier = 1f;
 	}
 
 	public override void HitTarget (Unit caster, Unit target) {

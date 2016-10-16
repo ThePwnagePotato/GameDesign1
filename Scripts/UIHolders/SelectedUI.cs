@@ -38,12 +38,13 @@ public class SelectedUI : MonoBehaviour {
 		sideMoveText.text = selected.currentMovesSide.ToString();
 
 		if (abilityList == null) abilityList = new List<GameObject> ();
+		Ability[] abilitiesOnUnit = selected.GetComponentsInChildren<Ability> ();
 
-		for (int i = 0; i < selected.abilities.Count; i++) {
+		for (int i = 0; i < abilitiesOnUnit.Length; i++) {
 			GameObject newAbility = Instantiate (abilityWindow) as GameObject;
 			newAbility.transform.SetParent (abilityHolder.transform, false);
 			newAbility.transform.position += i*abilityHolderYOffset*Vector3.up;
-			newAbility.GetComponent<AbilityUI> ().UpdateValues (selected.abilities[i].GetComponent<Ability>(), selected);
+			newAbility.GetComponent<AbilityUI> ().UpdateValues (abilitiesOnUnit[i], selected);
 			abilityList.Add (newAbility);
 		}
 	}

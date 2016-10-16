@@ -39,7 +39,7 @@ public class AbilityUI : MonoBehaviour {
 		downScaleText.text = selectedAbility.downScale.ToString();
 		maxMoveText.text = selectedAbility.maxRange().ToString();
 		minMoveText.text = selectedAbility.minRange().ToString();
-		totalUpMoveText.text = selectedAbility.maxHeight().ToString();
-		totalDownMoveText.text = selectedAbility.minHeight().ToString();
+		totalUpMoveText.text = selectedAbility.upRange().ToString();
+		totalDownMoveText.text = selectedAbility.downRange().ToString();
 	}
 }

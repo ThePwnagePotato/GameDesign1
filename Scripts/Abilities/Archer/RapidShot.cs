@@ -134,7 +134,7 @@ public class RapidShot : Ability {
 		//add one to takenShots
 		//if not 3 have been shot, shoot more
 		takenShots++;
-		if (takenShots < 3) {
+		if (takenShots < 3 && target != null) {
 			ActivateAbility (target.transform.position);
 		}
 	}

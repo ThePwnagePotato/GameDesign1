@@ -70,7 +70,7 @@ public class GameManager : MonoBehaviour
 	void Update ()
 	{
 		// if top gamestate is done, pop it
-		if (gameStack.Count > 0 && !gameStack.Peek ().active)
+ 		if (gameStack.Count > 0 && !gameStack.Peek ().active)
 			Pop();
 	}
 
@@ -119,17 +119,21 @@ public class GameManager : MonoBehaviour
 			gameState.evoker.GetComponent<SpriteRenderer> ().color = new Color (1, 1, 1, 1); // "unselectify" - make sprite regular color
 			selectedUI.Clear();
 			selectedUIHolder.SetActive (false); // disable "selected UI" 
-			foreach (GameObject spawned in spawnedObjects) {
-				DestroyObject (spawned);
-			}
-			spawnedObjects.Clear ();
+			ResetSpawnedObjects ();
 			break;
 		case GameStateType.SELECTEDABILITY:
-			gameStack.Pop (); // pop itself, so gameManager will pop underlying SELECTEDUNIT gameState
+			ResetSpawnedObjects ();
 			break;
 		default:
 			break;
 		}
 		gameStack.Pop ();
+	}
+
+	void ResetSpawnedObjects () {
+		foreach (GameObject spawned in spawnedObjects) {
+			DestroyObject (spawned);
+		}
+		spawnedObjects.Clear ();
 	}
 }

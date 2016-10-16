@@ -40,88 +40,174 @@ public class PlayerController : MonoBehaviour
 	{
 		GameState gameState = gameManager.gameStack.Peek ();
 		if (gameState.type != GameStateType.DIALOGUE || gameState.type != GameStateType.ESCMENU) {
-			if (Input.GetMouseButtonDown (2) == true)
-				mouse3LastClick = Time.time;
-			else if (Input.GetMouseButton (2) != true && Time.time - mouse3LastClick < clickWindow) {
-				mouse3LastClick = -1;
-				mainCamera.middleClick ();
-			}
-			if ((Input.GetMouseButton (2) == true || (Input.GetAxisRaw ("Left Alt") != 0 && Input.GetMouseButton (0)))) {
-				if (mouseDelta.x != 0)
-					mainCamera.RotateAroundFocus (-mouseDelta.x);
-			}
-			if (Input.GetAxisRaw ("Mouse ScrollWheel") != 0) {
-				mainCamera.Zoom (-Input.GetAxis ("Mouse ScrollWheel"));
-			}
-			if (Input.GetAxis ("Horizontal") != 0 || Input.GetAxis ("Vertical") != 0) {
-				mainCamera.Pan (Input.GetAxis ("Horizontal"), Input.GetAxis ("Vertical"));
-			}
-			// the input stuff below is for testing purposes
-			if (Input.GetKeyDown (KeyCode.Z)) {
-				Debug.Log ("TEST: launching projectile");
-				ActivateAbility (testTarget);
-			}
+			CameraControl ();
 		}
+
+		bool overUI = UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject ();
 
 		// if player clicks left mouse button
 		if (Input.GetMouseButtonDown (0)) {
-			// if it's the player turn, check what the player selected
-			if (gameState.type == GameStateType.PLAYERTURN) {
-				RaycastHit hitInfo = MouseRaycast ();
-				if (hitInfo.collider != null) {
-					Unit selected = hitInfo.collider.gameObject.GetComponent<Unit> ();
-					if (selected != null) { // if a unit is selected
-						gameManager.Push (new GameState (GameStateType.SELECTEDUNIT, selected.gameObject));
-						Debug.Log (selected.getName () + " selected");
-					}
+			if (!overUI) {
+				// if it's the player turn, check what the player selected
+				if (gameState.type == GameStateType.PLAYERTURN) {
+					attemptUnitSelect ();
+				} else if (gameState.type == GameStateType.SELECTEDUNIT) {
+					attemptUnitMove (gameState);
+				} else if (gameState.type == GameStateType.SELECTEDABILITY) {
+					attemptAbilityUse (gameState);
 				}
 			}
-			else if (gameState.type == GameStateType.SELECTEDUNIT) {
-				RaycastHit hitInfo = MouseRaycast ();
-				if (hitInfo.collider != null) {
-					// if terrain is selected
-					if (hitInfo.collider.CompareTag ("Terrain")) { 
-						Unit selected = gameState.evoker.GetComponent<Unit>();
-						if (boardManager.unitMap[(int)hitInfo.collider.transform.position.x, (int)hitInfo.collider.transform.position.z] == null) { // if target not occupied
-							Vector3 clickedTarget = hitInfo.collider.transform.position;
-							Vector3 finalTarget = new Vector3((int) clickedTarget.x, boardManager.heightMap[(int) clickedTarget.x, (int) clickedTarget.z], (int) clickedTarget.z);
-							if (clickedTarget == finalTarget) {
-								gameManager.Pop ();
-								selected.Move(finalTarget+Vector3.up); // move to one above the selected block
-								Debug.Log (selected.getName () + " moved");
-							}
-						}
-					}
-					// if the selected player is selected
-					else if (hitInfo.collider.gameObject == gameState.evoker) {
-						gameManager.Pop ();
-						Debug.Log ("Unit delesected");
-					}
-				}
-			}
-
 		}
-
-		// if player clicks right mouse button, the below is for testing purposes
-		else if (Input.GetMouseButtonDown (1)) {
-			Debug.Log ("TEST: Checking fireball launch");
-			// if it's the player turn, check what the player selected
+		// if player clicks right mouse button
+		else if (Input.GetMouseButtonDown (1)  || Input.GetKeyDown("left shift")) {
+			//testAbility (gameState);
 			if (gameState.type == GameStateType.SELECTEDUNIT) {
-				RaycastHit hitInfo = MouseRaycast ();
-				if (hitInfo.collider != null) {
-					if (hitInfo.collider.CompareTag ("Terrain")) { // if terrain is selected
-						Ability ability = gameState.evoker.GetComponentInChildren<Ability> ();
-						ability.transform.position = gameState.evoker.transform.position;
+				gameManager.Pop ();
+			} else if (gameState.type == GameStateType.SELECTEDABILITY) {
+				// pop off SELECTEDABILITY gamestate
+				gameManager.Pop ();
+				// remember evoker, then pop and repush to refresh highlighter-tiles
+				GameObject selectedUnit = gameManager.gameStack.Peek().evoker;
+				gameManager.Pop ();
+				GameState newState = new GameState(GameStateType.SELECTEDUNIT, selectedUnit);
+				gameManager.Push (newState);
+			}
+		}
+	}
 
-						Vector3 clickedTarget = hitInfo.collider.transform.position;
-						Vector3 finalTarget = new Vector3((int) clickedTarget.x, boardManager.heightMap[(int) clickedTarget.x, (int) clickedTarget.z], (int) clickedTarget.z);
-						if (clickedTarget == finalTarget) {
-							gameManager.Pop ();
-							ability.ActivateAbility (finalTarget + Vector3.up);
-						}
+	/*void testAbility (GameState gameState)
+	{
+		Debug.Log ("TEST: Checking fireball launch");
+		// if it's the player turn, check what the player selected
+		if (gameState.type == GameStateType.SELECTEDUNIT) {
+			RaycastHit hitInfo = MouseRaycast ();
+			if (hitInfo.collider != null) {
+				if (hitInfo.collider.CompareTag ("Terrain")) { // if terrain is selected
+					Ability ability = gameState.evoker.GetComponentInChildren<Ability> ();
+					ability.transform.position = gameState.evoker.transform.position;
+
+					Vector3 clickedTarget = hitInfo.collider.transform.position;
+					Vector3 finalTarget = new Vector3 ((int)clickedTarget.x, boardManager.heightMap [(int)clickedTarget.x, (int)clickedTarget.z], (int)clickedTarget.z);
+					if (clickedTarget == finalTarget) {
+						gameManager.Pop ();
+						ability.ActivateAbility (finalTarget + Vector3.up);
 					}
 				}
 			}
+		}
+	}*/
+
+	void attemptAbilityUse (GameState gameState)
+	{
+		Debug.Log ("Attempt ability activation");
+		RaycastHit hitInfo = MouseRaycast ();
+		// check if anything has been hit
+		if (hitInfo.collider != null) {
+			// compute the location the player wants to select
+			Vector3 clickedTarget = hitInfo.collider.transform.position;
+			if (hitInfo.collider.CompareTag ("Terrain"))
+				clickedTarget += Vector3.up;
+			// check if it's a valid move, activate if it is
+			Ability ability = gameState.evoker.GetComponentInChildren<Ability> ();
+			if (!gameState.evoker.GetComponentInParent<Unit> ().canAttack)
+				return;
+			if (ability.getPossibleTargets ().Contains (clickedTarget)) {
+				// pop off the SELECTEDABILITY gamestate
+				gameManager.Pop ();
+				// pop off the SELECTEDUNIT gamestate, as we want to return to the PLAYERTURN after actually using an ability
+				gameManager.Pop ();
+				ability.ActivateAbility (clickedTarget + Vector3.up);
+			}
+		}
+	}
+
+	void attemptUnitMove (GameState gameState)
+	{
+		Debug.Log ("Attempt unit move");
+		RaycastHit hitInfo = MouseRaycast ();
+		// check if anything has been hit
+		if (hitInfo.collider != null) {
+			// compute the location the player wants to select
+			Vector3 clickedTarget = hitInfo.collider.transform.position;
+			if (hitInfo.collider.CompareTag ("Terrain"))
+				clickedTarget += Vector3.up;
+			// check if it's a valid move, activate if it is
+			Unit unit = gameState.evoker.GetComponentInChildren<Unit> ();
+			bool isReachable = false;
+			List<ReachableTile> possibleMoves = unit.GetPossibleMoves();
+			foreach (ReachableTile tile in possibleMoves)
+				if (tile.straight && tile.position == clickedTarget) {
+					isReachable = true;
+					break;
+				}
+			if (isReachable) {
+				// pop off the SELECTEDUNIT gamestate, as we want to return to the PLAYERTURN after moving
+				gameManager.Pop ();
+				unit.Move (clickedTarget);
+			}
+		}
+	}
+
+	void attemptUnitMoveWIP (GameState gameState)
+	{
+		RaycastHit hitInfo = MouseRaycast ();
+		if (hitInfo.collider != null) {
+			// if terrain is selected
+			if (hitInfo.collider.CompareTag ("Terrain")) { 
+				Unit selected = gameState.evoker.GetComponent<Unit> ();
+				if (boardManager.unitMap [(int)hitInfo.collider.transform.position.x, (int)hitInfo.collider.transform.position.z] == null) { // if target not occupied
+					Vector3 clickedTarget = hitInfo.collider.transform.position;
+					Vector3 finalTarget = new Vector3 ((int)clickedTarget.x, boardManager.heightMap [(int)clickedTarget.x, (int)clickedTarget.z], (int)clickedTarget.z);
+					if (clickedTarget == finalTarget) {
+						gameManager.Pop ();
+						selected.Move (finalTarget + Vector3.up); // move to one above the selected block
+						Debug.Log (selected.getName () + " moved");
+					}
+				}
+			}
+			// if the selected player is selected
+			else if (hitInfo.collider.gameObject == gameState.evoker) {
+				gameManager.Pop ();
+				Debug.Log ("Unit delesected");
+			}
+		}
+	}
+
+	void attemptUnitSelect ()
+	{
+		RaycastHit hitInfo = MouseRaycast ();
+		if (hitInfo.collider != null) {
+			Unit selected = hitInfo.collider.gameObject.GetComponent<Unit> ();
+			if (selected != null) { // if a unit is selected
+				gameManager.Push (new GameState (GameStateType.SELECTEDUNIT, selected.gameObject));
+				Debug.Log (selected.getName () + " selected");
+			}
+		}
+	}
+
+	// control camera
+	void CameraControl ()
+	{
+		if (Input.GetMouseButtonDown (2) == true)
+			mouse3LastClick = Time.time;
+		else if (Input.GetMouseButton (2) != true && Time.time - mouse3LastClick < clickWindow) {
+			mouse3LastClick = -1;
+			mainCamera.middleClick ();
+		}
+		if ((Input.GetMouseButton (2) == true || (Input.GetAxisRaw ("Left Alt") != 0 && Input.GetMouseButton (0)))) {
+			if (mouseDelta.x != 0)
+				mainCamera.RotateAroundFocus (-mouseDelta.x);
+		}
+		if (Input.GetAxisRaw ("Mouse ScrollWheel") != 0) {
+			mainCamera.Zoom (-Input.GetAxis ("Mouse ScrollWheel"));
+		}
+		if (Input.GetAxis ("Horizontal") != 0 || Input.GetAxis ("Vertical") != 0) {
+			mainCamera.Pan (Input.GetAxis ("Horizontal"), Input.GetAxis ("Vertical"));
+		}
+		// the input stuff below is for testing purposes
+		if (Input.GetKeyDown (KeyCode.Z)) {
+			Debug.Log ("TEST: launching projectile");
+			ActivateAbility (testTarget);
 		}
 	}
 

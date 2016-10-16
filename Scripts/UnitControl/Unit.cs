@@ -234,11 +234,13 @@ public abstract class Unit : MonoBehaviour
 		if (endTarget.z == transform.position.z) dz = 0;
 		else dz = endTarget.z > transform.position.z ? 1 : -1;
 
-		// choose correct sprite
-		if (dz + dx > 0) spriteRenderer.sprite = sprites[0];
-		else spriteRenderer.sprite = sprites[1];
-		if (dx > 0 || dz < 0) spriteRenderer.flipX = false;
-		else spriteRenderer.flipX = true;
+		// choose correct sprite (don't do anything if no movement)
+		if (transform.position != endTarget) {
+			if (dx > 0 || dz < 0)
+				spriteRenderer.flipX = false;
+			else
+				spriteRenderer.flipX = true;
+		}
 
 		// while not at target position
 		while (transform.position != endTarget) {
@@ -325,6 +327,9 @@ public abstract class Unit : MonoBehaviour
 	public List<ReachableTile> GetPossibleMoves ()
 	{
 		possibleMoveList.Clear ();
+
+		if (!canMove)
+			return possibleMoveList;
 
 		PositionSearch (transform.position-Vector3.up, currentMoves, currentMovesUp, currentMovesDown, currentMovesSide, true, Direction.NONE);
 

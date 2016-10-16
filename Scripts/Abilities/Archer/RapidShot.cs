@@ -1,13 +1,20 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class BowShot : Ability
-{
-	//basic archer attack
+public class RapidShot : Ability {
+	//med range
+	//3 low damage arrows
 
 	public override string getName ()
 	{
-		return "Shoot";
+		return "Rapid Fire";
+	}
+
+	public override string[] getDescription ()
+	{
+		return new string[] {
+			"Shoot 3 arrows in quick succession"
+		};
 	}
 
 	public int _upScale;
@@ -98,10 +105,47 @@ public class BowShot : Ability
 	public float powerModifier;
 	public override int getDamage (int power)
 	{
-		return flatDamage + (int)(power*powerModifier);
+		//standard damage
+		int damage = getRawDamage(power);
+		//randomness
+		damage = (int)((Random.value * 0.2 + 0.8) * damage);
+		//crit
+		if (Random.value < critChance) {
+			damage = (int)(damage * 1.5);
+		}
+
+		return damage;
 	}
 
-	public override void HitTarget (Unit caster, Unit target) {
-		target.TakeDamage (getDamage(caster.currentPower));
+	public override int getRawDamage (int power)
+	{
+		//standard damage
+		int damage = flatDamage + (int)(power * powerModifier);
+		return damage;
 	}
+
+	private int takenShots = 0;
+
+	public override void HitTarget (Unit caster, Vector3 targetPosition) {
+		Unit target = gameManager.boardManager.unitMap[(int) targetPosition.x, (int) targetPosition.z];
+		if (target != null) {
+			target.TakeDamage (getDamage (caster.currentPower));
+		}
+		//add one to takenShots
+		//if not 3 have been shot, shoot more
+		takenShots++;
+		if (takenShots < 3) {
+			ActivateAbility (target.transform.position);
+		}
+	}
+
+	public new void ActivateAbility (Vector3 target)
+	{
+		if (takenShots >= 3) {
+			takenShots = 0;
+		}
+		base.ActivateAbility (target);
+	}
+
+
 }

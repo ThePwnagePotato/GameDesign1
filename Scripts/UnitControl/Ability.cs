@@ -6,6 +6,8 @@ public abstract class Ability : MonoBehaviour
 {
 	public abstract string getName ();
 
+	public abstract string[] getDescription ();
+
 	public abstract int maxCooldown ();
 
 	public abstract int cooldown { get; set; }
@@ -26,15 +28,19 @@ public abstract class Ability : MonoBehaviour
 
 	public abstract int getDamage (int power);
 
+	public abstract int getRawDamage (int power);
+
 	public abstract float projectileSpeed { get; set; }
 
 	public abstract float projectileHeight { get; set; }
+
+	public virtual float critChance { get { return 0.1f; } set { critChance = value; }}
 
 	public abstract GameObject model { get; set; }
 
 	public abstract GameManager gameManager { get; set; }
 
-	public abstract void HitTarget (Unit caster, Unit target);
+	public abstract void HitTarget (Unit caster, Vector3 targetPosition);
 
 	public void Start () {
 		// connect dependencies
@@ -163,7 +169,7 @@ public abstract class Ability : MonoBehaviour
 	}
 	*/
 
-	private IEnumerator LaunchProjectile (Vector3 target, GameState gameState)
+	protected IEnumerator LaunchProjectile (Vector3 target, GameState gameState)
 	{
 		Vector3 origin = transform.position;
 		if (target != origin) { // only bother with trajectory and projectile creation if it's not a self-cast
@@ -208,16 +214,15 @@ public abstract class Ability : MonoBehaviour
 		}
 		// 			code for hit-art/animation should be placed here
 
+
 		// 			code for effect giving to units in or around target area should be placed here
 		// get the caster from the origin of the ability, then check if it is null.
 		Unit caster = gameManager.boardManager.unitMap[(int) origin.x, (int) origin.z];
 		Unit targetUnit = gameManager.boardManager.unitMap[(int) target.x, (int) target.z];
 		if (caster == null) {
 			Debug.Log ("ERROR: No caster found at ability origin!");
-		} else if (targetUnit == null) {
-			Debug.Log ("ERROR: No target found at target vector!");
 		} else {
-			HitTarget (caster, targetUnit);
+			HitTarget (caster, target);
 		}
 
 		// signal that animation is done to GameManager:
@@ -252,23 +257,26 @@ public abstract class Ability : MonoBehaviour
 
 /* Abilities
  * 
- * Mage:	Fireball (basic)
+ * Mage:	-Fireball (basic)
  * 			
  * 
  * 
  * Rogue:	Stab (basic)
- * 			Poison attack (inflicts poison)
+ * 			Bleed attack (inflicts bleed)
  * 			
  * 
  * 
- * Ranger:	Shoot (bow) (basic)
- * 			Fast attack (couple arrows in a row)
- * 			Snipe (long range high damage)
- * 			
+ * Ranger:	-Shoot (bow) (basic)
+ * 			-rapid shot(couple arrows in a row)
+ * 			-Snipe (long range high damage)
+ * 			-Root shot
+ * 			? aoe arrow rain?
+ * 			? hit and run?
+ *
  * 
  * Tank:	Stab (basic)
  * 			Taunt (draws aggro from enemy)
- * 			self buff (decrease damage for x turns)
+ * 			self buff + fatigue(increase stats, then decrease)
  * 			utility (stun attack)
  * 			
  * 

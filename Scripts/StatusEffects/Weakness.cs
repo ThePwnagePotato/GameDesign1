@@ -4,11 +4,20 @@ using System.Collections;
 
 public class Weakness : StatusEffect
 {
+	//test effect
+
 	//Lowers power stat temporarily
 
 	public override string GetName ()
 	{
-		return "Weakness";
+		return "Weakened";
+	}
+
+	public override string[] getDescription ()
+	{
+		return new string[] {
+			"test123"
+		};
 	}
 
 	public override bool IsPositive ()
@@ -61,17 +70,8 @@ public class Weakness : StatusEffect
 	public override void OnTakeDamage () {
 
 	}
-		
+	public override void OnRemoval () {
 
-	// Use this for initialization
-	void Start ()
-	{
-	
 	}
-	
-	// Update is called once per frame
-	void Update ()
-	{
-	
-	}
+
 }

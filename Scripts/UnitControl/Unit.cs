@@ -129,8 +129,10 @@ public abstract class Unit : MonoBehaviour
 
 		}
 
+		int randomDamage = (int) ((Random.value * 0.2 + 0.8) * damage);
+
 		// calculate the final damage using the tempDef value
-		int finalDamage = Mathf.Max (damage - currentDefense, 1);
+		int finalDamage = Mathf.Max (randomDamage - currentDefense, 1);
 
 		currentHealth = currentHealth - finalDamage;
 
@@ -162,15 +164,9 @@ public abstract class Unit : MonoBehaviour
 		canMove = true;
 		canAttack = true;
 
-		for (int i = statusEffects ().Count - 1; i >= 0; i--) {
-			GameObject effectObject = statusEffects ()[i];
+		foreach (GameObject effectObject in statusEffects ()) {
 			StatusEffect effect = effectObject.GetComponent<StatusEffect> ();
 			effect.OnTurnStart ();
-
-			if (effect.duration <= 0) {
-				statusEffects ().RemoveAt (i);
-				Destroy (effect.gameObject);
-			}
 		}
 
 		if (currentPower < 0) { currentPower = 0; }
@@ -179,6 +175,31 @@ public abstract class Unit : MonoBehaviour
 		if (currentMovesUp < 0) { currentMovesUp = 0; }
 		if (currentMovesDown < 0) { currentMovesDown = 0; }
 		if (currentMovesSide < 0) { currentMovesSide = 0; }
+	}
+
+	//tick abilities
+	//remove statuseffects
+	public void EndTurn() {
+		foreach (GameObject abilityObject in abilities) {
+			Ability ability = abilityObject.GetComponent<Ability> ();
+
+			if (ability.cooldown < 0) {
+				ability.cooldown = ability.maxCooldown ();
+			} else if (ability.cooldown > 0) {
+				ability.cooldown--;
+			}
+		}
+
+		for (int i = statusEffects ().Count - 1; i >= 0; i--) {
+			GameObject effectObject = statusEffects () [i];
+			StatusEffect effect = effectObject.GetComponent<StatusEffect> ();
+			effect.OnTurnEnd ();
+					
+			if (effect.duration <= 0) {
+				statusEffects ().RemoveAt (i);
+				Destroy (effect.gameObject);
+			}
+		}
 	}
 
 

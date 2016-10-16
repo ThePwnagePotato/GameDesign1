@@ -1,19 +1,19 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Taunted : StatusEffect {
+public class Fatigued : StatusEffect {
 
-	//fixes the enemy's target to a specific unit
+	//Lowers power stat temporarily
 
 	public override string GetName ()
 	{
-		return "Taunted";
+		return "Fatigued";
 	}
 
 	public override string[] getDescription ()
 	{
 		return new string[] {
-			"Forced to target " + _evoker.getName ()
+			"Your body is tired, lowering all stats"
 		};
 	}
 
@@ -49,8 +49,13 @@ public class Taunted : StatusEffect {
 	public override void OnTurnStart () {
 		base.OnTurnStart ();
 
-		EnemyUnit unit = (EnemyUnit) target;
-		unit.targetUnit = evoker;
+		//subtract power of the effect from power of the unit
+		target.currentDefense -= power;
+		target.currentPower -= power;
+		target.currentMoves -= Mathf.Max(power / 2, 1);
+		target.currentMovesUp -= Mathf.Max(power / 2, 1);
+		target.currentMovesDown -= Mathf.Max(power / 2, 1);
+		target.currentMovesSide -= Mathf.Max(power / 2, 1);
 	}
 	public override void OnTurnEnd () {
 
@@ -70,5 +75,4 @@ public class Taunted : StatusEffect {
 	public override void OnRemoval () {
 
 	}
-		
 }

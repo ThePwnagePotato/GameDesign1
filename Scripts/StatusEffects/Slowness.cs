@@ -1,27 +1,25 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class TankBuff : StatusEffect {
+public class Slowness : StatusEffect {
 
 	//Lowers power stat temporarily
 
-	public GameObject fatigued;
-
 	public override string GetName ()
 	{
-		return "Weakened";
+		return "Slowed";
 	}
 
 	public override string[] getDescription ()
 	{
 		return new string[] {
-			"This unit's body is energized, raising all its stats"
+			"This unit's movement is slowed"
 		};
 	}
 
 	public override bool IsPositive ()
 	{
-		return true;
+		return false;
 	}
 
 	private int _power;
@@ -51,13 +49,11 @@ public class TankBuff : StatusEffect {
 	public override void OnTurnStart () {
 		base.OnTurnStart ();
 
-		//raise stats
-		target.currentDefense += power;
-		target.currentPower += power;
-		target.currentMoves += 2 * power;
-		target.currentMovesUp += 2 * power;
-		target.currentMovesDown += 2 * power;
-		target.currentMovesSide += 2 * power;
+		//subtract power of the effect from power of the unit
+		target.currentMoves -= 2;
+		target.currentMovesUp -= 1;
+		target.currentMovesDown -= 1;
+		target.currentMovesSide -= 1;
 	}
 	public override void OnTurnEnd () {
 
@@ -75,8 +71,7 @@ public class TankBuff : StatusEffect {
 
 	}
 	public override void OnRemoval () {
-		GameObject effect = Instantiate (fatigued, target.gameObject.transform) as GameObject;
-		target.statusEffects().Add (effect);
-		effect.GetComponent<StatusEffect> ().initialize(_evoker, _power, 1);
+
 	}
+
 }

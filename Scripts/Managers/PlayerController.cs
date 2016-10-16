@@ -116,7 +116,7 @@ public class PlayerController : MonoBehaviour
 				gameManager.Pop ();
 				// pop off the SELECTEDUNIT gamestate, as we want to return to the PLAYERTURN after actually using an ability
 				gameManager.Pop ();
-				ability.ActivateAbility (clickedTarget + Vector3.up);
+				ability.ActivateAbility (clickedTarget);
 			}
 		}
 	}

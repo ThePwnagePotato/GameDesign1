@@ -13,7 +13,7 @@ public class Fatigued : StatusEffect {
 	public override string[] getDescription ()
 	{
 		return new string[] {
-			"Your body is tired, lowering all stats"
+			"This unit's body is tired, lowering all its stats"
 		};
 	}
 

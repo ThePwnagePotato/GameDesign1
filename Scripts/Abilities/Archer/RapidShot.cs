@@ -133,17 +133,19 @@ public class RapidShot : Ability {
 		}
 		//add one to takenShots
 		//if not 3 have been shot, shoot more
+		if (takenShots >= 3) {
+			takenShots = 0;
+		}
+
 		takenShots++;
-		if (takenShots < 3 && target != null) {
-			ActivateAbility (target.transform.position);
+
+		if (takenShots < 3) {
+			ActivateAbility (targetPosition);
 		}
 	}
 
 	public new void ActivateAbility (Vector3 target)
 	{
-		if (takenShots >= 3) {
-			takenShots = 0;
-		}
 		base.ActivateAbility (target);
 	}
 

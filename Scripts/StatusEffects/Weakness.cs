@@ -16,7 +16,7 @@ public class Weakness : StatusEffect
 	public override string[] getDescription ()
 	{
 		return new string[] {
-			"test123"
+			"This unit's power is weakened"
 		};
 	}
 

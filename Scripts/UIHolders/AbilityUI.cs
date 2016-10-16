@@ -17,6 +17,7 @@ public class AbilityUI : MonoBehaviour {
 	public Text minMoveText;
 	public Text totalUpMoveText;
 	public Text totalDownMoveText;
+	public Text totalSideMoveText;
 
 	void Start() {
 		gameManager = GameObject.FindGameObjectWithTag ("GameManager").GetComponent<GameManager> ();
@@ -43,5 +44,6 @@ public class AbilityUI : MonoBehaviour {
 		minMoveText.text = selectedAbility.minRange().ToString();
 		totalUpMoveText.text = selectedAbility.upRange().ToString();
 		totalDownMoveText.text = selectedAbility.downRange().ToString();
+		totalSideMoveText.text = selectedAbility.sideRange().ToString();
 	}
 }

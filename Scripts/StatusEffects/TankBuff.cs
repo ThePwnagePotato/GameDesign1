@@ -15,7 +15,7 @@ public class TankBuff : StatusEffect {
 	public override string[] getDescription ()
 	{
 		return new string[] {
-			"Your body is energized, raising all stats"
+			"This unit's body is energized, raising all its stats"
 		};
 	}
 

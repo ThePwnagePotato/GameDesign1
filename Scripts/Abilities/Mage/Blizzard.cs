@@ -6,6 +6,8 @@ public class Blizzard : Ability {
 	//3x3 aoe damage
 	//applies slow
 
+	public GameObject slowness;
+
 	public override string getName ()
 	{
 		return "Blizzard";
@@ -130,9 +132,21 @@ public class Blizzard : Ability {
 		Unit[,] unitMap = gameManager.boardManager.unitMap;
 
 		int x = (int) targetPosition.x;
-		int y = (int) targetPosition.y;
 		int z = (int) targetPosition.z;
 
+		for (int xRange = x - 1; xRange <= x + 1; x++) {
+			for (int zRange = z - 1; zRange <= z + 1; z++) {
+				if (xRange >= 0 && zRange >= 0 && xRange < unitMap.Length && zRange < unitMap.GetLength (0)) {
+					Unit target = unitMap [x, z];
+					if (target != null) {
+						target.TakeDamage (getDamage (caster.currentPower));
 
+						GameObject effect = Instantiate (slowness, target.gameObject.transform) as GameObject;
+						target.statusEffects().Add (effect);
+						effect.GetComponent<StatusEffect> ().initialize(caster, caster.currentPower, 3);
+					}
+				}
+			}
+		}
 	}
 }

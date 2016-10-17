@@ -42,7 +42,7 @@ public class AbilityUI : MonoBehaviour {
 		ability = selectedAbility;
 		unit = selectedUnit;
 		nameText.text = selectedAbility.getName ();
-		powText.text = selectedAbility.getDamage(selectedUnit.power).ToString();
+		powText.text = selectedAbility.getRawDamage(selectedUnit.power).ToString();
 		upScaleText.text = selectedAbility.upScale.ToString();
 		downScaleText.text = selectedAbility.downScale.ToString();
 		maxMoveText.text = selectedAbility.maxRange().ToString();

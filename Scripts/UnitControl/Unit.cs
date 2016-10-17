@@ -395,5 +395,13 @@ public abstract class Unit : MonoBehaviour
 			InitiateTargetSearch (targetPosition, position, currentMoves, currentMovesUp, currentMovesDown, currentMovesSide, direction == Direction.X ? false : true, Direction.Z);
 		}
 	}
+
+	// for easy movement managing to tiles
+	public void SetMoveStats (ReachableTile tile) {
+		this.currentMoves = tile.totalMove;
+		this.currentMovesUp = tile.upMove;
+		this.currentMovesDown = tile.downMove;
+		this.currentMovesSide = tile.sideMove;
+	}
 }
 

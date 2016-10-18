@@ -379,7 +379,6 @@ public abstract class Unit : MonoBehaviour
 			InitiateTargetSearch (targetPosition, position, currentMoves, currentMovesUp, currentMovesDown, currentMovesSide, direction == Direction.X ? false : true, Direction.Z);
 		}
 	}
-<<<<<<< HEAD
 		
 	// loop through all the elements of the list
 	// if a vector equal to the new vector is found, return
@@ -398,8 +397,6 @@ public abstract class Unit : MonoBehaviour
 
 		list.Add (element);
 	}
-=======
->>>>>>> origin/master
 
 	// for easy movement managing to tiles
 	public void SetMoveStats (ReachableTile tile) {

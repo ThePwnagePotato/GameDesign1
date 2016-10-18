@@ -131,10 +131,17 @@ public class StunAttack : Ability {
 	public override void HitTarget (Unit caster, Vector3 targetPosition) {
 		Unit target = gameManager.boardManager.unitMap[(int) targetPosition.x, (int) targetPosition.z];
 		if (target != null) {
+			int finalPower = caster.currentPower;
+			foreach (GameObject effectObject in caster.statusEffects()) {
+				StatusEffect effect = effectObject.GetComponent<StatusEffect> ();
+				finalPower = effect.OnDoDamage (finalPower);
+			}
 
-			GameObject effect = Instantiate (stunned, target.gameObject.transform) as GameObject;
-			target.statusEffects().Add (effect);
-			effect.GetComponent<StatusEffect> ().initialize(caster, caster.currentPower, 1);
+			target.TakeDamage (finalPower);
+
+			GameObject addEffect = Instantiate (stunned, target.gameObject.transform) as GameObject;
+			target.statusEffects().Add (addEffect);
+			addEffect.GetComponent<StatusEffect> ().initialize(caster, caster.currentPower, 1);
 		}
 	}
 }

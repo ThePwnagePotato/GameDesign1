@@ -11,6 +11,8 @@ public class SelectedUI : MonoBehaviour {
 	public float abilityHolderYOffset;
 
 	public Text hpText;
+	public Text maxHpText;
+	public Text nameText;
 	public Text powText;
 	public Text defText;
 	public Text totalMoveText;
@@ -21,10 +23,13 @@ public class SelectedUI : MonoBehaviour {
 	public Text upMoveText;
 	public Text downMoveText;
 	public Text sideMoveText;
+	public Slider hpSlider;
 
 	private List<GameObject> abilityList;
 
 	public void updateValues(Unit selected) {
+		nameText.text = selected.getName().ToString();
+		hpText.text = selected.currentHealth.ToString();
 		hpText.text = selected.maxHealth.ToString();
 		powText.text = selected.power.ToString();
 		defText.text = selected.defense.ToString();
@@ -36,6 +41,8 @@ public class SelectedUI : MonoBehaviour {
 		upMoveText.text = selected.currentMovesUp.ToString();
 		downMoveText.text = selected.currentMovesDown.ToString();
 		sideMoveText.text = selected.currentMovesSide.ToString();
+		hpSlider.maxValue = selected.maxHealth;
+		hpSlider.value = selected.currentHealth;
 
 		if (abilityList == null) abilityList = new List<GameObject> ();
 		Ability[] abilitiesOnUnit = selected.GetComponentsInChildren<Ability> ();

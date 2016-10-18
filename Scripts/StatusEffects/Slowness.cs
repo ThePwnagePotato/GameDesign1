@@ -55,23 +55,5 @@ public class Slowness : StatusEffect {
 		target.currentMovesDown -= 1;
 		target.currentMovesSide -= 1;
 	}
-	public override void OnTurnEnd () {
-
-	}
-	public override void OnMovement () {
-
-	}
-	public override void OnAbility () {
-
-	}
-	public override void OnDoDamage () {
-
-	}
-	public override void OnTakeDamage () {
-
-	}
-	public override void OnRemoval () {
-
-	}
 
 }

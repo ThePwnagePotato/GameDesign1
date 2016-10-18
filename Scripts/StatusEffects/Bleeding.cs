@@ -53,20 +53,6 @@ public class Bleeding : StatusEffect
 		//bleed, do damage
 		target.TakeDamage(10 + _power);
 	}
-	public override void OnMovement () {
 
-	}
-	public override void OnAbility () {
-
-	}
-	public override void OnDoDamage () {
-
-	}
-	public override void OnTakeDamage () {
-
-	}
-	public override void OnRemoval () {
-
-	}
 
 }

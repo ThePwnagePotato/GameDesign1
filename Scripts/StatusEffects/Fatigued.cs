@@ -57,22 +57,5 @@ public class Fatigued : StatusEffect {
 		target.currentMovesDown -= Mathf.Max(power / 2, 1);
 		target.currentMovesSide -= Mathf.Max(power / 2, 1);
 	}
-	public override void OnTurnEnd () {
 
-	}
-	public override void OnMovement () {
-
-	}
-	public override void OnAbility () {
-
-	}
-	public override void OnDoDamage () {
-
-	}
-	public override void OnTakeDamage () {
-
-	}
-	public override void OnRemoval () {
-
-	}
 }

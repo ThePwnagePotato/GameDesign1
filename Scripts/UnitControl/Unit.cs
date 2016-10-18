@@ -86,6 +86,8 @@ public abstract class Unit : MonoBehaviour
 
 	public abstract GameManager gameManager { get; set; }
 
+	protected bool isMoving = false;
+
 	public void Start ()
 	{
 		// connect dependencies
@@ -198,34 +200,7 @@ public abstract class Unit : MonoBehaviour
 			}
 		}
 	}
-
-
-	private enum Direction
-	{
-		X,
-		Z,
-		NONE
-
-	}
-
-	// loop through all the elements of the list
-	// if a vector equal to the new vector is found, return
-	// if none is found, add the new vector to the list
-	private void AddNonDuplicate (List<ReachableTile> list, ReachableTile element)
-	{
-		foreach (ReachableTile tile in list) {
-			if (tile.position == element.position) {
-				if (!tile.straight && element.straight) {
-					tile.straight = true;
-					return;
-				}
-				else return;
-			}
-		}
-
-		list.Add (element);
-	}
-
+		
 	// animates and executes the move of this unit to some target position
 	public void Move (Vector3 target)
 	{
@@ -242,7 +217,7 @@ public abstract class Unit : MonoBehaviour
 
 	// This function launches and animates the projectile trajectory and impact.
 	// It then applies its effect to the target position and marks its associated ANIMATION GameState as inactive
-	private IEnumerator ExecuteMovement (Vector3 endTarget, GameState gameState)
+	protected IEnumerator ExecuteMovement (Vector3 endTarget, GameState gameState)
 	{
 		Vector3 startOrigin = transform.position; // saved to move unit on unitMap in boardManager at end of animation
 
@@ -336,6 +311,15 @@ public abstract class Unit : MonoBehaviour
 		boardManager.unitMap[(int)endTarget.x,(int)endTarget.z] = this;
 		// signal that animation is done to GameManager:
 		gameState.active = false;
+		isMoving = false;
+	}
+
+	protected enum Direction
+	{
+		X,
+		Z,
+		NONE
+
 	}
 
 	private List<ReachableTile> possibleMoveList = new List<ReachableTile> ();
@@ -354,7 +338,7 @@ public abstract class Unit : MonoBehaviour
 		return possibleMoveList;
 	}
 
-	void InitiateTargetSearch(Vector3 targetPosition, Vector3 position, int currentMoves, int currentMovesUp, int currentMovesDown, int currentMovesSide, bool straight, Direction direction) {
+	private void InitiateTargetSearch(Vector3 targetPosition, Vector3 position, int currentMoves, int currentMovesUp, int currentMovesDown, int currentMovesSide, bool straight, Direction direction) {
 		currentMovesSide--;
 		currentMoves--;
 		if (targetPosition.y > position.y) {
@@ -371,7 +355,7 @@ public abstract class Unit : MonoBehaviour
 		PositionSearch (targetPosition, currentMoves, currentMovesUp, currentMovesDown, currentMovesSide, straight, direction);
 	}
 
-	void PositionSearch (Vector3 position, int currentMoves, int currentMovesUp, int currentMovesDown, int currentMovesSide, bool straight, Direction direction) {
+	private void PositionSearch (Vector3 position, int currentMoves, int currentMovesUp, int currentMovesDown, int currentMovesSide, bool straight, Direction direction) {
 		if (currentMoves < 0 || currentMovesUp < 0 || currentMovesDown < 0 || currentMovesSide < 0
 			|| (boardManager.unitMap[(int)position.x, (int)position.z] != null && boardManager.unitMap[(int)position.x, (int)position.z].isFriendly() != isFriendly())) {
 			return;
@@ -394,6 +378,32 @@ public abstract class Unit : MonoBehaviour
 			Vector3 targetPosition = new Vector3 (position.x, boardManager.heightMap[(int)position.x, (int)position.z+1], position.z+1);
 			InitiateTargetSearch (targetPosition, position, currentMoves, currentMovesUp, currentMovesDown, currentMovesSide, direction == Direction.X ? false : true, Direction.Z);
 		}
+	}
+		
+	// loop through all the elements of the list
+	// if a vector equal to the new vector is found, return
+	// if none is found, add the new vector to the list
+	private void AddNonDuplicate (List<ReachableTile> list, ReachableTile element)
+	{
+		foreach (ReachableTile tile in list) {
+			if (tile.position == element.position) {
+				if (!tile.straight && element.straight) {
+					tile.straight = true;
+					return;
+				}
+				else return;
+			}
+		}
+
+		list.Add (element);
+	}
+
+	// for easy movement managing to tiles
+	public void SetMoveStats (ReachableTile tile) {
+		this.currentMoves = tile.totalMove;
+		this.currentMovesUp = tile.upMove;
+		this.currentMovesDown = tile.downMove;
+		this.currentMovesSide = tile.sideMove;
 	}
 }
 

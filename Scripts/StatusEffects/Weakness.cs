@@ -55,23 +55,6 @@ public class Weakness : StatusEffect
 		//subtract power of the effect from power of the unit
 		target.currentDefense -= power;
 	}
-	public override void OnTurnEnd () {
 
-	}
-	public override void OnMovement () {
-
-	}
-	public override void OnAbility () {
-
-	}
-	public override void OnDoDamage () {
-
-	}
-	public override void OnTakeDamage () {
-
-	}
-	public override void OnRemoval () {
-
-	}
 
 }

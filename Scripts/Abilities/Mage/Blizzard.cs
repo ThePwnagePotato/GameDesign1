@@ -139,11 +139,17 @@ public class Blizzard : Ability {
 				if (xRange >= 0 && zRange >= 0 && xRange < unitMap.Length && zRange < unitMap.GetLength (0)) {
 					Unit target = unitMap [x, z];
 					if (target != null) {
-						target.TakeDamage (getDamage (caster.currentPower));
+						int finalPower = caster.currentPower;
+						foreach (GameObject effectObject in caster.statusEffects()) {
+							StatusEffect effect = effectObject.GetComponent<StatusEffect> ();
+							finalPower = effect.OnDoDamage (finalPower);
+						}
 
-						GameObject effect = Instantiate (slowness, target.gameObject.transform) as GameObject;
-						target.statusEffects().Add (effect);
-						effect.GetComponent<StatusEffect> ().initialize(caster, caster.currentPower, 3);
+						target.TakeDamage (finalPower);
+
+						GameObject addEffect = Instantiate (slowness, target.gameObject.transform) as GameObject;
+						target.statusEffects().Add (addEffect);
+						addEffect.GetComponent<StatusEffect> ().initialize(caster, caster.currentPower, 3);
 					}
 				}
 			}

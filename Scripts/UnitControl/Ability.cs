@@ -151,7 +151,6 @@ public abstract class Ability : MonoBehaviour
 		// 			code for effect giving to units in or around target area should be placed here
 		// get the caster from the origin of the ability, then check if it is null.
 		Unit caster = gameManager.boardManager.unitMap[(int) origin.x, (int) origin.z];
-		Unit targetUnit = gameManager.boardManager.unitMap[(int) target.x, (int) target.z];
 		if (caster == null) {
 			Debug.Log ("ERROR: No caster found at ability origin!");
 		} else {

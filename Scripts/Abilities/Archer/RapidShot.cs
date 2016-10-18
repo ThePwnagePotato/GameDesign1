@@ -129,7 +129,13 @@ public class RapidShot : Ability {
 	public override void HitTarget (Unit caster, Vector3 targetPosition) {
 		Unit target = gameManager.boardManager.unitMap[(int) targetPosition.x, (int) targetPosition.z];
 		if (target != null) {
-			target.TakeDamage (getDamage (caster.currentPower));
+			int finalPower = caster.currentPower;
+			foreach (GameObject effectObject in caster.statusEffects()) {
+				StatusEffect effect = effectObject.GetComponent<StatusEffect> ();
+				finalPower = effect.OnDoDamage (finalPower);
+			}
+
+			target.TakeDamage (finalPower);
 		}
 		//add one to takenShots
 		//if not 3 have been shot, shoot more

@@ -19,13 +19,18 @@ public class PlayerController : MonoBehaviour
 	public GameManager gameManager;
 	public BoardManager boardManager;
 
+	[Header("Controls")]
+	public GameObject hoverUIHolder;
+
 	private CameraController mainCamera;
 	private Camera _camera;
+	private SelectedUI hoverUI;
 
 	// internal variables
 	private Vector3 prevMousePos;
 	private Vector3 mouseDelta;
 	private float mouse3LastClick;
+	private bool wasHovering;
 
 	// Use this for initialization
 	void Start ()
@@ -34,16 +39,39 @@ public class PlayerController : MonoBehaviour
 		_camera = mainCamera.gameObject.GetComponent<Camera> ();
 		prevMousePos = Input.mousePosition;
 		mouse3LastClick = -1000;
+		hoverUI = hoverUIHolder.GetComponent<SelectedUI>();
+		wasHovering = false;
 	}
 
 	void Update ()
 	{
+		// UI has priority over gameworld, so we need to keep track of whether we are hovering over the UI
+		bool overUI = UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject ();
+
+		// display info window on the right for the unit we are hovering over
+		RaycastHit hitInfo = MouseRaycast ();
+		if (hitInfo.collider != null) {
+			Unit hoverTarget = hitInfo.collider.gameObject.GetComponentInParent<Unit> ();
+			if (hoverTarget != null) {
+				if (!wasHovering) {
+					wasHovering = true;
+					hoverUIHolder.SetActive (true);
+					hoverUI.updateValues (hoverTarget);
+				}
+			} else if (wasHovering) {
+				hoverUIHolder.SetActive (false);
+				wasHovering = false;
+			}
+		} else if (wasHovering) {
+			hoverUIHolder.SetActive (false);
+			wasHovering = false;
+		}
+			
+
 		GameState gameState = gameManager.gameStack.Peek ();
 		if (gameState.type != GameStateType.DIALOGUE || gameState.type != GameStateType.ESCMENU) {
 			CameraControl ();
 		}
-
-		bool overUI = UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject ();
 
 		// if player clicks left mouse button
 		if (Input.GetMouseButtonDown (0) && !Input.GetKey("left alt")) {
@@ -137,6 +165,7 @@ public class PlayerController : MonoBehaviour
 			List<ReachableTile> possibleMoves = unit.GetPossibleMoves();
 			foreach (ReachableTile tile in possibleMoves)
 				if (tile.straight && tile.position == clickedTarget) {
+					unit.SetMoveStats (tile);
 					isReachable = true;
 					break;
 				}
@@ -177,7 +206,7 @@ public class PlayerController : MonoBehaviour
 	{
 		RaycastHit hitInfo = MouseRaycast ();
 		if (hitInfo.collider != null) {
-			Unit selected = hitInfo.collider.gameObject.GetComponent<Unit> ();
+			Unit selected = hitInfo.collider.gameObject.GetComponentInParent<Unit> ();
 			if (selected != null) { // if a unit is selected
 				gameManager.Push (new GameState (GameStateType.SELECTEDUNIT, selected.gameObject));
 				Debug.Log (selected.getName () + " selected");

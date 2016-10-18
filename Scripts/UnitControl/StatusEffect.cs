@@ -26,17 +26,17 @@ public abstract class StatusEffect : MonoBehaviour {
 		duration--;
 	}
 
-	public abstract void OnTurnEnd ();
+	public virtual void OnTurnEnd () {}
 
-	public abstract void OnMovement ();
+	public virtual void OnMovement () {}
 
-	public abstract void OnAbility ();
+	public virtual void OnAbility () {}
 
-	public abstract void OnDoDamage ();
+	public virtual int OnDoDamage (int power) { return power; }
 
-	public abstract void OnTakeDamage ();
+	public virtual void OnTakeDamage () {}
 
-	public abstract void OnRemoval ();
+	public virtual void OnRemoval () {}
 
 	public void initialize (Unit evoker, int power, int duration) {
 		this.evoker = evoker;

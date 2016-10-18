@@ -52,23 +52,5 @@ public class Taunted : StatusEffect {
 		EnemyUnit unit = (EnemyUnit) target;
 		unit.targetUnit = evoker;
 	}
-	public override void OnTurnEnd () {
-
-	}
-	public override void OnMovement () {
-
-	}
-	public override void OnAbility () {
-
-	}
-	public override void OnDoDamage () {
-
-	}
-	public override void OnTakeDamage () {
-
-	}
-	public override void OnRemoval () {
-
-	}
 		
 }

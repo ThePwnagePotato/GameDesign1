@@ -59,21 +59,6 @@ public class TankBuff : StatusEffect {
 		target.currentMovesDown += 2 * power;
 		target.currentMovesSide += 2 * power;
 	}
-	public override void OnTurnEnd () {
-
-	}
-	public override void OnMovement () {
-
-	}
-	public override void OnAbility () {
-
-	}
-	public override void OnDoDamage () {
-
-	}
-	public override void OnTakeDamage () {
-
-	}
 	public override void OnRemoval () {
 		GameObject effect = Instantiate (fatigued, target.gameObject.transform) as GameObject;
 		target.statusEffects().Add (effect);

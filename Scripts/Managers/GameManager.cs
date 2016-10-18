@@ -133,12 +133,12 @@ public class GameManager : MonoBehaviour
 		case GameStateType.PLAYERTURN:
 			playerTurnUIHolder.SetActive (false);
 			foreach (Unit unit in boardManager.friendlyUnits) {
-				//if(unit.isAlive) ;
+				if(unit.isAlive) unit.EndTurn();
 			}
 			break;
 		case GameStateType.ENEMYTURN:
-			foreach (Unit unit in boardManager.friendlyUnits) {
-				//if(unit.isAlive) ;
+			foreach (Unit unit in boardManager.enemyUnits) {
+				if(unit.isAlive) unit.EndTurn();
 			}
 			break;
 		case GameStateType.SELECTEDUNIT:

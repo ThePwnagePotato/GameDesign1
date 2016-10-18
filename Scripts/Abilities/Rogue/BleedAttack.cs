@@ -136,11 +136,18 @@ public class BleedAttack : Ability {
 	public override void HitTarget (Unit caster, Vector3 targetPosition) {
 		Unit target = gameManager.boardManager.unitMap[(int) targetPosition.x, (int) targetPosition.z];
 		if (target != null) {
+
+			int finalPower = caster.currentPower;
+			foreach (GameObject effectObject in caster.statusEffects()) {
+				StatusEffect effect = effectObject.GetComponent<StatusEffect> ();
+				finalPower = effect.OnDoDamage (finalPower);
+			}
+				
 			target.TakeDamage (getDamage (caster.currentPower));
 
-			GameObject effect = Instantiate (bleeding, target.gameObject.transform) as GameObject;
-			target.statusEffects().Add (effect);
-			effect.GetComponent<StatusEffect> ().initialize(caster, caster.currentPower, 3);
+			GameObject addEffect = Instantiate (bleeding, target.gameObject.transform) as GameObject;
+			target.statusEffects().Add (addEffect);
+			addEffect.GetComponent<StatusEffect> ().initialize(caster, caster.currentPower, 3);
 		}
 	}
 }

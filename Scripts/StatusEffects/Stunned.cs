@@ -53,22 +53,5 @@ public class Stunned : StatusEffect {
 		target.canAttack = false;
 		target.canMove = false;
 	}
-	public override void OnTurnEnd () {
 
-	}
-	public override void OnMovement () {
-
-	}
-	public override void OnAbility () {
-
-	}
-	public override void OnDoDamage () {
-
-	}
-	public override void OnTakeDamage () {
-
-	}
-	public override void OnRemoval () {
-
-	}
 }

@@ -48,30 +48,12 @@ public class PlayerController : MonoBehaviour
 		// UI has priority over gameworld, so we need to keep track of whether we are hovering over the UI
 		bool overUI = UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject ();
 
-		// display info window on the right for the unit we are hovering over
-		RaycastHit hitInfo = MouseRaycast ();
-		if (hitInfo.collider != null) {
-			Unit hoverTarget = hitInfo.collider.gameObject.GetComponentInParent<Unit> ();
-			if (hoverTarget != null) {
-				if (!wasHovering) {
-					wasHovering = true;
-					hoverUIHolder.SetActive (true);
-					hoverUI.updateValues (hoverTarget);
-				}
-			} else if (wasHovering) {
-				hoverUIHolder.SetActive (false);
-				wasHovering = false;
-			}
-		} else if (wasHovering) {
-			hoverUIHolder.SetActive (false);
-			wasHovering = false;
-		}
-			
-
 		GameState gameState = gameManager.gameStack.Peek ();
 		if (gameState.type != GameStateType.DIALOGUE || gameState.type != GameStateType.ESCMENU) {
 			CameraControl ();
 		}
+
+		attemptHoverMenu (gameState);
 
 		// if player clicks left mouse button
 		if (Input.GetMouseButtonDown (0) && !Input.GetKey("left alt")) {
@@ -124,6 +106,34 @@ public class PlayerController : MonoBehaviour
 			}
 		}
 	}*/
+
+	void attemptHoverMenu(GameState gameState) {
+		// display info window on the right for the unit we are hovering over
+		if (gameState.type == GameStateType.ANIMATION)
+		if (wasHovering) {
+			hoverUIHolder.SetActive (false);
+			wasHovering = false;
+		} else
+			return;
+
+		RaycastHit hitInfo = MouseRaycast ();
+		if (hitInfo.collider != null) {
+			Unit hoverTarget = hitInfo.collider.gameObject.GetComponent<Unit> ();
+			if (hoverTarget != null) {
+				if (!wasHovering) {
+					wasHovering = true;
+					hoverUIHolder.SetActive (true);
+					hoverUI.updateValues (hoverTarget);
+				}
+			} else if (wasHovering) {
+				hoverUIHolder.SetActive (false);
+				wasHovering = false;
+			}
+		} else if (wasHovering) {
+			hoverUIHolder.SetActive (false);
+			wasHovering = false;
+		}
+	}
 
 	void attemptAbilityUse (GameState gameState)
 	{
@@ -206,7 +216,7 @@ public class PlayerController : MonoBehaviour
 	{
 		RaycastHit hitInfo = MouseRaycast ();
 		if (hitInfo.collider != null) {
-			Unit selected = hitInfo.collider.gameObject.GetComponentInParent<Unit> ();
+			Unit selected = hitInfo.collider.gameObject.GetComponent<Unit> ();
 			if (selected != null) { // if a unit is selected
 				gameManager.Push (new GameState (GameStateType.SELECTEDUNIT, selected.gameObject));
 				Debug.Log (selected.getName () + " selected");

@@ -78,19 +78,32 @@ public class GameManager : MonoBehaviour
 	public void Push (GameState gameState) {
 		switch (gameState.type) {
 		case GameStateType.PLAYERTURN:
+			Debug.Log ("TURN: Player turn started");
 			playerTurnUIHolder.SetActive (true);
 			foreach (Unit unit in boardManager.friendlyUnits) {
 				if(unit.isAlive) unit.ResetTurn ();
 			}
 			break;
 		case GameStateType.ENEMYTURN:
-			if (boardManager.enemyUnits.Count == 0)
+			if (boardManager.enemyUnits.Count == 0) {
 				gameState.active = false;
-			else
-			foreach (Unit unit in boardManager.enemyUnits) {
-				if(unit.isAlive) unit.ResetTurn ();
+			} else {
+				Debug.Log ("TURN: Enemy turn started");
+				foreach (Unit unit in boardManager.enemyUnits) {
+					EnemyUnit enemyUnit = (EnemyUnit)unit;
+					if (enemyUnit.isAlive) {
+						enemyUnit.ResetTurn ();
+						enemyUnit.DoTurn ();
+					}
+				}
 			}
+
+			//while (gameStack.Peek ().type != GameStateType.ROOT)
+			//	Pop ();
+			//GameState newState = new GameState (GameStateType.PLAYERTURN);
+			//Push (newState);
 			break;
+
 		case GameStateType.SELECTEDUNIT:
 			gameState.evoker.GetComponent<SpriteRenderer> ().color = new Color (1, 1, 0, 1); // make sprite yellow
 			// activate unit info (selected UI)
@@ -131,12 +144,14 @@ public class GameManager : MonoBehaviour
 		GameState gameState = gameStack.Peek ();
 		switch (gameState.type) {
 		case GameStateType.PLAYERTURN:
+			Debug.Log ("TURN: Player turn ended");
 			playerTurnUIHolder.SetActive (false);
 			foreach (Unit unit in boardManager.friendlyUnits) {
 				if(unit.isAlive) unit.EndTurn();
 			}
 			break;
 		case GameStateType.ENEMYTURN:
+			Debug.Log ("TURN: Enemy turn ended");
 			foreach (Unit unit in boardManager.enemyUnits) {
 				if(unit.isAlive) unit.EndTurn();
 			}

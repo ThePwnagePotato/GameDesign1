@@ -301,6 +301,7 @@ public abstract class Unit : MonoBehaviour
 					projectile.transform.position = Vector3.MoveTowards (projectile.transform.position, target, movementSpeed);
 					yield return new WaitForFixedUpdate ();
 				}
+
 			}
 			transform.position = target; // make sure that the unit is exactly at target position
 		}
@@ -311,7 +312,8 @@ public abstract class Unit : MonoBehaviour
 		boardManager.unitMap[(int)endTarget.x,(int)endTarget.z] = this;
 		// signal that animation is done to GameManager:
 		gameState.active = false;
-		isMoving = false;
+
+		//isMoving = false;
 	}
 
 	protected enum Direction

@@ -95,6 +95,11 @@ public abstract class Ability : MonoBehaviour
 	// Manage new ANIMATION GameState, animate projectile trajectory and impact, and apply ability effects to target area
 	public void ActivateAbility (Vector3 target)
 	{
+		//after activating, set canMove and canAttack to false
+		Unit caster = gameManager.boardManager.unitMap[(int)transform.position.x, (int)transform.position.z];
+		caster.canMove = false;
+		caster.canAttack = false;
+
 		// first create and push a ANIMATION gamestate to restrict input and whatever
 		GameState gameState = new GameState (GameStateType.ANIMATION, this.gameObject);
 		//gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();

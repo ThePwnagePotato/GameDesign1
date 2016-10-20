@@ -7,6 +7,4 @@ public abstract class BoardProfile : MonoBehaviour {
 	public int[,] heightMap;
 	public int[,] textureMap;
 	public int[,] deployMap;
-	public int[,] effectMap;
-	public int[,] spawnPositionMap;
 }

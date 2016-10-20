@@ -27,19 +27,5 @@ public class LevelTemplate : BoardProfile {
 			{0,0,0,0},
 			{0,0,0,0},
 			{0,0,0,0}	};
-
-		// The value in a cell represents the effectBlock that must be present there (0 is none)
-		effectMap = new int[4,4]
-		{	{0,0,0,0},
-			{0,0,0,0},
-			{0,0,0,0},
-			{0,0,0,0}	};
-
-		// A 1 in the cell represents that friendly units can spawn there
-		spawnPositionMap = new int[4,4]
-		{	{0,0,0,0},
-			{0,0,0,0},
-			{0,0,0,0},
-			{0,0,0,0}	};
 	}
 }

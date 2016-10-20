@@ -8,13 +8,11 @@ using System.Collections.Generic;
  * - int[,] heightMap - a map with the heightvalue for each tile, 0 or less if uncrossable
  * - int[,] textureMap - a map with the identifier for what blockSet to use for the instantiation of a particular block (see next)
  * - BlockSet[] blockSets - blockSets are the "texturePacks" for blocks. Using the textureMap they can be set for every block individually
- * - int [,] effectMap - a map with the type of effectBlocks to be instantiated at [,]
  * - int [,] deployMap - a map with the type of units to be instantiated on [,]
- * - int [,] spawnPositionMap - a map defining the positions on which friendly units can spawn (1 for spawnable, 0 for not)
  * 
  * 		IMPORTANT NOTE: A 0 in a map usually does NOT spawn the corresponding prefab 0 on that position.
  * 		This is because a 0 on a map usually denotes the ABSENCE of a block/unit/etc.
- * 		As a consequence, the unitMap and the effectMap should be "shifted" up by 1.
+ * 		As a consequence, the unitMap should be "shifted" up by 1.
  * 
  * The prefabs corresponding to the above mentioned maps are to be supplied to the BoardManager directly, these include:
  * - A default block
@@ -90,9 +88,7 @@ public class BoardManager : MonoBehaviour
 	// load parameters from BoardProfile
 	void loadBoardProfile() {
 		dimensions = boardProfile.dimensions;
-		effectMap = boardProfile.effectMap;
 		heightMap = boardProfile.heightMap;
-		spawnPositionMap = boardProfile.spawnPositionMap;
 		deployMap = boardProfile.deployMap;
 		textureMap = boardProfile.textureMap;
 	}

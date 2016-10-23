@@ -135,8 +135,4 @@ public class StartScreenManager : MonoBehaviour
 		confirm = confirmed;
 		Pop ();
 	}
-
-	public void LoadSave(int saveNo) {
-		// load save
-	}
 }

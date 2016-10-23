@@ -88,8 +88,9 @@ public abstract class Unit : MonoBehaviour
 
 	protected bool isMoving = false;
 
-	public void Start ()
+	public void Awake ()
 	{
+		currentHealth = maxHealth;
 		// connect dependencies
 		boardManager = GameObject.FindGameObjectWithTag ("BoardManager").GetComponent<BoardManager> ();
 		if (boardManager == null)
@@ -101,18 +102,13 @@ public abstract class Unit : MonoBehaviour
 		// setting initial state to being alive
 		isAlive = true;
 
-		// add itself to the unitMap and relevant lists. This is for testing purposes, normally the boardManager does this while spawning unit
-		Debug.Log("TEST: Adding itself to unitmap");
-		boardManager.AddToUnitMap(this);
-		if (isFriendly ())
-			boardManager.friendlyUnits.Add (this);
-		else
-			boardManager.enemyUnits.Add (this);
-
 		for (int i = 0; i < abilities.Count; i++) {
 			GameObject newAbility = Instantiate (abilities[i], this.transform) as GameObject;
 			newAbility.transform.position = this.transform.position;
 		}
+	}
+
+	public void Start () {
 	}
 
 	/* damages the characted, calls Die() if health goes below 0

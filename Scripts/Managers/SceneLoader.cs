@@ -14,7 +14,7 @@ public class SceneLoader : MonoBehaviour {
 	private float alpha = 1.0f;
 	private int fadeDir = -1;
 
-	public void Start () {
+	public void Awake () {
 		if (audioSources != null) {
 			originalVolumes = new float[audioSources.Length];
 			for (int i = 0; i < audioSources.Length; i++) {
@@ -69,4 +69,30 @@ public class SceneLoader : MonoBehaviour {
 		yield return new WaitForSeconds (fadeTime);
 		SceneManager.LoadScene (name);
 	}
+
+	public void AttemptSlotContinue (string sceneName) {
+		if (SaveData.saveData.currentSave != null) {
+			LoadScene (sceneName);
+		}
+	}
+
+	public void StartNewSave () {
+		SaveData.saveData.StartNewSave ();
+	}
+
+	public void SaveToInstance (int saveSlot) {
+		SaveData.saveData.SaveToInstance (saveSlot);
+	}
+
+	public void LoadFromInstance (int saveSlot) {
+		SaveData.saveData.LoadFromInstance (saveSlot);
+	}
+
+	public void SaveToDisk() {
+		SaveData.saveData.SaveToDisk ();
+	}
+
+	public void LoadFromDisk() {
+		SaveData.saveData.LoadFromDisk ();
+}
 }

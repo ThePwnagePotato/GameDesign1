@@ -5,10 +5,12 @@ using UnityEngine.UI;
 public class HPBarWatcher : MonoBehaviour {
 
 	public Slider slider;
-	public Unit unit;
+	private Unit unit;
+	public Text hpText;
 
 	// Use this for initialization
 	void Start () {
+		unit = GetComponentInParent<Unit> ();
 		slider.maxValue = unit.maxHealth;
 		Update ();
 	}
@@ -16,5 +18,6 @@ public class HPBarWatcher : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		slider.value = unit.currentHealth;
+		hpText.text = unit.currentHealth.ToString();
 	}
 }

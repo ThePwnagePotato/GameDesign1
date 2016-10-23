@@ -56,6 +56,7 @@ public class GameManager : MonoBehaviour
 	public GameObject selectedUIHolder;
 	public SelectedUI selectedUI;
 	public GameObject playerTurnUIHolder;
+	public FriendlyUnitsUI friendlyUnitsUI;
 
 	private List<GameObject> spawnedObjects;
 	public Stack<GameState> gameStack;
@@ -81,8 +82,10 @@ public class GameManager : MonoBehaviour
 			Debug.Log ("TURN: Player turn started");
 			playerTurnUIHolder.SetActive (true);
 			foreach (Unit unit in boardManager.friendlyUnits) {
-				if(unit.isAlive) unit.ResetTurn ();
+				if (unit.isAlive)
+					unit.ResetTurn ();
 			}
+			friendlyUnitsUI.updateValues ();
 			break;
 		case GameStateType.ENEMYTURN:
 			if (boardManager.enemyUnits.Count == 0) {
@@ -96,6 +99,7 @@ public class GameManager : MonoBehaviour
 						enemyUnit.DoTurn ();
 					}
 				}
+				gameState.active = false;
 			}
 
 			//while (gameStack.Peek ().type != GameStateType.ROOT)
@@ -105,6 +109,7 @@ public class GameManager : MonoBehaviour
 			break;
 
 		case GameStateType.SELECTEDUNIT:
+			playerTurnUIHolder.SetActive (false);
 			gameState.evoker.GetComponent<SpriteRenderer> ().color = new Color (1, 1, 0, 1); // make sprite yellow
 			// activate unit info (selected UI)
 			selectedUIHolder.SetActive (true);
@@ -145,30 +150,37 @@ public class GameManager : MonoBehaviour
 		switch (gameState.type) {
 		case GameStateType.PLAYERTURN:
 			Debug.Log ("TURN: Player turn ended");
+			friendlyUnitsUI.Clear ();
 			playerTurnUIHolder.SetActive (false);
 			foreach (Unit unit in boardManager.friendlyUnits) {
 				if(unit.isAlive) unit.EndTurn();
 			}
+			gameStack.Pop ();
 			break;
 		case GameStateType.ENEMYTURN:
 			Debug.Log ("TURN: Enemy turn ended");
 			foreach (Unit unit in boardManager.enemyUnits) {
-				if(unit.isAlive) unit.EndTurn();
+				if (unit.isAlive)
+					unit.EndTurn ();
 			}
+			gameStack.Pop ();
+			Push (new GameState (GameStateType.PLAYERTURN));
 			break;
 		case GameStateType.SELECTEDUNIT:
 			gameState.evoker.GetComponent<SpriteRenderer> ().color = new Color (1, 1, 1, 1); // "unselectify" - make sprite regular color
-			selectedUI.Clear();
+			selectedUI.Clear ();
 			selectedUIHolder.SetActive (false); // disable "selected UI" 
 			ResetSpawnedObjects ();
+			playerTurnUIHolder.SetActive (true);
+			gameStack.Pop ();
 			break;
 		case GameStateType.SELECTEDABILITY:
 			ResetSpawnedObjects ();
+			gameStack.Pop ();
 			break;
 		default:
 			break;
 		}
-		gameStack.Pop ();
 
 		// TESTING CODE
 		if(gameState.type == GameStateType.ENEMYTURN) Push(new GameState(GameStateType.PLAYERTURN));

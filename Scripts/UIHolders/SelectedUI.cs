@@ -23,6 +23,8 @@ public class SelectedUI : MonoBehaviour {
 	public Text upMoveText;
 	public Text downMoveText;
 	public Text sideMoveText;
+	public Text MOVText;
+	public Text ACTText;
 	public Slider hpSlider;
 
 	private List<GameObject> abilityList;
@@ -30,7 +32,7 @@ public class SelectedUI : MonoBehaviour {
 	public void updateValues(Unit selected) {
 		nameText.text = selected.getName().ToString();
 		hpText.text = selected.currentHealth.ToString();
-		hpText.text = selected.maxHealth.ToString();
+		maxHpText.text = selected.maxHealth.ToString();
 		powText.text = selected.power.ToString();
 		defText.text = selected.defense.ToString();
 		totalMoveText.text = selected.totalMoves.ToString();
@@ -43,6 +45,14 @@ public class SelectedUI : MonoBehaviour {
 		sideMoveText.text = selected.currentMovesSide.ToString();
 		hpSlider.maxValue = selected.maxHealth;
 		hpSlider.value = selected.currentHealth;
+		if (selected.canMove)
+			MOVText.text = "MOV";
+		else
+			MOVText.text = "";
+		if (selected.canAttack)
+			ACTText.text = "ACT";
+		else
+			ACTText.text = "";
 
 		if (abilityList == null) abilityList = new List<GameObject> ();
 		Ability[] abilitiesOnUnit = selected.GetComponentsInChildren<Ability> ();

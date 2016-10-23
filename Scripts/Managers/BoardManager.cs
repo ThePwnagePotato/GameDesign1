@@ -38,6 +38,7 @@ public class BoardManager : MonoBehaviour
 	public int[,] deployMap;
 	public int[,] effectMap;
 	public int[,] spawnPositionMap;
+	public Unit[] prespawnedUnits;
 
 	[Header ("Prefabs")]
 	public GameObject defaultBlock;
@@ -74,6 +75,13 @@ public class BoardManager : MonoBehaviour
 			GenerateTerrain ();
 		}
 		unitMap = new Unit[(int)dimensions.x,(int)dimensions.z];
+		foreach (Unit unit in prespawnedUnits) {
+			unitMap[(int)unit.transform.position.x, (int)unit.transform.position.z] = unit;
+			if (unit.isFriendly())
+				friendlyUnits.Add (unit);
+			else
+				enemyUnits.Add (unit);
+		}
 		if (instantiateUnits) {
 			InstantiateUnits ();
 		}

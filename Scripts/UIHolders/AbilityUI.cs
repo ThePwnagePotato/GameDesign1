@@ -19,7 +19,6 @@ public class AbilityUI : MonoBehaviour {
 	public Text totalUpMoveText;
 	public Text totalDownMoveText;
 	public Text totalSideMoveText;
-	public Slider cooldownSlider;
 
 	void Start() {
 		gameManager = GameObject.FindGameObjectWithTag ("GameManager").GetComponent<GameManager> ();
@@ -51,7 +50,5 @@ public class AbilityUI : MonoBehaviour {
 		totalDownMoveText.text = selectedAbility.downRange().ToString();
 		totalSideMoveText.text = selectedAbility.sideRange().ToString();
 		cooldownText.text = selectedAbility.cooldown.ToString();
-		cooldownSlider.maxValue = selectedAbility.maxCooldown();
-		cooldownSlider.value = selectedAbility.cooldown;
 	}
 }

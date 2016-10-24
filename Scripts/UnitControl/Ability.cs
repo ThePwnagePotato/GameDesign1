@@ -42,9 +42,7 @@ public abstract class Ability : MonoBehaviour
 
 	public virtual float critChance { get { return 0.1f; } set { critChance = value; }}
 
-	public virtual void HitTarget (Unit caster, Vector3 target) {
-		
-	}
+	public abstract void HitTarget (Unit caster, Vector3 target);
 
 	public void Start () {
 		// connect dependencies
@@ -100,7 +98,8 @@ public abstract class Ability : MonoBehaviour
 	public void ActivateAbility (Vector3 target)
 	{
 		//after activating, set canMove and canAttack to false
-		Unit caster = gameManager.boardManager.unitMap[(int)transform.position.x, (int)transform.position.z];
+		Unit caster = GetComponentInParent<Unit> ();
+		caster.finishedAbility = false;
 		caster.canMove = false;
 		caster.canAttack = false;
 
@@ -115,7 +114,7 @@ public abstract class Ability : MonoBehaviour
 		StartCoroutine (LaunchProjectile (target, gameState));
 	}
 
-	private IEnumerator LaunchProjectile (Vector3 target, GameState gameState)
+	protected IEnumerator LaunchProjectile (Vector3 target, GameState gameState)
 	{
 		Vector3 origin = transform.position;
 		if (target != origin) { // only bother with trajectory and projectile creation if it's not a self-cast
@@ -168,6 +167,9 @@ public abstract class Ability : MonoBehaviour
 		} else {
 			HitTarget (caster, target);
 		}
+
+		//for enemy units
+		caster.finishedAbility = true;
 
 		// signal that animation is done to GameManager:
 		gameState.active = false;

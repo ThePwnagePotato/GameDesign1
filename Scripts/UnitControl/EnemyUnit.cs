@@ -53,8 +53,9 @@ public abstract class EnemyUnit : Unit {
 		}
 
 		//get available abilities (cooldown <= 0)
-		foreach (GameObject abilityObject in abilities) {
-			Ability ability = abilityObject.GetComponent<Ability>();
+		Ability[] abilityList = GetComponentsInChildren<Ability> ();
+		foreach (Ability ability in abilityList) {
+			
 			if (ability.cooldown <= 0) {
 				if (!ability.dealsDamage () && selfBuff == null) {
 					selfBuff = ability;
@@ -90,20 +91,21 @@ public abstract class EnemyUnit : Unit {
 		}
 
 		//do the action
-		if (canMove && targetActionTile != null) {
-			MoveTo (targetActionTile.position);
-		}
 		if (canAttack) {
-			if (targetAction == Targetable.MAXRANGE) {
-				maxRangeAbility.ActivateAbility (targetUnit.transform.position);
-			} else if (targetAction == Targetable.MAXDAMAGE) {
-				highestDamageAbility.ActivateAbility (targetUnit.transform.position);
-			} else {
-				if (selfBuff != null) {
-					selfBuff.ActivateAbility (transform.position);
-				}
-			}
+			gameManager.Push (new GameState (GameStateType.ENEMYWAITFORATTACK));
 		}
+
+		if (canMove && targetActionTile != null) {
+			gameManager.Push (new GameState(GameStateType.ENEMYMOVING));
+			MoveTo (targetActionTile.position);
+			//movement more in update()
+		}
+			
+		GameState currentState = gameManager.gameStack.Peek ();
+		if (currentState.type == GameStateType.ENEMYINTURN) {
+			currentState.active = false;
+		}
+		//attack in update()
 	}
 
 
@@ -314,24 +316,47 @@ public abstract class EnemyUnit : Unit {
 		//if so, move through the path
 		path = possibleMoveList [endTile];
 		pathIndex = 0;
-		isMoving = true;
 		Move (path [pathIndex]);
 	}
 
 	void Update () {
-		if (gameManager.gameStack.Peek ().type != GameStateType.ENEMYTURN) {
-			return;
-		}
-		if (isMoving) {
+		GameState currentState = gameManager.gameStack.Peek ();
+		if (currentState.type == GameStateType.ENEMYMOVING) {
 			if (transform.position == path [pathIndex]) {
 				if (pathIndex < path.Count - 1) {
 					pathIndex++;
 					Move (path [pathIndex]);
 				} else {
-					isMoving = false;
+					canMove = false;
+					currentState.active = false;
 				}
 			}
+		} else if (currentState.type == GameStateType.ENEMYWAITFORATTACK) {
+			if (!canMove || targetActionTile == null) {
+
+				if (canAttack) {
+					if (targetAction == Targetable.MAXRANGE) {
+						maxRangeAbility.ActivateAbility (targetUnit.transform.position);
+					} else if (targetAction == Targetable.MAXDAMAGE) {
+						highestDamageAbility.ActivateAbility (targetUnit.transform.position);
+					} else if (selfBuff != null) {
+						selfBuff.ActivateAbility (transform.position);
+					} else {
+						canAttack = false;
+						currentState.active = false;
+						return;
+					}
+					canAttack = false;
+				} else if (finishedAbility) {
+					currentState.active = false;
+					
+				}
+
+			}
+		} else if (currentState.type == GameStateType.ENEMYINTURN && !canMove && !canAttack) {
+			currentState.active = false;
 		}
+
 	}
 
 	new Dictionary<ReachableTile, List<Vector3>> GetPossibleMoves ()

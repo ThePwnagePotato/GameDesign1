@@ -13,6 +13,10 @@ public enum GameStateType
 	ANIMATION, 			// animation
 
 	ENEMYTURN,
+	ENEMYINTURN,
+	ENEMYMOVING,
+	ENEMYWAITFORATTACK,
+
 
 	DIALOGUE,
 	ESCMENU
@@ -74,13 +78,21 @@ public class GameManager : MonoBehaviour
 		// if top gamestate is done, pop it
  		if (gameStack.Count > 0 && !gameStack.Peek ().active)
 			Pop();
+
 	}
+
+	private int enemyI;
 
 	public void Push (GameState gameState) {
 		switch (gameState.type) {
 		case GameStateType.ROOT:
 			gameStack.Push (gameState);
 			break;
+		
+		case GameStateType.ANIMATION:
+			gameStack.Push (gameState);
+			break;
+
 		case GameStateType.PLAYERTURN:
 			Debug.Log ("TURN: Player turn started");
 			playerTurnUIHolder.SetActive (true);
@@ -91,20 +103,31 @@ public class GameManager : MonoBehaviour
 			friendlyUnitsUI.updateValues ();
 			gameStack.Push (gameState);
 			break;
+
 		case GameStateType.ENEMYTURN:
 			gameStack.Push (gameState);
+			Debug.Log ("TURN: Enemy turn started");
+			enemyI = 0;
 			if (boardManager.enemyUnits.Count == 0) {
+				gameState.active = false;
 			} else {
-				Debug.Log ("TURN: Enemy turn started");
-				foreach (Unit unit in boardManager.enemyUnits) {
-					EnemyUnit enemyUnit = (EnemyUnit)unit;
-					if (enemyUnit.isAlive) {
-						enemyUnit.ResetTurn ();
-						enemyUnit.DoTurn ();
-					}
+				gameStack.Push (new GameState(GameStateType.ENEMYINTURN));
+				Unit unit = boardManager.enemyUnits [enemyI];
+				EnemyUnit enemyUnit = (EnemyUnit)unit;
+				if (enemyUnit.isAlive) {
+					enemyUnit.ResetTurn ();
+					enemyUnit.DoTurn ();
 				}
 			}
-			gameState.active = false;
+			break;
+		case GameStateType.ENEMYINTURN:
+			gameStack.Push (gameState);
+			break;
+		case GameStateType.ENEMYMOVING:
+			gameStack.Push (gameState);
+			break;
+		case GameStateType.ENEMYWAITFORATTACK:
+			gameStack.Push (gameState);
 			break;
 
 		case GameStateType.SELECTEDUNIT:
@@ -173,6 +196,29 @@ public class GameManager : MonoBehaviour
 			GameState newState = new GameState (GameStateType.PLAYERTURN);
 			Push (newState);
 			break;
+		case GameStateType.ENEMYINTURN:
+			gameStack.Pop ();
+			enemyI++;
+			if (enemyI >= boardManager.enemyUnits.Count) {
+				Pop ();
+			} else {
+				gameStack.Push (new GameState(GameStateType.ENEMYINTURN));
+				Unit unit = boardManager.enemyUnits [enemyI];
+				EnemyUnit enemyUnit = (EnemyUnit)unit;
+				if (enemyUnit.isAlive) {
+					enemyUnit.ResetTurn ();
+					enemyUnit.DoTurn ();
+				}
+			}
+			break;
+
+		case GameStateType.ENEMYMOVING:
+			gameStack.Pop ();
+			break;
+		case GameStateType.ENEMYWAITFORATTACK:
+			gameStack.Pop ();
+			break;
+		
 		case GameStateType.SELECTEDUNIT:
 			gameState.evoker.GetComponent<SpriteRenderer> ().color = new Color (1, 1, 1, 1); // "unselectify" - make sprite regular color
 			selectedUI.Clear ();

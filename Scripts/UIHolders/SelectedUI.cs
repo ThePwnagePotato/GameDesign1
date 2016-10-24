@@ -9,6 +9,8 @@ public class SelectedUI : MonoBehaviour {
 	public GameObject abilityHolder;
 	public GameObject abilityWindow;
 	public float abilityHolderYOffset;
+	public Sprite buttonSprite;
+	public Sprite windowSprite;
 
 	public Text hpText;
 	public Text maxHpText;
@@ -56,13 +58,14 @@ public class SelectedUI : MonoBehaviour {
 
 		if (abilityList == null) abilityList = new List<GameObject> ();
 		Ability[] abilitiesOnUnit = selected.GetComponentsInChildren<Ability> ();
-
 		for (int i = 0; i < abilitiesOnUnit.Length; i++) {
 			GameObject newAbility = Instantiate (abilityWindow) as GameObject;
 			newAbility.transform.SetParent (abilityHolder.transform, false);
 			newAbility.transform.position += i*abilityHolderYOffset*Vector3.up;
 			newAbility.GetComponent<AbilityUI> ().UpdateValues (abilitiesOnUnit[i], selected);
 			abilityList.Add (newAbility);
+			if(selected.isFriendly()) newAbility.GetComponentInChildren<Image> ().sprite = buttonSprite;
+			else newAbility.GetComponentInChildren<Image> ().sprite = windowSprite;
 		}
 	}
 

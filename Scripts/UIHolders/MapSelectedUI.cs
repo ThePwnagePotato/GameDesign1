@@ -9,6 +9,7 @@ public class MapSelectedUI : MonoBehaviour {
 	public GameObject abilityHolder;
 	public GameObject abilityWindow;
 	public float abilityHolderYOffset;
+	public Sprite buttonSprite;
 
 	public Text hpText;
 	public Text maxHpText;
@@ -29,7 +30,7 @@ public class MapSelectedUI : MonoBehaviour {
 
 	private List<GameObject> abilityList;
 
-	public void updateValues(Unit selected) {
+	public void updateValues(Unit selected, int selectedUnitStat) {
 		nameText.text = selected.getName().ToString();
 		hpText.text = selected.currentHealth.ToString();
 		maxHpText.text = selected.maxHealth.ToString();
@@ -63,11 +64,13 @@ public class MapSelectedUI : MonoBehaviour {
 			newAbility.transform.position += i*abilityHolderYOffset*Vector3.up;
 			newAbility.GetComponent<AbilityUI> ().UpdateValues (abilitiesOnUnit[i], selected);
 			Button newButton = newAbility.GetComponent<Button> ();
-			if (i != SaveData.saveData.currentSave.unitStats [i] + 1) {
+
+			if (i != selectedUnitStat + 1) {
 				newButton.interactable = false;
-				if (i <= SaveData.saveData.currentSave.unitStats [i])
-					newButton.targetGraphic.color = new Color (0, 0, 0, 1);
+				if (i <= selectedUnitStat)
+					newButton.GetComponentInChildren<Image> ().sprite = buttonSprite;
 			}
+			else newButton.GetComponentInChildren<Image> ().sprite = buttonSprite;
 			abilityList.Add (newAbility);
 		}
 	}

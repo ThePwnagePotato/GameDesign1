@@ -94,7 +94,7 @@ public class BoardManager : MonoBehaviour
 			} else {
 				enemyUnits.Add (unit);
 			}
-			for (int i = 0; i < unit.abilities.Count && i <= SaveData.saveData.currentSave.unitStats[i]; i++) {
+			for (int i = 0; i < unit.abilities.Count && i <= SaveData.saveData.currentSave.unitStats[j]; i++) {
 				GameObject newAbility = Instantiate (unit.abilities[i], unit.transform) as GameObject;
 				newAbility.transform.position = unit.transform.position;
 			}

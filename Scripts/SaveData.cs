@@ -13,35 +13,39 @@ public class SaveData : MonoBehaviour {
 	public int startPlaytime = 0;
 
 	public static SaveData saveData;
-	public static Save[] saveSlots;
+	public Save[] saveSlots;
 	public Save currentSave;
 	private float lastLoad;
 
 	void Awake () {
+		Debug.Log (Application.persistentDataPath);
 		if (saveData == null) {
 			DontDestroyOnLoad (gameObject);
-			Save[] SaveSlots = new Save[saveSlotAmount];
-			LoadFromDisk ();
 			saveData = this;
+			saveSlots = new Save[saveSlotAmount];
+			for (int i = 0; i < 3; i++) {
+				saveSlots [i] = null;
+			}
+			LoadFromDisk ();
 			currentSave = new Save (startChapter, startSkillPoints, characterAmount, startAbilityProgress, startPlaytime);
 		} else if (saveData != this)
 			Destroy (this.gameObject);
 	}
 
 	public void StartNewSave () {
-		currentSave = new Save (startChapter, startSkillPoints, characterAmount, startAbilityProgress, startPlaytime);
+		saveData.currentSave = new Save (saveData.startChapter, saveData.startSkillPoints, saveData.characterAmount, saveData.startAbilityProgress, saveData.startPlaytime);
 	}
 
 	public void SaveToInstance (int saveSlot) {
-		currentSave.timePlayed += Time.time - lastLoad;
-		lastLoad = Time.time;
-		saveSlots [saveSlot] = new Save (currentSave);
+		saveData.currentSave.timePlayed += Time.time - saveData.lastLoad;
+		saveData.lastLoad = Time.time;
+		saveData.saveSlots [saveSlot] = new Save (saveData.currentSave);
 	}
 
 	public bool LoadFromInstance (int saveSlot) {
-		if (saveSlots [saveSlot] != null) {
-			currentSave = new Save (saveSlots [saveSlot]);
-			lastLoad = Time.time;
+		if (saveData.saveSlots [saveSlot] != null) {
+			saveData.currentSave = new Save (saveData.saveSlots [saveSlot]);
+			saveData.lastLoad = Time.time;
 			return true;
 		}
 		return false;
@@ -49,10 +53,10 @@ public class SaveData : MonoBehaviour {
 
 	public void SaveToDisk() {
 		BinaryFormatter bf = new BinaryFormatter ();
-		for (int i = 0; i < saveSlotAmount; i++) {
-			if (saveSlots [i] != null) {
-				FileStream file = File.Open (Application.persistentDataPath + "/saveData" + i.ToString () + ".dat", FileMode.Open);
-				bf.Serialize (file, saveSlots [i]);
+		for (int i = 0; i < saveData.saveSlotAmount; i++) {
+			if (saveData.saveSlots [i] != null) {
+				FileStream file = File.Create (Application.persistentDataPath + "/saveData" + i.ToString () + ".dat");
+				bf.Serialize (file, saveData.saveSlots [i]);
 				file.Close ();
 			}
 		}
@@ -63,7 +67,7 @@ public class SaveData : MonoBehaviour {
 		for (int i = 0; i < 3; i++) {
 			if (File.Exists (Application.persistentDataPath + "/saveData" + i.ToString () + ".dat")) {
 				FileStream file = File.Open (Application.persistentDataPath + "/saveData" + i.ToString () + ".dat", FileMode.Open);
-				saveSlots [i] = (Save) bf.Deserialize (file);
+				saveData.saveSlots [i] = (Save) bf.Deserialize (file);
 				file.Close();
 			}
 		}

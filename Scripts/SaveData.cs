@@ -48,6 +48,7 @@ public class SaveData : MonoBehaviour {
 			saveData.lastLoad = Time.time;
 			return true;
 		}
+		saveData.currentSave = null;
 		return false;
 	}
 

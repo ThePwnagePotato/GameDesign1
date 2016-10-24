@@ -14,7 +14,7 @@ public class SceneLoader : MonoBehaviour {
 	private float alpha = 1.0f;
 	private int fadeDir = -1;
 
-	public void Awake () {
+	public void Start () {
 		if (audioSources != null) {
 			originalVolumes = new float[audioSources.Length];
 			for (int i = 0; i < audioSources.Length; i++) {

@@ -7,6 +7,9 @@ public class DialogueUIHolder : MonoBehaviour {
 	private string[] chapters;
 	public Text chapterText;
 
+	public GameObject storyHolder;
+	public GameObject storyButton;
+
 	private int currChap;
 
 	void FillChapters() {
@@ -41,5 +44,15 @@ public class DialogueUIHolder : MonoBehaviour {
 		if (currChap > 0) {
 			ShowChapter (--currChap);
 		}
+	}
+
+	public void OpenStory() {
+		storyButton.SetActive (false);
+		storyHolder.SetActive (true);
+	}
+
+	public void HideStory() {
+		storyButton.SetActive (true);
+		storyHolder.SetActive (false);
 	}
 }

@@ -86,7 +86,7 @@ public abstract class Unit : MonoBehaviour
 
 	public abstract GameManager gameManager { get; set; }
 
-	protected bool isMoving = false;
+	public bool finishedAbility = false;
 
 	public void Awake ()
 	{
@@ -279,7 +279,6 @@ public abstract class Unit : MonoBehaviour
 					switchPoint.y = target.y;
 					switchPointDistance = (switchPoint - target).magnitude;
 				}
-				float mSpeed = movementSpeed;
 				while (Mathf.Abs ((projectile.transform.position - switchPoint).magnitude) >= 0.1f) { // while projectile is not at switchpoint
 					if (parabolaFirst) { // if the parabola is first, then move in parabola to switchpoint
 						// we use the fraction of (how much the projectile has moved in the x,z plane) / (how much needs to be moved in the x,z plane)
@@ -314,7 +313,6 @@ public abstract class Unit : MonoBehaviour
 					yield return new WaitForFixedUpdate ();
 				}
 			} else { // we do not need to jump, just move in a flat plane
-				//float mSpeed = movementSpeed;
 				movingPosition = projectile.transform.position;
 				while (transform.position != target) {
 					projectile.transform.position = movingPosition;

@@ -42,9 +42,7 @@ public abstract class Ability : MonoBehaviour
 
 	public virtual float critChance { get { return 0.1f; } set { critChance = value; }}
 
-	public virtual void HitTarget (Unit caster, Vector3 target) {
-		
-	}
+	public abstract void HitTarget (Unit caster, Vector3 target);
 
 	public void Start () {
 		// connect dependencies
@@ -100,11 +98,8 @@ public abstract class Ability : MonoBehaviour
 	public void ActivateAbility (Vector3 target)
 	{
 		//after activating, set canMove and canAttack to false
-		gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
-		if (gameManager == null)
-			Debug.Log ("Ability: GameManager not found)");
-		
 		Unit caster = GetComponentInParent<Unit> ();
+		caster.finishedAbility = false;
 		caster.canMove = false;
 		caster.canAttack = false;
 
@@ -172,6 +167,9 @@ public abstract class Ability : MonoBehaviour
 		} else {
 			HitTarget (caster, target);
 		}
+
+		//for enemy units
+		caster.finishedAbility = true;
 
 		// signal that animation is done to GameManager:
 		gameState.active = false;

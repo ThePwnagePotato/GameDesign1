@@ -18,15 +18,15 @@ public class BackstepAttack : Ability {
 		};
 	}
 
-	public int _upScale;
-	public override int upScale
+	public float _upScale;
+	public override float upScale
 	{
 		get { return _upScale; }
 		set { _upScale = value; }
 	}
 
-	public int _downScale;
-	public override int downScale
+	public float _downScale;
+	public override float downScale
 	{
 		get { return _downScale; }
 		set { _downScale = value; }
@@ -102,6 +102,11 @@ public class BackstepAttack : Ability {
 		return _upRange;
 	}
 
+	public bool _dealsDamage;
+	public override bool dealsDamage () {
+		return _dealsDamage;
+	}
+
 	public int flatDamage;
 	public float powerModifier;
 	public override int getDamage (int power)
@@ -109,7 +114,7 @@ public class BackstepAttack : Ability {
 		//standard damage
 		int damage = getRawDamage(power);
 		//randomness
-		damage = (int)((Random.value * 0.2 + 0.8) * damage);
+		damage = (int)((Random.value * 0.1 + 0.9) * damage);
 		//crit
 		if (Random.value < critChance) {
 			damage = (int)(damage * 1.5);
@@ -134,7 +139,15 @@ public class BackstepAttack : Ability {
 				finalPower = effect.OnDoDamage (finalPower);
 			}
 
-			target.TakeDamage (finalPower);
+			int finalDamage = getDamage (finalPower);
+
+			if (target.transform.position.y > caster.transform.position.y) {
+				finalDamage = (int) (finalDamage * _upScale);
+			} else if (target.transform.position.y < caster.transform.position.y) {
+				finalDamage = (int) (finalDamage * _downScale);
+			}
+
+			target.TakeDamage (finalDamage);
 		}
 		caster.canMove = true;
 	}

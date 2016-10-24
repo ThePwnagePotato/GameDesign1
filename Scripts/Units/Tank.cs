@@ -183,23 +183,5 @@ public class Tank : Unit
 		set { _currentMovesSide = value; }
 	}
 
-	// Initialize all values on creation of the unit
-	new void Start ()
-	{
-		base.Start ();
-		_currentHealth = _maxHealth;
-		_currentMoves = _totalMoves;
-		_currentMovesUp = _totalMovesUp;
-		_currentMovesDown = _totalMovesDown;
-		_currentMovesSide = _totalMovesSide;
-		canMove = true;
-		canAttack = true;
-
-		//_abilities.Add (new Stab ());
-	}
-
-	void Update () {
-
-	}
 
 }

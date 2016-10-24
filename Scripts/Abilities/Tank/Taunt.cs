@@ -20,15 +20,15 @@ public class Taunt : Ability {
 		};
 	}
 
-	public int _upScale;
-	public override int upScale
+	public float _upScale;
+	public override float upScale
 	{
 		get { return _upScale; }
 		set { _upScale = value; }
 	}
 
-	public int _downScale;
-	public override int downScale
+	public float _downScale;
+	public override float downScale
 	{
 		get { return _downScale; }
 		set { _downScale = value; }
@@ -102,6 +102,11 @@ public class Taunt : Ability {
 	public override int upRange()
 	{
 		return _upRange;
+	}
+
+	public bool _dealsDamage;
+	public override bool dealsDamage () {
+		return _dealsDamage;
 	}
 
 	public int flatDamage;

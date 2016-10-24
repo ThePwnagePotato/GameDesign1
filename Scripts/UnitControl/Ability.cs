@@ -22,9 +22,9 @@ public abstract class Ability : MonoBehaviour
 
 	public abstract int downRange ();
 
-	public abstract int upScale { get; set;}
+	public abstract float upScale { get; set;}
 
-	public abstract int downScale { get; set;}
+	public abstract float downScale { get; set;}
 
 	public abstract int getDamage (int power);
 
@@ -38,9 +38,13 @@ public abstract class Ability : MonoBehaviour
 
 	public abstract GameManager gameManager { get; set; }
 
-	public abstract void HitTarget (Unit caster, Vector3 target);
+	public abstract bool dealsDamage ();
 
 	public virtual float critChance { get { return 0.1f; } set { critChance = value; }}
+
+	public virtual void HitTarget (Unit caster, Vector3 target) {
+		
+	}
 
 	public void Start () {
 		// connect dependencies
@@ -99,6 +103,9 @@ public abstract class Ability : MonoBehaviour
 		Unit caster = gameManager.boardManager.unitMap[(int)transform.position.x, (int)transform.position.z];
 		caster.canMove = false;
 		caster.canAttack = false;
+
+		//also set the cooldown to -1
+		cooldown = -1;
 
 		// first create and push a ANIMATION gamestate to restrict input and whatever
 		GameState gameState = new GameState (GameStateType.ANIMATION, this.gameObject);
@@ -194,23 +201,28 @@ public abstract class Ability : MonoBehaviour
 
 /* Abilities
  * 
- * Mage:	Fireball (basic)
- * 			
+ * Mage:	Fireball (basic) 				
+ * 			Heal
+ * 			Empower
+ * 			Blizzard
  * 
  * 
  * Rogue:	Stab (basic)
- * 			Poison attack (inflicts poison)
+ * 			baskstepAttack
+ * 			knifethrow
+ * 			Bleed attack (inflicts bleeding)
  * 			
  * 
  * 
  * Ranger:	Shoot (bow) (basic)
  * 			Fast attack (couple arrows in a row)
  * 			Snipe (long range high damage)
+ * 			RootShot
  * 			
  * 
  * Tank:	Stab (basic)
  * 			Taunt (draws aggro from enemy)
- * 			self buff (decrease damage for x turns)
+ * 			self buff, then debuff ()
  * 			utility (stun attack)
  * 			
  * 

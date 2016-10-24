@@ -36,12 +36,13 @@ public abstract class EnemyUnit : Unit {
 	Dictionary<ReachableTile, List<Vector3>> possibleMoveList = new Dictionary<ReachableTile, List<Vector3>> ();
 
 	List<TargetAction> possibleTargets = new List<TargetAction> ();
-	List<Ability> availableAbilities = new List<Ability> ();
+	List<Ability> damagingAbilities = new List<Ability> ();
+	Ability selfBuff = null;
 	Ability maxRangeAbility = null;
 	Ability highestDamageAbility = null;
 
 	public void DoTurn() {
-		availableAbilities.Clear ();
+		damagingAbilities.Clear ();
 		possibleTargets.Clear ();
 		maxRangeAbility = null;
 		highestDamageAbility = null;
@@ -55,7 +56,12 @@ public abstract class EnemyUnit : Unit {
 		foreach (GameObject abilityObject in abilities) {
 			Ability ability = abilityObject.GetComponent<Ability>();
 			if (ability.cooldown <= 0) {
-				availableAbilities.Add (ability);
+				if (!ability.dealsDamage () && selfBuff == null) {
+					selfBuff = ability;
+					continue;
+				}
+
+				damagingAbilities.Add (ability);
 
 				//find the longest range ability, and highest damage ability.
 				if (maxRangeAbility == null || ability.maxRange () > maxRangeAbility.maxRange ()) {
@@ -67,7 +73,7 @@ public abstract class EnemyUnit : Unit {
 			}
 		}
 		//if there are no available abilities, set canAttack to false (canAttack is reset to true in ResetTurn())
-		if (availableAbilities.Count == 0) {
+		if (damagingAbilities.Count == 0) {
 			canAttack = false;
 		}
 
@@ -92,6 +98,10 @@ public abstract class EnemyUnit : Unit {
 				maxRangeAbility.ActivateAbility (targetUnit.transform.position);
 			} else if (targetAction == Targetable.MAXDAMAGE) {
 				highestDamageAbility.ActivateAbility (targetUnit.transform.position);
+			} else {
+				if (selfBuff != null) {
+					selfBuff.ActivateAbility (transform.position);
+				}
 			}
 		}
 	}
@@ -190,12 +200,13 @@ public abstract class EnemyUnit : Unit {
 			scoreTotal += tScore.score;
 		}
 		randomUnitI = Mathf.RoundToInt(Random.value * scoreTotal);
-		foreach (TargetAction tScore in possibleTargets) {
+		for (int i = 0; i < possibleTargets.Count; i++) {
+			TargetAction tScore = possibleTargets[i];
 			randomUnitI -= tScore.score;
 			if (randomUnitI <= 0) {
-				targetUnit = possibleTargets [randomUnitI].unit;
-				targetAction = possibleTargets [randomUnitI].action;
-				targetActionTile = possibleTargets [randomUnitI].tile;
+				targetUnit = possibleTargets [i].unit;
+				targetAction = possibleTargets [i].action;
+				targetActionTile = possibleTargets [i].tile;
 				return;
 			}
 		}
@@ -308,7 +319,7 @@ public abstract class EnemyUnit : Unit {
 	}
 
 	void Update () {
-		if (gameManager.gameStack.Peek ().type == GameStateType.ANIMATION) {
+		if (gameManager.gameStack.Peek ().type != GameStateType.ENEMYTURN) {
 			return;
 		}
 		if (isMoving) {

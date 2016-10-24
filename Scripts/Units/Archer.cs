@@ -182,10 +182,9 @@ public class Archer : Unit {
 		set { _currentMovesSide = value; }
 	}
 
-	// Initialize all values on creation of the unit
-	new void Start ()
-	{
-		base.Start ();
+
+
+		/*
 		_Name = "Archer";
 
 		_maxHealth = 25;
@@ -203,11 +202,7 @@ public class Archer : Unit {
 		_currentMovesUp = _totalMovesUp;
 		_currentMovesDown = _totalMovesDown;
 		_currentMovesSide = _totalMovesSide;
+		*/
 
-		//_abilities.Add (new Stab ());
-	}
-
-	void Update () {
-
-	}
+		
 }

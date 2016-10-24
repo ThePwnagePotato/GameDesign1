@@ -48,6 +48,8 @@ public class Empowered : StatusEffect
 
 	public override int OnDoDamage (int power) {
 		int finalPower = power + _power;
+		_duration = 0;
+
 		return finalPower;
 	}
 

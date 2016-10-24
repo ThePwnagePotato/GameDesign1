@@ -9,7 +9,7 @@ public class Entangled : StatusEffect {
 
 	public override string GetName ()
 	{
-		return "Entangled";
+		return "Snared";
 	}
 
 	public override string[] getDescription ()
@@ -54,17 +54,5 @@ public class Entangled : StatusEffect {
 		target.canMove = false;
 		target.currentDefense += power;
 	}
-
-	// Use this for initialization
-	void Start ()
-	{
-		target.canMove = false;
-		target.currentDefense += power;
-	}
-
-	// Update is called once per frame
-	void Update ()
-	{
-
-	}
+		
 }

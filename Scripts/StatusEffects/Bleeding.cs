@@ -51,7 +51,7 @@ public class Bleeding : StatusEffect
 	}
 	public override void OnTurnEnd () {
 		//bleed, do damage
-		target.TakeDamage(10 + _power);
+		target.TakeDamage(5 + (int) (_power / 2));
 	}
 
 

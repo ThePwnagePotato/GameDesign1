@@ -107,6 +107,16 @@ public abstract class Unit : MonoBehaviour
 	}
 
 	public void Start () {
+		isAlive = true;
+		currentHealth = maxHealth;
+		currentDefense = defense;
+		currentPower = power;
+		currentMoves = totalMoves;
+		currentMovesDown = totalMovesDown;
+		currentMovesSide = totalMovesSide;
+		currentMovesUp = totalMovesUp;
+		canMove = true;
+		canAttack = true;
 	}
 
 	/* damages the characted, calls Die() if health goes below 0
@@ -141,6 +151,16 @@ public abstract class Unit : MonoBehaviour
 	 * */
 	public void Die ()
 	{
+		isAlive = false;
+
+		//remove from unitmap
+		boardManager.unitMap[(int)transform.position.x, (int)transform.position.z] = null;
+		//remove from friendly/enemy list
+		if (isFriendly ()) {
+			boardManager.friendlyUnits.Remove (this);
+		} else {
+			boardManager.enemyUnits.Remove (this);
+		}
 
 	}
 
@@ -189,6 +209,7 @@ public abstract class Unit : MonoBehaviour
 			effect.OnTurnEnd ();
 					
 			if (effect.duration <= 0) {
+				effect.OnRemoval ();
 				statusEffects ().RemoveAt (i);
 				Destroy (effect.gameObject);
 			}
@@ -257,7 +278,8 @@ public abstract class Unit : MonoBehaviour
 					switchPoint.y = target.y;
 					switchPointDistance = (switchPoint - target).magnitude;
 				}
-				while (Mathf.Abs ((projectile.transform.position - switchPoint).magnitude) > 0.1f) { // while projectile is not at switchpoint
+				float mSpeed = movementSpeed;
+				while (Mathf.Abs ((projectile.transform.position - switchPoint).magnitude) >= 0.1f) { // while projectile is not at switchpoint
 					if (parabolaFirst) { // if the parabola is first, then move in parabola to switchpoint
 						// we use the fraction of (how much the projectile has moved in the x,z plane) / (how much needs to be moved in the x,z plane)
 						// to calculate the height of the parabola at that point
@@ -273,7 +295,7 @@ public abstract class Unit : MonoBehaviour
 					}
 					yield return new WaitForFixedUpdate ();
 				}
-				while (Mathf.Abs ((projectile.transform.position - target).magnitude) > 0.1f) { // while projectile is not at target
+				while (Mathf.Abs ((projectile.transform.position - target).magnitude) >= 0.1f) { // while projectile is not at target
 					if (parabolaFirst) {
 						// in the second phase descent towards target
 						projectile.transform.position = Vector3.MoveTowards (projectile.transform.position, target, movementSpeed*2);
@@ -291,12 +313,17 @@ public abstract class Unit : MonoBehaviour
 					yield return new WaitForFixedUpdate ();
 				}
 			} else { // we do not need to jump, just move in a flat plane
+				//float mSpeed = movementSpeed;
 				while (transform.position != target) {
-					projectile.transform.position = Vector3.MoveTowards (projectile.transform.position, target, movementSpeed);
+					// ?????????????????????
+					Vector3 temp = Vector3.MoveTowards (projectile.transform.position, target, 0.1f);
+					projectile.transform.position = Vector3.MoveTowards (projectile.transform.position, target, 0.1f);
+
 					yield return new WaitForFixedUpdate ();
 				}
 
 			}
+
 			transform.position = target; // make sure that the unit is exactly at target position
 		}
 		// let sprite face camera after movements

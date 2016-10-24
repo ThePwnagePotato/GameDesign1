@@ -9,7 +9,7 @@ public class TankBuff : StatusEffect {
 
 	public override string GetName ()
 	{
-		return "Weakened";
+		return "Fatigued";
 	}
 
 	public override string[] getDescription ()
@@ -54,10 +54,10 @@ public class TankBuff : StatusEffect {
 		//raise stats
 		target.currentDefense += power;
 		target.currentPower += power;
-		target.currentMoves += 2 * power;
-		target.currentMovesUp += 2 * power;
-		target.currentMovesDown += 2 * power;
-		target.currentMovesSide += 2 * power;
+		target.currentMoves += Mathf.Max(3, power / 7);
+		target.currentMovesUp += Mathf.Max(2, power / 10);;
+		target.currentMovesDown += Mathf.Max(2, power / 10);;
+		target.currentMovesSide += Mathf.Max(2, power / 10);;
 	}
 	public override void OnRemoval () {
 		GameObject effect = Instantiate (fatigued, target.gameObject.transform) as GameObject;

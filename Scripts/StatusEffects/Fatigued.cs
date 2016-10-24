@@ -13,7 +13,7 @@ public class Fatigued : StatusEffect {
 	public override string[] getDescription ()
 	{
 		return new string[] {
-			"This unit's body is tired, lowering all its stats"
+			"This unit's body is tired, lowering its movement stats"
 		};
 	}
 
@@ -50,11 +50,9 @@ public class Fatigued : StatusEffect {
 		base.OnTurnStart ();
 
 		//subtract power of the effect from power of the unit
-		target.currentDefense -= power;
-		target.currentPower -= power;
 		target.currentMoves -= Mathf.Max(power / 2, 1);
-		target.currentMovesUp -= Mathf.Max(power / 2, 1);
-		target.currentMovesDown -= Mathf.Max(power / 2, 1);
+		target.currentMovesUp -= Mathf.Max(power / 2, 0);
+		target.currentMovesDown -= Mathf.Max(power / 2, 0);
 		target.currentMovesSide -= Mathf.Max(power / 2, 1);
 	}
 

@@ -32,6 +32,9 @@ public class PlayerController : MonoBehaviour
 	private Vector3 mouseDelta;
 	private float mouse3LastClick;
 	private bool wasHovering;
+	private bool wasHoveringSelector;
+	public GameObject selector;
+	public GameObject lastSelectorHover;
 
 	// Use this for initialization
 	void Start ()
@@ -55,6 +58,7 @@ public class PlayerController : MonoBehaviour
 		}
 
 		attemptHoverMenu (gameState);
+		attemptSelectorHighlight (gameState);
 
 		// if player clicks left mouse button
 		if (Input.GetMouseButtonDown (0) && !Input.GetKey("left alt")) {
@@ -110,6 +114,37 @@ public class PlayerController : MonoBehaviour
 		}
 	}*/
 
+	void attemptSelectorHighlight(GameState gameState) {
+		// display info window on the right for the unit we are hovering over
+		if (gameState.type == GameStateType.ANIMATION)
+		if (wasHoveringSelector) {
+			selector.SetActive (false);
+			wasHoveringSelector = false;
+		} else
+			return;
+
+		RaycastHit hitInfo = MouseRaycast ();
+		if (hitInfo.collider != null) {
+			GameObject hoverTarget = hitInfo.collider.gameObject;
+			if (hoverTarget != null) {
+				if (!wasHoveringSelector || hoverTarget != lastSelectorHover) {
+					wasHoveringSelector = true;
+					selector.SetActive (true);
+					selector.transform.position = hoverTarget.transform.position;
+					lastSelectorHover = hoverTarget;
+					if (hoverTarget.tag.Equals ("Terrain"))
+						selector.transform.position += Vector3.up;
+				}
+			} else if (wasHoveringSelector) {
+				selector.SetActive (false);
+				wasHoveringSelector = false;
+			}
+		} else if (wasHoveringSelector) {
+			selector.SetActive (false);
+			wasHoveringSelector = false;
+		}
+	}
+
 	void attemptHoverMenu(GameState gameState) {
 		// display info window on the right for the unit we are hovering over
 		if (gameState.type == GameStateType.ANIMATION)
@@ -121,7 +156,10 @@ public class PlayerController : MonoBehaviour
 
 		RaycastHit hitInfo = MouseRaycast ();
 		if (hitInfo.collider != null) {
-			Unit hoverTarget = hitInfo.collider.gameObject.GetComponent<Unit> ();
+			Unit hoverTarget;
+			Vector3 tp = hitInfo.collider.gameObject.transform.position;
+			if(hitInfo.collider.gameObject.tag.Equals("Terrain")) hoverTarget = boardManager.unitMap[(int)tp.x,(int)tp.z];
+			else hoverTarget = hitInfo.collider.gameObject.GetComponent<Unit> ();
 			if (hoverTarget != null) {
 				if (!wasHovering) {
 					wasHovering = true;

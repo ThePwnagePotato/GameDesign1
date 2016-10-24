@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour
 	public GameManager gameManager;
 	public BoardManager boardManager;
 	public SceneLoader sceneLoader;
+	public GameObject selector;
 
 	[Header("Controls")]
 	public GameObject hoverUIHolder;
@@ -33,8 +34,7 @@ public class PlayerController : MonoBehaviour
 	private float mouse3LastClick;
 	private bool wasHovering;
 	private bool wasHoveringSelector;
-	public GameObject selector;
-	public GameObject lastSelectorHover;
+	private GameObject lastSelectorHover;
 
 	// Use this for initialization
 	void Start ()

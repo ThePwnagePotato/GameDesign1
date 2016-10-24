@@ -100,7 +100,11 @@ public abstract class Ability : MonoBehaviour
 	public void ActivateAbility (Vector3 target)
 	{
 		//after activating, set canMove and canAttack to false
-		Unit caster = gameManager.boardManager.unitMap[(int)transform.position.x, (int)transform.position.z];
+		gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+		if (gameManager == null)
+			Debug.Log ("Ability: GameManager not found)");
+		
+		Unit caster = GetComponentInParent<Unit> ();
 		caster.canMove = false;
 		caster.canAttack = false;
 
@@ -115,7 +119,7 @@ public abstract class Ability : MonoBehaviour
 		StartCoroutine (LaunchProjectile (target, gameState));
 	}
 
-	private IEnumerator LaunchProjectile (Vector3 target, GameState gameState)
+	protected IEnumerator LaunchProjectile (Vector3 target, GameState gameState)
 	{
 		Vector3 origin = transform.position;
 		if (target != origin) { // only bother with trajectory and projectile creation if it's not a self-cast

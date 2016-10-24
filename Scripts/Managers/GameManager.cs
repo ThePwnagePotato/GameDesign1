@@ -13,6 +13,9 @@ public enum GameStateType
 	ANIMATION, 			// animation
 
 	ENEMYTURN,
+	ENEMYMOVING,
+	ENEMYWAITFORATTACK,
+
 
 	DIALOGUE,
 	ESCMENU

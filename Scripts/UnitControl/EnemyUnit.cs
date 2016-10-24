@@ -53,8 +53,9 @@ public abstract class EnemyUnit : Unit {
 		}
 
 		//get available abilities (cooldown <= 0)
-		foreach (GameObject abilityObject in abilities) {
-			Ability ability = abilityObject.GetComponent<Ability>();
+		Ability[] abilityList = GetComponentsInChildren<Ability> ();
+		foreach (Ability ability in abilityList) {
+			
 			if (ability.cooldown <= 0) {
 				if (!ability.dealsDamage () && selfBuff == null) {
 					selfBuff = ability;
@@ -93,6 +94,7 @@ public abstract class EnemyUnit : Unit {
 		if (canMove && targetActionTile != null) {
 			MoveTo (targetActionTile.position);
 		}
+
 		if (canAttack) {
 			if (targetAction == Targetable.MAXRANGE) {
 				maxRangeAbility.ActivateAbility (targetUnit.transform.position);
@@ -319,19 +321,20 @@ public abstract class EnemyUnit : Unit {
 	}
 
 	void Update () {
-		if (gameManager.gameStack.Peek ().type != GameStateType.ENEMYTURN) {
-			return;
-		}
-		if (isMoving) {
-			if (transform.position == path [pathIndex]) {
-				if (pathIndex < path.Count - 1) {
-					pathIndex++;
-					Move (path [pathIndex]);
-				} else {
-					isMoving = false;
+		GameStateType currentState = gameManager.gameStack.Peek ().type;
+		if (currentState == GameStateType.ENEMYMOVING || currentState == GameStateType.ENEMYWAITFORATTACK) {
+			if (isMoving) {
+				if (transform.position == path [pathIndex]) {
+					if (pathIndex < path.Count - 1) {
+						pathIndex++;
+						Move (path [pathIndex]);
+					} else {
+						isMoving = false;
+					}
 				}
 			}
 		}
+
 	}
 
 	new Dictionary<ReachableTile, List<Vector3>> GetPossibleMoves ()

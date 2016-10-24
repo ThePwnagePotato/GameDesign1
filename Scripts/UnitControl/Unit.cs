@@ -216,6 +216,7 @@ public abstract class Unit : MonoBehaviour
 		}
 	}
 		
+	Vector3 movingPosition;
 	// animates and executes the move of this unit to some target position
 	public void Move (Vector3 target)
 	{
@@ -314,10 +315,13 @@ public abstract class Unit : MonoBehaviour
 				}
 			} else { // we do not need to jump, just move in a flat plane
 				//float mSpeed = movementSpeed;
+				movingPosition = projectile.transform.position;
 				while (transform.position != target) {
+					projectile.transform.position = movingPosition;
 					// ?????????????????????
 					Vector3 temp = Vector3.MoveTowards (projectile.transform.position, target, 0.1f);
-					projectile.transform.position = Vector3.MoveTowards (projectile.transform.position, target, 0.1f);
+					//projectile.transform.position = Vector3.MoveTowards (projectile.transform.position, target, 0.1f);
+					movingPosition = temp;
 
 					yield return new WaitForFixedUpdate ();
 				}

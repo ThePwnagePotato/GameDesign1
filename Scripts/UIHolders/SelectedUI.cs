@@ -32,6 +32,11 @@ public class SelectedUI : MonoBehaviour {
 	private List<GameObject> abilityList;
 
 	public void updateValues(Unit selected) {
+		if (abilityList == null) abilityList = new List<GameObject> ();
+		else foreach (GameObject abilityHolder in abilityList) {
+			Destroy (abilityHolder);
+		}
+		abilityList.Clear ();
 		nameText.text = selected.getName().ToString();
 		hpText.text = selected.currentHealth.ToString();
 		maxHpText.text = selected.maxHealth.ToString();
@@ -55,16 +60,15 @@ public class SelectedUI : MonoBehaviour {
 			ACTText.text = "ACT";
 		else
 			ACTText.text = "";
-
-		if (abilityList == null) abilityList = new List<GameObject> ();
 		Ability[] abilitiesOnUnit = selected.GetComponentsInChildren<Ability> ();
 		for (int i = 0; i < abilitiesOnUnit.Length; i++) {
 			GameObject newAbility = Instantiate (abilityWindow) as GameObject;
 			newAbility.transform.SetParent (abilityHolder.transform, false);
 			newAbility.transform.position += i*abilityHolderYOffset*Vector3.up;
-			newAbility.GetComponent<AbilityUI> ().UpdateValues (abilitiesOnUnit[i], selected);
+			AbilityUI abilityUI = newAbility.GetComponent<AbilityUI> (); 
+			abilityUI.UpdateValues (abilitiesOnUnit[i], selected);
 			abilityList.Add (newAbility);
-			if(selected.isFriendly()) newAbility.GetComponentInChildren<Image> ().sprite = buttonSprite;
+			if(selected.isFriendly() && abilitiesOnUnit[i].cooldown <= 0) newAbility.GetComponentInChildren<Image> ().sprite = buttonSprite;
 			else newAbility.GetComponentInChildren<Image> ().sprite = windowSprite;
 		}
 	}

@@ -18,6 +18,7 @@ public class PlayerController : MonoBehaviour
 	[Header ("Dependencies")]
 	public GameManager gameManager;
 	public BoardManager boardManager;
+	public SceneLoader sceneLoader;
 
 	[Header("Controls")]
 	public GameObject hoverUIHolder;
@@ -83,6 +84,8 @@ public class PlayerController : MonoBehaviour
 				gameManager.Push (newState);
 			}
 		}
+		if (Input.GetAxis ("Cancel") != 0)
+			sceneLoader.LoadScene ("World_Map");
 	}
 
 	/*void testAbility (GameState gameState)

@@ -18,7 +18,6 @@ using System.Collections.Generic;
  * - A default block
  * - The blocksets to be used based upon the textureMap
  * - The units to be instantiated based upon the deployMap
- * - The effectBlocks to be instantiated based upon the effectMap		NOTE: An effectblock must ALWAYS have a BlockEffect script.
  */
 
 public class BoardManager : MonoBehaviour
@@ -36,16 +35,14 @@ public class BoardManager : MonoBehaviour
 	public int[,] heightMap;
 	public int[,] textureMap;
 	public int[,] deployMap;
-	public int[,] effectMap;
-	public int[,] spawnPositionMap;
-	public Unit[] prespawnedUnits;
+	public Unit[] prespawnedMainUnits;
+	public Unit[] prespawnedGenericUnits;
 
 	[Header ("Prefabs")]
 	public GameObject defaultBlock;
 	public GameObject map;
 	public BlockSet[] blockSets;
 	public GameObject[] spawnUnits;
-	public GameObject[] effectBlocks;
 	public GameObject[] deployableUnits;
 
 	[Header ("Dependencies")]
@@ -63,6 +60,8 @@ public class BoardManager : MonoBehaviour
 	}
 
 	void Awake () {
+		friendlyUnits = new List<Unit> ();
+		enemyUnits = new List<Unit> ();
 		if (map != null)
 			Instantiate (map, Vector3.one, Quaternion.identity);
 		if (useRandomHeightmap) {
@@ -75,12 +74,30 @@ public class BoardManager : MonoBehaviour
 			GenerateTerrain ();
 		}
 		unitMap = new Unit[(int)dimensions.x,(int)dimensions.z];
-		foreach (Unit unit in prespawnedUnits) {
+		foreach (Unit unit in prespawnedGenericUnits) {
 			unitMap[(int)unit.transform.position.x, (int)unit.transform.position.z] = unit;
-			if (unit.isFriendly())
+			if (unit.isFriendly ()) {
 				friendlyUnits.Add (unit);
-			else
+			} else {
 				enemyUnits.Add (unit);
+			}
+			for (int i = 0; i < unit.abilities.Count; i++) {
+				GameObject newAbility = Instantiate (unit.abilities[i], unit.transform) as GameObject;
+				newAbility.transform.position = unit.transform.position;
+			}
+		}
+		for (int j = 0; j < prespawnedMainUnits.Length; j++) {
+			Unit unit = prespawnedMainUnits [j];
+			unitMap[(int)unit.transform.position.x, (int)unit.transform.position.z] = unit;
+			if (unit.isFriendly ()) {
+				friendlyUnits.Add (unit);
+			} else {
+				enemyUnits.Add (unit);
+			}
+			for (int i = 0; i < unit.abilities.Count && i <= SaveData.saveData.currentSave.unitStats[i]; i++) {
+				GameObject newAbility = Instantiate (unit.abilities[i], unit.transform) as GameObject;
+				newAbility.transform.position = unit.transform.position;
+			}
 		}
 		if (instantiateUnits) {
 			InstantiateUnits ();
@@ -113,9 +130,7 @@ public class BoardManager : MonoBehaviour
 					// select blockSet based on textureMap, then random block prefab in the set
 					GameObject blockPrefab = defaultBlock;
 					// if this is location has an associated effect, load appropriate effectBlock
-					if (effectMap != null && effectMap [x, z] != 0) {
-						blockPrefab = effectBlocks[effectMap [x, z]];
-					} else if (textureMap != null && blockSets != null && textureMap [x, z] < blockSets.Length) {
+					if (textureMap != null && blockSets != null && textureMap [x, z] < blockSets.Length) {
 						// choose a random texture from appropriate BlockSet
 						int blockSet = textureMap [x, z];
 						if (y == heightMap [x, z]) // if the top block, choose a random top block

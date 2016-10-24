@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 
 
-public class FriendlyUnitsUI : MonoBehaviour {
+public class MapFriendlyUnitsUI : MonoBehaviour {
 
 	public GameObject unitHolder;
 	public GameObject smallStatWindow;
 	public float unitHolderYOffset;
-	public BoardManager boardManager;
+	public MapBoardManager boardManager;
 
 	private List<GameObject> unitList;
 
@@ -19,7 +19,7 @@ public class FriendlyUnitsUI : MonoBehaviour {
 			GameObject newWindow = Instantiate (smallStatWindow) as GameObject;
 			newWindow.transform.SetParent (unitHolder.transform, false);
 			newWindow.transform.position += i*unitHolderYOffset*Vector3.up;
-			newWindow.GetComponent<SmallStatUI> ().UpdateValues (boardManager.friendlyUnits[i]); // to do
+			newWindow.GetComponent<MapSmallStatUI> ().UpdateValues (boardManager.friendlyUnits[i]); // to do
 			unitList.Add (newWindow);
 		}
 	}

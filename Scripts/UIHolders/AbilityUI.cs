@@ -37,6 +37,17 @@ public class AbilityUI : MonoBehaviour {
 		}
 	}
 
+	public void AttemptAbilityLearn () {
+		UnitManager unitManager = GameObject.FindGameObjectWithTag ("UnitManager").GetComponent<UnitManager>();
+		for (int i = 0; i < unitManager.mapBoardManager.mainUnits.Length; i++) {
+			if (unitManager.mapBoardManager.mainUnits [i] == unit) {
+				if (SaveData.saveData.currentSave.unitStats [i] < unit.abilities.Count && SaveData.saveData.currentSave.skillPoints > 0) {
+					unitManager.InitiateConfirmAbilityLearn (SaveData.saveData.currentSave.unitStats, i, unit.getName (), ability.getName ());
+				}
+			}
+		}
+	}
+
 	public void UpdateValues(Ability selectedAbility, Unit selectedUnit) {
 		ability = selectedAbility;
 		unit = selectedUnit;

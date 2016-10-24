@@ -2,13 +2,13 @@
 using System.Collections;
 using UnityEngine.UI;
 
-public class SmallStatUI : MonoBehaviour {
+public class MapSmallStatUI : MonoBehaviour {
 
 	// the ability this abilityUI represents
 	private Unit unit;
-	private GameManager gameManager;
+	private UnitManager gameManager;
 	public Image backgroundImage;
-	public Button	unitSelectButton;
+	public Button unitSelectButton;
 
 	public Text nameText;
 	public Text maxHealthText;
@@ -18,23 +18,18 @@ public class SmallStatUI : MonoBehaviour {
 	public Text actText;
 
 	void Start() {
-		gameManager = GameObject.FindGameObjectWithTag ("GameManager").GetComponent<GameManager> ();
+		gameManager = GameObject.FindGameObjectWithTag ("UnitManager").GetComponent<UnitManager> ();
 	}
 
 	public void PushUnitSelect () {
-			GameState gameState = new GameState (GameStateType.SELECTEDUNIT, unit.gameObject);
+		if (gameManager.gameStack.Peek ().type == MapStateType.PLAYERTURN) {
+			MapState gameState = new MapState (MapStateType.SELECTEDUNIT, unit.gameObject);
 			gameManager.Push (gameState);
+		}
 	}
 
 	public void UpdateValues(Unit selectedUnit) {
 		unit = selectedUnit;
-		if (!unit.isAlive || (!unit.canAttack && !unit.canMove)) {
-			unitSelectButton.interactable = false;
-			backgroundImage.color = new Color (0.5f, 0.5f, 0.5f);
-		} else {
-			unitSelectButton.interactable = true;
-			backgroundImage.color = new Color (1, 1, 1);
-		}
 		nameText.text = selectedUnit.getName ();
 		maxHealthText.text = unit.maxHealth.ToString();
 		currHealthText.text = unit.currentHealth.ToString();

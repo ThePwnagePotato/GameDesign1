@@ -13,21 +13,23 @@ public class SaveData : MonoBehaviour {
 	public int startPlaytime = 0;
 
 	public static SaveData saveData;
-	public Save[] saveSlots;
+	public static Save[] saveSlots;
 	public Save currentSave;
 	private float lastLoad;
 
 	void Awake () {
 		if (saveData == null) {
 			DontDestroyOnLoad (gameObject);
+			Save[] SaveSlots = new Save[saveSlotAmount];
 			LoadFromDisk ();
 			saveData = this;
+			currentSave = new Save (startChapter, startSkillPoints, characterAmount, startAbilityProgress, startPlaytime);
 		} else if (saveData != this)
 			Destroy (this.gameObject);
 	}
 
 	public void StartNewSave () {
-		currentSave = new Save (startChapter, startSkillPoints, characterAmount, startPlaytime);
+		currentSave = new Save (startChapter, startSkillPoints, characterAmount, startAbilityProgress, startPlaytime);
 	}
 
 	public void SaveToInstance (int saveSlot) {
@@ -75,11 +77,11 @@ public class Save {
 	public int skillPoints;
 	public float timePlayed;
 
-	public Save(int startChapter, int startSkillPoints, int characterAmount, float startPlaytime) {
+	public Save(int startChapter, int startSkillPoints, int characterAmount, int startAbilityProgress, float startPlaytime) {
 		chapter = startChapter;
 		skillPoints = startSkillPoints;
 		unitStats = new int[characterAmount];
-		for (int i = 0; i < characterAmount; i++) unitStats[i] = startSkillPoints;
+		for (int i = 0; i < characterAmount; i++) unitStats[i] = startAbilityProgress;
 		timePlayed = startPlaytime;
 	}
 

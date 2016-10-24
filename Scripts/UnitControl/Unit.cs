@@ -91,6 +91,9 @@ public abstract class Unit : MonoBehaviour
 	public void Awake ()
 	{
 		currentHealth = maxHealth;
+		isAlive = true;
+		canMove = true;
+		canAttack = true;
 		// connect dependencies
 		boardManager = GameObject.FindGameObjectWithTag ("BoardManager").GetComponent<BoardManager> ();
 		if (boardManager == null)
@@ -101,11 +104,6 @@ public abstract class Unit : MonoBehaviour
 
 		// setting initial state to being alive
 		isAlive = true;
-
-		for (int i = 0; i < abilities.Count; i++) {
-			GameObject newAbility = Instantiate (abilities[i], this.transform) as GameObject;
-			newAbility.transform.position = this.transform.position;
-		}
 	}
 
 	public void Start () {

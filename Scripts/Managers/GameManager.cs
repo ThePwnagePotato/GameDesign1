@@ -78,6 +78,9 @@ public class GameManager : MonoBehaviour
 
 	public void Push (GameState gameState) {
 		switch (gameState.type) {
+		case GameStateType.ROOT:
+			gameStack.Push (gameState);
+			break;
 		case GameStateType.PLAYERTURN:
 			Debug.Log ("TURN: Player turn started");
 			playerTurnUIHolder.SetActive (true);
@@ -86,10 +89,11 @@ public class GameManager : MonoBehaviour
 					unit.ResetTurn ();
 			}
 			friendlyUnitsUI.updateValues ();
+			gameStack.Push (gameState);
 			break;
 		case GameStateType.ENEMYTURN:
+			gameStack.Push (gameState);
 			if (boardManager.enemyUnits.Count == 0) {
-				gameState.active = false;
 			} else {
 				Debug.Log ("TURN: Enemy turn started");
 				foreach (Unit unit in boardManager.enemyUnits) {
@@ -99,13 +103,8 @@ public class GameManager : MonoBehaviour
 						enemyUnit.DoTurn ();
 					}
 				}
-				gameState.active = false;
 			}
-
-			//while (gameStack.Peek ().type != GameStateType.ROOT)
-			//	Pop ();
-			//GameState newState = new GameState (GameStateType.PLAYERTURN);
-			//Push (newState);
+			gameState.active = false;
 			break;
 
 		case GameStateType.SELECTEDUNIT:
@@ -122,6 +121,7 @@ public class GameManager : MonoBehaviour
 				}
 				spawnedObjects.Add (newHighlight);
 			}
+			gameStack.Push (gameState);
 			break;
 		case GameStateType.SELECTEDABILITY:
 			// first wipe the tiles that show possible movement
@@ -136,11 +136,11 @@ public class GameManager : MonoBehaviour
 				newHighlight.GetComponentInChildren<SpriteRenderer> ().color = new Color (1, 0, 0, 1);
 				spawnedObjects.Add (newHighlight);
 			}
+			gameStack.Push (gameState);
 			break;
 		default:
 			break;
 		}
-		gameStack.Push (gameState);
 	}
 
 	public void Pop () {
@@ -148,6 +148,12 @@ public class GameManager : MonoBehaviour
 			return;
 		GameState gameState = gameStack.Peek ();
 		switch (gameState.type) {
+		case GameStateType.ROOT:
+			Debug.Log ("ERROR: ROOT popped!");
+			break;
+		case GameStateType.ANIMATION:
+			gameStack.Pop ();
+			break;
 		case GameStateType.PLAYERTURN:
 			Debug.Log ("TURN: Player turn ended");
 			friendlyUnitsUI.Clear ();
@@ -164,7 +170,8 @@ public class GameManager : MonoBehaviour
 					unit.EndTurn ();
 			}
 			gameStack.Pop ();
-			Push (new GameState (GameStateType.PLAYERTURN));
+			GameState newState = new GameState (GameStateType.PLAYERTURN);
+			Push (newState);
 			break;
 		case GameStateType.SELECTEDUNIT:
 			gameState.evoker.GetComponent<SpriteRenderer> ().color = new Color (1, 1, 1, 1); // "unselectify" - make sprite regular color
@@ -181,9 +188,6 @@ public class GameManager : MonoBehaviour
 		default:
 			break;
 		}
-
-		// TESTING CODE
-		if(gameState.type == GameStateType.ENEMYTURN) Push(new GameState(GameStateType.PLAYERTURN));
 	}
 
 	// End player turn and start enemy turn

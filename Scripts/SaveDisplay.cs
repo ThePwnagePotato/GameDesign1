@@ -9,10 +9,10 @@ public class SaveDisplay : MonoBehaviour {
 	public Text chapterText;
 
 	// Use this for initialization
-	void Start () {
-		if (SaveData.saveSlots [saveSlot] != null) {
-			chapterText.text = "Chapter " + (SaveData.saveSlots [saveSlot].chapter + 1).ToString ();
-			float tp = SaveData.saveSlots [saveSlot].timePlayed;
+	void Update () {
+		if (SaveData.saveData.saveSlots [saveSlot] != null) {
+			chapterText.text = "Chapter " + (SaveData.saveData.saveSlots [saveSlot].chapter + 1).ToString ();
+			float tp = SaveData.saveData.saveSlots [saveSlot].timePlayed;
 			string time = ((int)(tp / 3600)).ToString () + ":" + ((int)((tp % 3600)) / 60).ToString ();
 			saveText.text = "Save " + (saveSlot + 1).ToString() + " ~ " + time;
 		} else {

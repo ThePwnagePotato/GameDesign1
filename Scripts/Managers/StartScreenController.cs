@@ -6,6 +6,7 @@ public class StartScreenController : MonoBehaviour
 {
 	[Header ("Dependencies")]
 	public StartScreenManager startScreenManager;
+	public SceneLoader sceneLoader;
 
 	void Update ()
 	{
@@ -26,5 +27,7 @@ public class StartScreenController : MonoBehaviour
 				break;
 			}
 		}
+		if (Input.GetAxis ("Cancel") != 0)
+			sceneLoader.Exit ();
 	}
 }

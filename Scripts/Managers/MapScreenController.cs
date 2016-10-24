@@ -6,6 +6,7 @@ public class MapScreenController : MonoBehaviour
 {
 	[Header ("Dependencies")]
 	public UnitManager unitManager;
+	public SceneLoader sceneLoader;
 
 	void Update ()
 	{
@@ -15,5 +16,7 @@ public class MapScreenController : MonoBehaviour
 			&& unitManager.gameStack.Peek ().type != MapStateType.ROOT) {
 			unitManager.Pop ();
 		}
+		if (Input.GetAxis ("Cancel") != 0)
+			sceneLoader.LoadScene ("Start_Screen");
 	}
 }

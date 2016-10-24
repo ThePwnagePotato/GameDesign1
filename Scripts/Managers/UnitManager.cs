@@ -86,14 +86,18 @@ public class UnitManager : MonoBehaviour
 	}
 	public void ConfirmAbilityLearn (bool confirm) {
 		if (confirm) {
-			characterStats [characterIndex]++;
+			SaveData.saveData.currentSave.unitStats [characterIndex]++;
+			SaveData.saveData.currentSave.skillPoints--;
 		}
+		while(gameStack.Peek().type != MapStateType.SELECTEDUNIT)
+			Pop ();
+		GameObject selected = gameStack.Peek().evoker;
 		Pop ();
+		Push (new MapState(MapStateType.SELECTEDUNIT, selected));
 	}
 
 	public GameObject saveSlotHolder;
 	public void InitiateSaveSlots () {
-			saveSlotHolder.SetActive (true);
 		Push (new MapState(MapStateType.SAVESELECT));
 	}
 
@@ -128,6 +132,7 @@ public class UnitManager : MonoBehaviour
 			while (gameStack.Peek ().type != MapStateType.PLAYERTURN) {
 				Pop ();
 			}
+			saveSlotHolder.SetActive (true);
 			gameStack.Push (mapState);
 			break;
 		case MapStateType.OVERWRITECONFIRM:
@@ -147,7 +152,14 @@ public class UnitManager : MonoBehaviour
 			playerTurnUIHolder.SetActive (false);
 			// activate unit info (selected UI)
 			selectedUIHolder.SetActive (true);
-			selectedUI.updateValues (mapState.evoker.GetComponent<Unit>());
+			int selectedUnitStat = 0;
+			Unit evokerUnit = mapState.evoker.GetComponent<Unit> ();
+			for (int i = 0; i < mapBoardManager.mainUnits.Length; i++) {
+				if (mapBoardManager.mainUnits [i] == evokerUnit) {
+					selectedUnitStat = SaveData.saveData.currentSave.unitStats [i];
+				}
+			}
+			selectedUI.updateValues (mapState.evoker.GetComponent<Unit>(), selectedUnitStat);
 			gameStack.Push (mapState);
 			break;
 		default:

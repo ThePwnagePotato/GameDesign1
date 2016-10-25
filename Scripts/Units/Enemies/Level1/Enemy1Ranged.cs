@@ -67,12 +67,6 @@ public class Enemy1Ranged : EnemyUnit
 		set { _abilities = value; }
 	}
 
-	public List<GameObject> _statusEffects = new List<GameObject> ();
-	public override List<GameObject> statusEffects ()
-	{
-		return _statusEffects;
-	}
-
 	private bool _canMove;
 	public override bool canMove {
 		get { return _canMove; }

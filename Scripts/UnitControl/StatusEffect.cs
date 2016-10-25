@@ -46,7 +46,7 @@ public abstract class StatusEffect : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-	
+		target = GetComponentInParent<Unit> ();
 	}
 	
 	// Update is called once per frame

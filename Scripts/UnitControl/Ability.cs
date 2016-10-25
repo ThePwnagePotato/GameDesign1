@@ -75,6 +75,9 @@ public abstract class Ability : MonoBehaviour
 				// distances
 				int horDistance = System.Math.Abs (casterX - x) + System.Math.Abs (casterZ - z);
 				int posHeight = heightMap [x, z] + 1;
+				if (posHeight - 1 <= 0) {
+					continue;
+				}
 				int verDistance = Mathf.Abs(posHeight - casterY);
 				int distance = horDistance + verDistance;
 

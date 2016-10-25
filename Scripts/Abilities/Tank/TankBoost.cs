@@ -126,7 +126,6 @@ public class TankBoost : Ability {
 		Unit target = gameManager.boardManager.unitMap[(int) targetPosition.x, (int) targetPosition.z];
 		if (target != null) {
 			GameObject effect = Instantiate (selfBuff, target.gameObject.transform) as GameObject;
-			target.statusEffects().Add (effect);
 			effect.GetComponent<StatusEffect> ().initialize(caster, caster.currentPower, 1);
 		}
 	}

@@ -135,12 +135,15 @@ public class GameManager : MonoBehaviour
 			gameState.evoker.GetComponent<SpriteRenderer> ().color = new Color (1, 1, 0, 1); // make sprite yellow
 			// activate unit info (selected UI)
 			selectedUIHolder.SetActive (true);
-			selectedUI.updateValues (gameState.evoker.GetComponent<Unit>());
-			List<ReachableTile> traversable = gameState.evoker.GetComponent<Unit> ().GetPossibleMoves ();
+			Unit evoker = gameState.evoker.GetComponent<Unit> ();
+			selectedUI.updateValues (evoker);
+			List<ReachableTile> traversable = evoker.GetPossibleMoves ();
 			foreach (ReachableTile tile in traversable) {
 				GameObject newHighlight = Instantiate (highlighter, tile.position, Quaternion.identity) as GameObject;
 				if (tile.straight) {
-					newHighlight.GetComponentInChildren<SpriteRenderer> ().color = new Color (1, 1, 0, 1);
+					if ((int)evoker.transform.position.x == (int)tile.position.x || (int)evoker.transform.position.z == (int)tile.position.z) {
+						newHighlight.GetComponentInChildren<SpriteRenderer> ().color = new Color (1, 1, 0, 1);
+					}
 				}
 				spawnedObjects.Add (newHighlight);
 			}
@@ -192,7 +195,8 @@ public class GameManager : MonoBehaviour
 				if (unit.isAlive)
 					unit.EndTurn ();
 			}
-			gameStack.Pop ();
+			while (gameStack.Peek ().type != GameStateType.ROOT)
+				gameStack.Pop ();
 			GameState newState = new GameState (GameStateType.PLAYERTURN);
 			Push (newState);
 			break;

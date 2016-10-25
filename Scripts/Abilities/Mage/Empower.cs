@@ -125,7 +125,6 @@ public class Empower : Ability
 		Unit target = gameManager.boardManager.unitMap[(int) targetPosition.x, (int) targetPosition.z];
 		if (target != null) {
 			GameObject effect = Instantiate (empowered, target.gameObject.transform) as GameObject;
-			target.statusEffects().Add (effect);
 			effect.GetComponent<StatusEffect> ().initialize(caster, caster.currentPower, 2);
 		}
 	}

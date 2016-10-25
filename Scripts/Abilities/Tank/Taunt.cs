@@ -125,7 +125,6 @@ public class Taunt : Ability {
 		if (target != null) {
 			
 			GameObject effect = Instantiate (taunted, target.gameObject.transform) as GameObject;
-			target.statusEffects().Add (effect);
 			effect.GetComponent<StatusEffect> ().initialize(caster, caster.currentPower, 4);
 		}
 	}

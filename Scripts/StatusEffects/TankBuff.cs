@@ -61,7 +61,6 @@ public class TankBuff : StatusEffect {
 	}
 	public override void OnRemoval () {
 		GameObject effect = Instantiate (fatigued, target.gameObject.transform) as GameObject;
-		target.statusEffects().Add (effect);
 		effect.GetComponent<StatusEffect> ().initialize(_evoker, _power, 1);
 	}
 }

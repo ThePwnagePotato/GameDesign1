@@ -114,7 +114,7 @@ public class Heal : Ability
 		//standard damage
 		int damage = getRawDamage(power);
 		//randomness
-		damage = (int)((Random.value * 0.1 + 0.9) * damage);
+		damage = (int)((Random.value * 0.2 + 0.9) * damage);
 		//crit
 		if (Random.value < critChance) {
 			damage = (int)(damage * 1.5);

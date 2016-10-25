@@ -411,22 +411,19 @@ public abstract class Unit : MonoBehaviour
 	// if none is found, add the new vector to the list
 	private void AddNonDuplicate (List<ReachableTile> list, ReachableTile element)
 	{
-		//ReachableTile toDelete = null;
+		ReachableTile toDelete = null;
 		foreach (ReachableTile tile in list) {
 			if (tile.position == element.position) {
-				if (!tile.straight && element.straight) {
-					tile.straight = true;
-				}
-				//if (tile.totalMove < element.totalMove) {
-				//	toDelete = tile;
-				//} 
-				//break;
-				return;
+				if (tile.totalMove < element.totalMove) {
+					toDelete = tile;
+					break;
+				} 
+				else return;
 			}
 		}
-		//if (toDelete != null) {
-		//	list.Remove (toDelete);
-		//}
+		if (toDelete != null) {
+			list.Remove (toDelete);
+		}
 		list.Add (element);
 	}
 

@@ -49,8 +49,10 @@ public class Taunted : StatusEffect {
 	public override void OnTurnStart () {
 		base.OnTurnStart ();
 
-		EnemyUnit unit = (EnemyUnit) target;
-		unit.targetUnit = evoker;
+		if (target is EnemyUnit) {
+			EnemyUnit unit = (EnemyUnit) target;
+			unit.targetUnit = evoker;
+		}
 	}
 		
 }

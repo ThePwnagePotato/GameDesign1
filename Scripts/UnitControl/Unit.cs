@@ -42,8 +42,6 @@ public abstract class Unit : MonoBehaviour
 
 	public abstract List<GameObject> abilities { get; set; }
 
-	public abstract List<GameObject> statusEffects ();
-
 	public abstract bool canMove { get; set; }
 
 	public abstract bool canAttack { get; set; }
@@ -129,9 +127,8 @@ public abstract class Unit : MonoBehaviour
 	{
 		// Go through the list of statuseffects, get the ones that affect the DEF stat
 		// then apply that effect to the tempDef value
-
-		foreach (GameObject effectObject in statusEffects ()) {
-			effectObject.GetComponent<StatusEffect>().OnTakeDamage ();
+		foreach (StatusEffect effect in GetComponentsInChildren<StatusEffect> ()) {
+			effect.OnTakeDamage ();
 		}
 
 		// calculate the final damage using the tempDef value
@@ -177,8 +174,7 @@ public abstract class Unit : MonoBehaviour
 		canMove = true;
 		canAttack = true;
 
-		foreach (GameObject effectObject in statusEffects ()) {
-			StatusEffect effect = effectObject.GetComponent<StatusEffect> ();
+		foreach (StatusEffect effect in GetComponentsInChildren<StatusEffect> ()) {
 			effect.OnTurnStart ();
 		}
 
@@ -193,9 +189,7 @@ public abstract class Unit : MonoBehaviour
 	//tick abilities
 	//remove statuseffects
 	public void EndTurn() {
-		foreach (GameObject abilityObject in abilities) {
-			Ability ability = abilityObject.GetComponent<Ability> ();
-
+		foreach (Ability ability in GetComponentsInChildren<Ability> ()) {
 			if (ability.cooldown < 0) {
 				ability.cooldown = ability.maxCooldown ();
 			} else if (ability.cooldown > 0) {
@@ -203,14 +197,15 @@ public abstract class Unit : MonoBehaviour
 			}
 		}
 
-		for (int i = statusEffects ().Count - 1; i >= 0; i--) {
-			GameObject effectObject = statusEffects () [i];
-			StatusEffect effect = effectObject.GetComponent<StatusEffect> ();
+		//TODO
+		StatusEffect[] effectList = GetComponentsInChildren<StatusEffect> ();
+		for (int i = effectList.Length - 1; i >= 0; i--) {
+			StatusEffect effect = effectList[i];
+
 			effect.OnTurnEnd ();
 					
 			if (effect.duration <= 0) {
 				effect.OnRemoval ();
-				statusEffects ().RemoveAt (i);
 				Destroy (effect.gameObject);
 			}
 		}
@@ -279,8 +274,10 @@ public abstract class Unit : MonoBehaviour
 					switchPoint.y = target.y;
 					switchPointDistance = (switchPoint - target).magnitude;
 				}
+				movingPosition = projectile.transform.position;
 				while (Mathf.Abs ((projectile.transform.position - switchPoint).magnitude) >= 0.1f) { // while projectile is not at switchpoint
 					if (parabolaFirst) { // if the parabola is first, then move in parabola to switchpoint
+						projectile.transform.position = movingPosition;
 						// we use the fraction of (how much the projectile has moved in the x,z plane) / (how much needs to be moved in the x,z plane)
 						// to calculate the height of the parabola at that point
 						Vector3 newPos = projectile.transform.position; // we calculate the new position by first taking the current position
@@ -289,17 +286,21 @@ public abstract class Unit : MonoBehaviour
 						float progress = ((newPos - origin).magnitude) / switchPointDistance; // A value from 0-1 that represent what fraction of the parabola has been travelled
 						float height = 0.5f; // this is the max height of the parabola
 						newPos = newPos + Vector3.up * (-4 * Mathf.Pow (progress, 2) + 4 * progress) * height; // we now add the height of the parabola to get the real position
-						projectile.transform.position = newPos;
+						movingPosition = newPos;
 					} else { // if ascent is fist, then move to switchpointin straight line
-						projectile.transform.position = Vector3.MoveTowards (projectile.transform.position, switchPoint, movementSpeed*2);
+						projectile.transform.position = movingPosition;
+						movingPosition = Vector3.MoveTowards (projectile.transform.position, switchPoint, movementSpeed*2);
 					}
 					yield return new WaitForFixedUpdate ();
 				}
+				movingPosition = projectile.transform.position;
 				while (Mathf.Abs ((projectile.transform.position - target).magnitude) >= 0.1f) { // while projectile is not at target
 					if (parabolaFirst) {
+						projectile.transform.position = movingPosition;
 						// in the second phase descent towards target
-						projectile.transform.position = Vector3.MoveTowards (projectile.transform.position, target, movementSpeed*2);
+						movingPosition = Vector3.MoveTowards (projectile.transform.position, target, movementSpeed*2);
 					} else { // after ascending, move in parabola to target
+						projectile.transform.position = movingPosition;
 						// we use the fraction of (how much the projectile has moved in the x,z plane) / (how much needs to be moved in the x,z plane)
 						// to calculate the height of the parabola at that point
 						Vector3 newPos = projectile.transform.position; // we calculate the new position by first taking the current position
@@ -308,7 +309,7 @@ public abstract class Unit : MonoBehaviour
 						float progress = ((newPos - switchPoint).magnitude) / switchPointDistance; // A value from 0-1 that represent what fraction of the parabola has been travelled
 						float height = 0.5f; // this is the max height of the parabola
 						newPos = newPos + Vector3.up * (-4 * Mathf.Pow (progress, 2) + 4 * progress) * height; // we now add the height of the parabola to get the real position
-						projectile.transform.position = newPos;
+						movingPosition = newPos;
 					}
 					yield return new WaitForFixedUpdate ();
 				}
@@ -381,8 +382,9 @@ public abstract class Unit : MonoBehaviour
 	}
 
 	private void PositionSearch (Vector3 position, int currentMoves, int currentMovesUp, int currentMovesDown, int currentMovesSide, bool straight, Direction direction) {
-		if (currentMoves < 0 || currentMovesUp < 0 || currentMovesDown < 0 || currentMovesSide < 0
-			|| (boardManager.unitMap[(int)position.x, (int)position.z] != null && boardManager.unitMap[(int)position.x, (int)position.z].isFriendly() != isFriendly())) {
+		Unit a = boardManager.unitMap [(int)position.x, (int)position.z];
+		if (currentMoves < 0 || currentMovesUp < 0 || currentMovesDown < 0 || currentMovesSide < 0 || (int)position.y <= 0
+			|| boardManager.unitMap[(int)position.x, (int)position.z] != null && boardManager.unitMap[(int)position.x, (int)position.z] != this) {
 			return;
 		}
 		// this is a legitimate movement

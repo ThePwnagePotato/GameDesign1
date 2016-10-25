@@ -113,7 +113,7 @@ public class RapidShot : Ability {
 		//standard damage
 		int damage = getRawDamage(power);
 		//randomness
-		damage = (int)((Random.value * 0.1 + 0.9) * damage);
+		damage = (int)((Random.value * 0.2 + 0.9) * damage);
 		//crit
 		if (Random.value < critChance) {
 			damage = (int)(damage * 1.5);
@@ -135,8 +135,7 @@ public class RapidShot : Ability {
 		Unit target = gameManager.boardManager.unitMap[(int) targetPosition.x, (int) targetPosition.z];
 		if (target != null) {
 			int finalPower = caster.currentPower;
-			foreach (GameObject effectObject in caster.statusEffects()) {
-				StatusEffect effect = effectObject.GetComponent<StatusEffect> ();
+			foreach (StatusEffect effect in caster.GetComponentsInChildren<StatusEffect> ()) {
 				finalPower = effect.OnDoDamage (finalPower);
 			}
 

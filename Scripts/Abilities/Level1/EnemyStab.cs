@@ -133,8 +133,7 @@ public class EnemyStab : Ability
 		Unit target = gameManager.boardManager.unitMap[(int) targetPosition.x, (int) targetPosition.z];
 		if (target != null) {
 			int finalPower = caster.currentPower;
-			foreach (GameObject effectObject in caster.statusEffects()) {
-				StatusEffect effect = effectObject.GetComponent<StatusEffect> ();
+			foreach (StatusEffect effect in caster.GetComponentsInChildren<StatusEffect> ()) {
 				finalPower = effect.OnDoDamage (finalPower);
 			}
 

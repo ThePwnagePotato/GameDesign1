@@ -50,10 +50,10 @@ public class Fatigued : StatusEffect {
 		base.OnTurnStart ();
 
 		//subtract power of the effect from power of the unit
-		target.currentMoves -= Mathf.Max(power / 2, 1);
-		target.currentMovesUp -= Mathf.Max(power / 2, 0);
-		target.currentMovesDown -= Mathf.Max(power / 2, 0);
-		target.currentMovesSide -= Mathf.Max(power / 2, 1);
+		target.currentMoves = Mathf.Max(target.currentMoves - (power / 2), 1);
+		target.currentMovesUp = Mathf.Max(target.currentMovesUp - (power / 2), 0);
+		target.currentMovesDown = Mathf.Max(target.currentMovesDown - (power / 2), 0);
+		target.currentMovesSide = Mathf.Max(target.currentMovesSide - (power / 2), 1);
 	}
 
 }

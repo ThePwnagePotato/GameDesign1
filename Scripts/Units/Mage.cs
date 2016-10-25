@@ -65,13 +65,7 @@ public class Mage : Unit
 		get { return _abilities; }
 		set { _abilities = value; }
 	}
-
-	public List<GameObject> _statusEffects = new List<GameObject> ();
-	public override List<GameObject> statusEffects ()
-	{
-		return _statusEffects;
-	}
-
+		
 	private bool _canMove;
 	public override bool canMove {
 		get { return _canMove; }

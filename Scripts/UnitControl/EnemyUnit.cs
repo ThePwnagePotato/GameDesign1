@@ -393,8 +393,8 @@ public abstract class EnemyUnit : Unit {
 	void PositionSearch (Vector3 position, int currentMoves, int currentMovesUp, int currentMovesDown, int currentMovesSide, bool straight, 
 		Direction direction, List<Vector3> path) {
 
-		if (currentMoves < 0 || currentMovesUp < 0 || currentMovesDown < 0 || currentMovesSide < 0
-			|| (boardManager.unitMap[(int)position.x, (int)position.z] != null && boardManager.unitMap[(int)position.x, (int)position.z].isFriendly() != isFriendly())) {
+		if (currentMoves < 0 || currentMovesUp < 0 || currentMovesDown < 0 || currentMovesSide < 0 || (int)position.y <= 0
+			|| boardManager.unitMap[(int)position.x, (int)position.z] != null && boardManager.unitMap[(int)position.x, (int)position.z] != this) {
 			return;
 		}
 		// this is a legitimate movement

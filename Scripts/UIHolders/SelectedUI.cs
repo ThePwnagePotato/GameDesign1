@@ -72,8 +72,12 @@ public class SelectedUI : MonoBehaviour {
 			AbilityUI abilityUI = newAbility.GetComponent<AbilityUI> (); 
 			abilityUI.UpdateValues (abilitiesOnUnit[i], selected);
 			abilityList.Add (newAbility);
-			if(selected.isFriendly() && abilitiesOnUnit[i].cooldown <= 0) newAbility.GetComponentInChildren<Image> ().sprite = buttonSprite;
-			else newAbility.GetComponentInChildren<Image> ().sprite = windowSprite;
+			if (selected.isFriendly () && abilitiesOnUnit [i].cooldown <= 0)
+				newAbility.GetComponentInChildren<Image> ().sprite = buttonSprite;
+			else {
+				newAbility.GetComponentInChildren<Image> ().sprite = windowSprite;
+				newAbility.GetComponent<Button> ().interactable = false;
+			}
 		}
 	}
 

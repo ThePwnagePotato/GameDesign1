@@ -147,12 +147,15 @@ public class PlayerController : MonoBehaviour
 
 	void attemptHoverMenu(GameState gameState) {
 		// display info window on the right for the unit we are hovering over
-		if (gameState.type == GameStateType.ANIMATION)
-		if (wasHovering) {
-			hoverUIHolder.SetActive (false);
-			wasHovering = false;
-		} else
-			return;
+		if (gameState.type == GameStateType.ANIMATION || gameState.type == GameStateType.ENEMYINTURN || gameState.type == GameStateType.ENEMYTURN ||
+			gameState.type == GameStateType.ENEMYMOVING || gameState.type == GameStateType.ENEMYWAITFORATTACK) {
+			if (wasHovering) {
+				hoverUIHolder.SetActive (false);
+				wasHovering = false;
+			} else {
+				return;
+			}
+		}
 
 		RaycastHit hitInfo = MouseRaycast ();
 		if (hitInfo.collider != null) {

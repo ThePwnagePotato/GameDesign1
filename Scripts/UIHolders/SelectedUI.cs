@@ -29,9 +29,13 @@ public class SelectedUI : MonoBehaviour {
 	public Text ACTText;
 	public Slider hpSlider;
 
+	private Unit selectedUnit;
+	public Unit getUnit () { return selectedUnit; }
+
 	private List<GameObject> abilityList;
 
 	public void updateValues(Unit selected) {
+		selectedUnit = selected;
 		if (abilityList == null) abilityList = new List<GameObject> ();
 		else foreach (GameObject abilityHolder in abilityList) {
 			Destroy (abilityHolder);

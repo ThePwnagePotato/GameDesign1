@@ -165,7 +165,10 @@ public class PlayerController : MonoBehaviour
 					wasHovering = true;
 					hoverUIHolder.SetActive (true);
 					hoverUI.updateValues (hoverTarget);
+				} else if (hoverUI.getUnit () != hoverTarget) {
+					hoverUI.updateValues (hoverTarget);
 				}
+
 			} else if (wasHovering) {
 				hoverUIHolder.SetActive (false);
 				wasHovering = false;
@@ -202,7 +205,6 @@ public class PlayerController : MonoBehaviour
 
 	void attemptUnitMove (GameState gameState)
 	{
-		Debug.Log ("Attempt unit move");
 		RaycastHit hitInfo = MouseRaycast ();
 		// check if anything has been hit
 		if (hitInfo.collider != null) {
@@ -212,6 +214,25 @@ public class PlayerController : MonoBehaviour
 				clickedTarget += Vector3.up;
 			// check if it's a valid move, activate if it is
 			Unit unit = gameState.evoker.GetComponentInChildren<Unit> ();
+			if (clickedTarget == unit.transform.position) {
+				gameManager.Pop ();
+				return;
+			} else {
+				int x = (int)clickedTarget.x;
+				int z = (int)clickedTarget.z;
+				if (x >=0 && x < boardManager.unitMap.Length && z >= 0 && z < boardManager.unitMap.GetLength(0)) {
+					Unit selected = boardManager.unitMap[x, z];
+					if (selected != null && selected.isFriendly()) { // if a unit is selected
+						gameManager.Pop ();
+						gameManager.Push (new GameState (GameStateType.SELECTEDUNIT, selected.gameObject));
+						Debug.Log (selected.getName () + " selected");
+						return;
+					} 
+				}
+
+			}
+			Debug.Log ("Attempt unit move");
+
 			bool isReachable = false;
 			List<ReachableTile> possibleMoves = unit.GetPossibleMoves();
 			foreach (ReachableTile tile in possibleMoves)
@@ -228,6 +249,7 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
+	/*
 	void attemptUnitMoveWIP (GameState gameState)
 	{
 		RaycastHit hitInfo = MouseRaycast ();
@@ -252,15 +274,29 @@ public class PlayerController : MonoBehaviour
 			}
 		}
 	}
+	*/
 
 	void attemptUnitSelect ()
 	{
 		RaycastHit hitInfo = MouseRaycast ();
 		if (hitInfo.collider != null) {
+			//click directly on unit
 			Unit selected = hitInfo.collider.gameObject.GetComponent<Unit> ();
-			if (selected != null) { // if a unit is selected
+			if (selected != null && selected.isFriendly()) { // if a unit is selected
 				gameManager.Push (new GameState (GameStateType.SELECTEDUNIT, selected.gameObject));
 				Debug.Log (selected.getName () + " selected");
+			} 
+			//click on block below unit
+			else {
+				int x = (int)hitInfo.collider.gameObject.transform.position.x;
+				int z = (int)hitInfo.collider.gameObject.transform.position.z;
+				if (x >=0 && x < boardManager.unitMap.Length && z >= 0 && z < boardManager.unitMap.GetLength(0)) {
+					selected = boardManager.unitMap[x, z];
+					if (selected != null && selected.isFriendly()) { // if a unit is selected
+						gameManager.Push (new GameState (GameStateType.SELECTEDUNIT, selected.gameObject));
+						Debug.Log (selected.getName () + " selected");
+					} 
+				}
 			}
 		}
 	}

@@ -93,12 +93,16 @@ public abstract class EnemyUnit : Unit {
 		//do the action
 		if (canAttack) {
 			gameManager.Push (new GameState (GameStateType.ENEMYWAITFORATTACK));
+		} else {
+			canAttack = false;
 		}
 
-		if (canMove && targetActionTile != null) {
-			gameManager.Push (new GameState(GameStateType.ENEMYMOVING));
+		if (canMove && targetActionTile != null && targetActionTile.position != transform.position) {
+			gameManager.Push (new GameState (GameStateType.ENEMYMOVING));
 			MoveTo (targetActionTile.position);
 			//movement more in update()
+		} else {
+			canMove = false;
 		}
 			
 		GameState currentState = gameManager.gameStack.Peek ();
@@ -235,9 +239,10 @@ public abstract class EnemyUnit : Unit {
 				float currentDistance = Vector3.Distance (targetPosition, tile.position);
 
 				//if the move is better than the previous 
-				//if the move is the same value as the previous, but further away if needed, or closer if needed
-				if (testTarget > lastBestTarget || !stayClose && testTarget == lastBestTarget && currentDistance > finalDistance ||
-				   stayClose && testTarget == lastBestTarget && currentDistance < finalDistance) {
+				//if the move is the same value as the previous, or closer if needed
+				//there is a move possible, and it is farther away if !stayClose
+				if (testTarget > lastBestTarget || !stayClose && testTarget == lastBestTarget && testTarget > Targetable.UNABLE && currentDistance > finalDistance ||
+					stayClose && testTarget == lastBestTarget && currentDistance < finalDistance || !stayClose && testTarget <= Targetable.UNABLE && currentDistance < finalDistance) {
 					lastBestTarget = testTarget;
 					finalTile = tile;
 					finalDistance = currentDistance;

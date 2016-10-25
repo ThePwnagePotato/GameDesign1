@@ -196,8 +196,7 @@ public abstract class Unit : MonoBehaviour
 				ability.cooldown--;
 			}
 		}
-
-		//TODO
+			
 		StatusEffect[] effectList = GetComponentsInChildren<StatusEffect> ();
 		for (int i = effectList.Length - 1; i >= 0; i--) {
 			StatusEffect effect = effectList[i];
@@ -412,16 +411,22 @@ public abstract class Unit : MonoBehaviour
 	// if none is found, add the new vector to the list
 	private void AddNonDuplicate (List<ReachableTile> list, ReachableTile element)
 	{
+		//ReachableTile toDelete = null;
 		foreach (ReachableTile tile in list) {
 			if (tile.position == element.position) {
 				if (!tile.straight && element.straight) {
 					tile.straight = true;
-					return;
 				}
-				else return;
+				//if (tile.totalMove < element.totalMove) {
+				//	toDelete = tile;
+				//} 
+				//break;
+				return;
 			}
 		}
-
+		//if (toDelete != null) {
+		//	list.Remove (toDelete);
+		//}
 		list.Add (element);
 	}
 

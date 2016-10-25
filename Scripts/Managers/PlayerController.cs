@@ -36,9 +36,12 @@ public class PlayerController : MonoBehaviour
 	private bool wasHoveringSelector;
 	private GameObject lastSelectorHover;
 
+	private List<GameObject> spawnedObjects;
+
 	// Use this for initialization
 	void Start ()
 	{
+		spawnedObjects = new List<GameObject>();
 		mainCamera = GameObject.FindGameObjectWithTag ("MainCamera").GetComponent<CameraController> ();
 		_camera = mainCamera.gameObject.GetComponent<Camera> ();
 		prevMousePos = Input.mousePosition;
@@ -168,11 +171,31 @@ public class PlayerController : MonoBehaviour
 					wasHovering = true;
 					hoverUIHolder.SetActive (true);
 					hoverUI.updateValues (hoverTarget);
+
+					Unit evoker = hoverTarget;
+					List<ReachableTile> traversable = evoker.GetPossibleMoves ();
+					foreach (ReachableTile tile in traversable) {
+						GameObject newHighlight = Instantiate (gameManager.highlighter, tile.position + Vector3.up*0.01f, Quaternion.identity) as GameObject;
+						newHighlight.GetComponentInChildren<SpriteRenderer> ().color = new Color (0.1f, 0.8f, 0, 1f);
+						spawnedObjects.Add (newHighlight);
+					}
 				} else if (hoverUI.getUnit () != hoverTarget) {
 					hoverUI.updateValues (hoverTarget);
-				}
 
+					ResetSpawnedObjects ();
+
+					Unit evoker = hoverTarget;
+					List<ReachableTile> traversable = evoker.GetPossibleMoves ();
+					foreach (ReachableTile tile in traversable) {
+						GameObject newHighlight = Instantiate (gameManager.highlighter, tile.position + Vector3.up*0.01f, Quaternion.identity) as GameObject;
+						newHighlight.GetComponentInChildren<SpriteRenderer> ().color = new Color (0.1f, 0.8f, 0, 1f);
+						spawnedObjects.Add (newHighlight);
+					}
+				}
+					
 			} else if (wasHovering) {
+				ResetSpawnedObjects ();
+
 				hoverUIHolder.SetActive (false);
 				wasHovering = false;
 			}
@@ -418,5 +441,12 @@ public class PlayerController : MonoBehaviour
 		// 			code for effect giving to units in or around target area should be placed here
 		// signal that animation is done to GameManager:
 		gameState.active = false;
+	}
+
+	void ResetSpawnedObjects () {
+		foreach (GameObject spawned in spawnedObjects) {
+			DestroyObject (spawned);
+		}
+		spawnedObjects.Clear ();
 	}
 }

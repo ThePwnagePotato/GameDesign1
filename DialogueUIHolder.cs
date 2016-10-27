@@ -15,8 +15,8 @@ public class DialogueUIHolder : MonoBehaviour {
 	void FillChapters() {
 		chapters = new string[3];
 
-		chapters [0] = "Story 0";
-		chapters [1] = "Story 1";
+		chapters [0] = "There is chaos in the 9 worlds. The tree of life, Yggdrasil, is dying. However not just the tree is affected but many of the inhabitants of the 9 worlds are dying. The disease is causing the tree and the people to slowly turn to ashes. Some people have gone to look for the cause and a cure. ";
+		chapters [1] = "After a “civilized conversation” the party searches the library. They discovers that the plague has happened before and the cause could be found at the oldest wells of the three wells the tree uses for nourishment. To get to this well they must travel through the cold and desolate hills of Niflheim.";
 		chapters [2] = "Story 2";
 
 	}

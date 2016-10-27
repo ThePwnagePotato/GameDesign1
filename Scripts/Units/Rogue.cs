@@ -8,9 +8,10 @@ public class Rogue : Unit
 
 	public SpriteRenderer _spriteRenderer;
 
-	public override SpriteRenderer spriteRenderer {
-		get { return _spriteRenderer; }
-		set { _spriteRenderer = value; }
+	private Animator _animator;
+	public override Animator animator {
+		get { return _animator; }
+		set { _animator = value; }
 	}
 
 	private bool _isAlive;

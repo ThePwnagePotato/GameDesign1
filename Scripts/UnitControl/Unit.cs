@@ -76,7 +76,7 @@ public abstract class Unit : MonoBehaviour
 
 	public abstract float movementSpeed { get; set; }
 
-	public abstract SpriteRenderer spriteRenderer { get; set; } 
+	public abstract Animator animator { get; set; } 
 
 	public abstract Sprite[] sprites { get; set; }
 
@@ -99,6 +99,8 @@ public abstract class Unit : MonoBehaviour
 		gameManager = GameObject.FindGameObjectWithTag ("GameManager").GetComponent<GameManager> ();
 		if (gameManager == null)
 			Debug.Log ("Unit: GameManager not found)");
+		animator = GetComponentInChildren<Animator> ();
+		animator.ChangeAnimation (AnimationState.IDLE);
 
 		// setting initial state to being alive
 		isAlive = true;
@@ -162,9 +164,7 @@ public abstract class Unit : MonoBehaviour
 			boardManager.enemyUnits.Remove (this);
 		}
 
-		spriteRenderer.enabled = false;
-
-
+		animator.enabled = false;
 	}
 
 	//resets all temporary (current) values, then adds StatusEffects to them
@@ -246,9 +246,9 @@ public abstract class Unit : MonoBehaviour
 		// choose correct sprite (don't do anything if no movement)
 		if (transform.position != endTarget) {
 			if (dx > 0 || dz < 0)
-				spriteRenderer.flipX = false;
+				animator.FlipVertical(false);
 			else
-				spriteRenderer.flipX = true;
+				animator.FlipVertical(true);
 		}
 
 		// while not at target position
@@ -335,7 +335,6 @@ public abstract class Unit : MonoBehaviour
 			transform.position = target; // make sure that the unit is exactly at target position
 		}
 		// let sprite face camera after movements
-		spriteRenderer.sprite = sprites [0];
 		// modify unitMap to reflect new situation
 		boardManager.unitMap[(int)startOrigin.x,(int)startOrigin.z] = null;
 		boardManager.unitMap[(int)endTarget.x,(int)endTarget.z] = this;

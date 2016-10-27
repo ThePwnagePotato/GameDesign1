@@ -308,7 +308,7 @@ public class PlayerController : MonoBehaviour
 		if (hitInfo.collider != null) {
 			//click directly on unit
 			Unit selected = hitInfo.collider.gameObject.GetComponent<Unit> ();
-			if (selected != null && selected.isFriendly()) { // if a unit is selected
+			if (selected != null) { // if a unit is selected
 				gameManager.Push (new GameState (GameStateType.SELECTEDUNIT, selected.gameObject));
 				Debug.Log (selected.getName () + " selected");
 			} 

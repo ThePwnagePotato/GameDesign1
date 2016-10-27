@@ -132,7 +132,7 @@ public class GameManager : MonoBehaviour
 
 		case GameStateType.SELECTEDUNIT:
 			playerTurnUIHolder.SetActive (false);
-			gameState.evoker.GetComponent<SpriteRenderer> ().color = new Color (1, 1, 0, 1); // make sprite yellow
+			gameState.evoker.GetComponentInChildren<SpriteRenderer> ().color = new Color (1, 1, 0, 1); // make sprite yellow
 			// activate unit info (selected UI)
 			selectedUIHolder.SetActive (true);
 			Unit evoker = gameState.evoker.GetComponent<Unit> ();
@@ -224,7 +224,7 @@ public class GameManager : MonoBehaviour
 			break;
 		
 		case GameStateType.SELECTEDUNIT:
-			gameState.evoker.GetComponent<SpriteRenderer> ().color = new Color (1, 1, 1, 1); // "unselectify" - make sprite regular color
+			gameState.evoker.GetComponentInChildren<SpriteRenderer> ().color = new Color (1, 1, 1, 1); // "unselectify" - make sprite regular color
 			selectedUI.Clear ();
 			selectedUIHolder.SetActive (false); // disable "selected UI" 
 			ResetSpawnedObjects ();

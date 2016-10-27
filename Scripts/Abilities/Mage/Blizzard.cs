@@ -139,9 +139,9 @@ public class Blizzard : Ability {
 		int x = (int) targetPosition.x;
 		int z = (int) targetPosition.z;
 
-		for (int xRange = x - 1; xRange <= x + 1; x++) {
-			for (int zRange = z - 1; zRange <= z + 1; z++) {
-				if (xRange >= 0 && zRange >= 0 && xRange < unitMap.Length && zRange < unitMap.GetLength (0)) {
+		//for (int xRange = x - 1; xRange <= x + 1; x++) {
+		//	for (int zRange = z - 1; zRange <= z + 1; z++) {
+		//		if (xRange >= 0 && zRange >= 0 && xRange < gameManager.boardManager.dimensions.x && zRange < gameManager.boardManager.dimensions.z) {
 					Unit target = unitMap [x, z];
 					if (target != null) {
 						int finalPower = caster.currentPower;
@@ -162,8 +162,8 @@ public class Blizzard : Ability {
 						GameObject addEffect = Instantiate (slowness, target.gameObject.transform) as GameObject;
 						addEffect.GetComponent<StatusEffect> ().initialize(caster, caster.currentPower, 3);
 					}
-				}
-			}
-		}
+		//		}
+		//	}
+		//}
 	}
 }

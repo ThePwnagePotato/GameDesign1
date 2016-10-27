@@ -4,7 +4,9 @@ using System.Collections.Generic;
 
 public abstract class EnemyUnit : Unit {
 
-	/*
+	/* put isTargetable with position in method
+	 * BFS: arraylist with the new PathValue, do in order, increase distance
+	 * 
 	 *
 	 * 
 	 * TODO?: get target: killable units out of range
@@ -17,7 +19,12 @@ public abstract class EnemyUnit : Unit {
 	Targetable targetAction;
 	ReachableTile targetActionTile;
 
-	/* in a turn:
+	bool previousPath;
+	PathValue pathToUnit;
+
+	bool doingTurn = false;
+
+		/* in a turn:
 	 * - Decide what to do (move / attack)
 	 * - Get Target unit (closest vs lowest health?)
 	 * - Move towards target unit? if not in range
@@ -26,10 +33,16 @@ public abstract class EnemyUnit : Unit {
 	*/
 
 	new public void ResetTurn() {
+		doingTurn = false;
 		//resets targetUnit before calling the base function, so that the taunt status effect works
 		targetUnit = null;
 		targetAction = Targetable.NULL;
 		targetActionTile = null;
+		if (pathToUnit != null) {
+			previousPath = true;
+		} else {
+			previousPath = false;
+		}
 		base.ResetTurn();
 	}
 
@@ -42,15 +55,14 @@ public abstract class EnemyUnit : Unit {
 	Ability highestDamageAbility = null;
 
 	public void DoTurn() {
+		doingTurn = true;
 		damagingAbilities.Clear ();
 		possibleTargets.Clear ();
 		maxRangeAbility = null;
 		highestDamageAbility = null;
 
 		//first get possible moves
-		if (canMove) {
-			GetPossibleMoves ();
-		}
+		GetPossibleMoves ();
 
 		//get available abilities (cooldown <= 0)
 		Ability[] abilityList = GetComponentsInChildren<Ability> ();
@@ -84,10 +96,50 @@ public abstract class EnemyUnit : Unit {
 		} 
 
 		//next get an action to do
-		if (targetAction == Targetable.NULL) {
+		if (targetAction == Targetable.NULL && canMove) {
 			TargetAction tAction = isTargetReachable (targetUnit);
 			targetAction = tAction.action;
 			targetActionTile = tAction.tile;
+		}
+
+		//calculate a path to walk if action is unable
+		if (targetAction <= Targetable.UNABLE && canMove) {
+			//get the shortest path to be in range of a unit
+			GetPathMoves ();
+
+			/*
+			//to see path
+			Unit evoker = this;
+			foreach (Vector3 position in pathToUnit.path) {
+				GameObject newHighlight = Instantiate (gameManager.highlighter, position + Vector3.up*0.01f, Quaternion.identity) as GameObject;
+				newHighlight.GetComponentInChildren<SpriteRenderer> ().color = new Color (0.1f, 0.8f, 0, 1f);
+			}
+			*/
+
+
+			//temp target tile
+			ReachableTile targetTile = null;
+
+			List<Vector3> path = pathToUnit.path;
+
+			//go through the path in order to find if it is possible to move there
+			//if not, break;
+			foreach (Vector3 pathPosition in path) {
+				foreach (ReachableTile tile in possibleMoveList.Keys) {
+					if (pathPosition == tile.position) {
+						targetTile = tile;
+						break;
+					}
+				}
+			}
+
+			//no movement possible in path
+			if (targetTile == null) {
+				canMove = false;
+			} else {
+				targetActionTile = targetTile;
+			}
+
 		}
 
 		//do the action
@@ -108,6 +160,7 @@ public abstract class EnemyUnit : Unit {
 		GameState currentState = gameManager.gameStack.Peek ();
 		if (currentState.type == GameStateType.ENEMYINTURN) {
 			currentState.active = false;
+			doingTurn = false;
 		}
 		//attack in update()
 	}
@@ -147,7 +200,7 @@ public abstract class EnemyUnit : Unit {
 
 			//check if target can be killed
 			//get either maxRange damage or highestDamage damage
-			if (isTargetable.action != Targetable.UNABLE && canAttack) {
+			if (isTargetable.action > Targetable.UNABLE && canAttack) {
 				int rawDamage = (isTargetable.action == Targetable.MAXRANGE) ? maxRangeAbility.getRawDamage (currentPower) : highestDamageAbility.getRawDamage (currentPower);
 				if (unit.currentHealth + unit.currentDefense - rawDamage < 0) {
 					//if the unit is killable, set as so
@@ -226,13 +279,15 @@ public abstract class EnemyUnit : Unit {
 		//first check current position
 		testTarget = getTargetablility(testTarget, targetPosition, transform.position);
 
+		Targetable lastBestTarget = testTarget;
 		ReachableTile finalTile = null;
 		if (canMove) {
 			//then check possibleMoveList if the unit can move
 			//save the tile the unit would stand on 
 			float finalDistance = Vector3.Distance (targetPosition, transform.position);
-			Targetable lastBestTarget = testTarget;
+			lastBestTarget = testTarget;
 			foreach (ReachableTile tile in possibleMoveList.Keys) {
+				testTarget = Targetable.UNABLE;
 
 				testTarget = getTargetablility (testTarget, targetPosition, tile.position);
 
@@ -242,7 +297,8 @@ public abstract class EnemyUnit : Unit {
 				//if the move is the same value as the previous, or closer if needed
 				//there is a move possible, and it is farther away if !stayClose
 				if (testTarget > lastBestTarget || !stayClose && testTarget == lastBestTarget && testTarget > Targetable.UNABLE && currentDistance > finalDistance ||
-					stayClose && testTarget == lastBestTarget && currentDistance < finalDistance || !stayClose && testTarget <= Targetable.UNABLE && currentDistance < finalDistance) {
+					stayClose && testTarget == lastBestTarget && currentDistance < finalDistance) {
+					// || !stayClose && testTarget <= Targetable.UNABLE && currentDistance < finalDistance
 					lastBestTarget = testTarget;
 					finalTile = tile;
 					finalDistance = currentDistance;
@@ -255,14 +311,14 @@ public abstract class EnemyUnit : Unit {
 			}
 		}
 		//create a new action and return it
-		TargetAction action = new TargetAction (targetUnit, testTarget);
+		TargetAction action = new TargetAction (targetUnit, lastBestTarget);
 		action.tile = finalTile;
 		return action;
 	}
 
 	private Targetable getTargetablility (Targetable value, Vector3 targetPosition, Vector3 position) {
 		//check distance between tile and targetposition
-		float distance = Vector3.Distance (position, targetPosition);
+		//float distance = Vector3.Distance (position, targetPosition);
 
 		//if the distance was larger than before, skip if the unit should stayClose
 		//if (stayClose && distance > closestTargetableDistance) {
@@ -274,22 +330,29 @@ public abstract class EnemyUnit : Unit {
 
 		//check if abilities reach if attacking is possible
 		if (canAttack) {
-			int horDistance = System.Math.Abs ((int) position.x - (int)targetPosition.x) + System.Math.Abs ((int)position.z - (int)targetPosition.z);
+			int horDistance = Mathf.Abs ((int) position.x - (int)targetPosition.x) + System.Math.Abs ((int)position.z - (int)targetPosition.z);
+			int verDistance = Mathf.Abs((int)targetPosition.y - (int)position.y);
 			//if unable, check for maxrange
-			if (value == Targetable.UNABLE) {
-				if (horDistance <= maxRangeAbility.sideRange () &&
-				   (int)targetPosition.y >= (int)position.y - maxRangeAbility.downRange () && (int)targetPosition.y <= (int)position.y + maxRangeAbility.upRange ()) {
-					value = Targetable.MAXRANGE;
+		
+			if (horDistance <= maxRangeAbility.sideRange () &&
+			   (int)targetPosition.y >= (int)position.y - maxRangeAbility.downRange () && (int)targetPosition.y <= (int)position.y + maxRangeAbility.upRange ()
+				&& horDistance + verDistance <= maxRangeAbility.maxRange()) {
+				int aa = highestDamageAbility.maxRange ();
+
+				value = Targetable.MAXRANGE;
+
+
+
+				if (maxRangeAbility != highestDamageAbility) {
+					if (horDistance <= highestDamageAbility.sideRange () &&
+						(int)targetPosition.y >= (int)position.y - highestDamageAbility.downRange () && (int)targetPosition.y <= (int)position.y + highestDamageAbility.upRange ()
+						&& horDistance + verDistance <= highestDamageAbility.maxRange()) {
+						//if maxDamage has been found, break
+						value = Targetable.MAXDAMAGE;
+					}
 				}
 			}
-			//if maxrange, check for maxdamage
-			if (value == Targetable.MAXRANGE) {
-				if (horDistance <= highestDamageAbility.sideRange () &&
-				   (int)targetPosition.y >= (int)position.y - highestDamageAbility.downRange () && (int)targetPosition.y <= (int)position.y + highestDamageAbility.upRange ()) {
-					//if maxDamage has been found, break
-					value = Targetable.MAXDAMAGE;
-				}
-			}
+
 		}
 		return value;
 	}
@@ -325,6 +388,10 @@ public abstract class EnemyUnit : Unit {
 	}
 
 	void Update () {
+		if (!doingTurn) {
+			return;
+		}
+
 		GameState currentState = gameManager.gameStack.Peek ();
 		if (currentState.type == GameStateType.ENEMYMOVING) {
 			if (transform.position == path [pathIndex]) {
@@ -352,14 +419,22 @@ public abstract class EnemyUnit : Unit {
 						return;
 					}
 					canAttack = false;
+
+					/*
+					Unit evoker = this;
+					foreach (Vector3 position in highestDamageAbility.getPossibleTargets()) {
+						GameObject newHighlight = Instantiate (gameManager.highlighter, position + Vector3.up*0.01f, Quaternion.identity) as GameObject;
+						newHighlight.GetComponentInChildren<SpriteRenderer> ().color = new Color (0.1f, 0.8f, 0, 1f);
+					}
+					*/
 				} else if (finishedAbility) {
 					currentState.active = false;
-					
 				}
 
 			}
 		} else if (currentState.type == GameStateType.ENEMYINTURN && !canMove && !canAttack) {
 			currentState.active = false;
+			doingTurn = false;
 		}
 
 	}
@@ -447,6 +522,131 @@ public abstract class EnemyUnit : Unit {
 		list.Add (element.Key, element.Value);
 	}
 
+	//the queue for BFS
+	Queue<PathValue> pathQueue = new Queue<PathValue>();
+	//keeps track of visited positions, and their distance (int)
+	Dictionary<Vector3, int> visitedPositions = new Dictionary<Vector3, int>();
+
+	void GetPathMoves ()
+	{
+		if (!canMove) {
+			return;
+		}
+		pathQueue.Clear ();
+		visitedPositions.Clear ();
+
+		pathQueue.Enqueue (new PathValue (0, transform.position - Vector3.up, transform.position - Vector3.up, new List<Vector3>()));
+		while (pathQueue.Count > 0) {
+			PathValue value = pathQueue.Dequeue ();
+			InitiatePathSearch (value.distance, value.position, value.previousPosition, value.path);
+		}
+
+	}
+
+	void InitiatePathSearch(int distance, Vector3 targetPosition, Vector3 position, List<Vector3> path) {
+		int currentMovesUp = totalMovesUp;
+		int currentMovesDown = totalMovesDown;
+
+		int currentMoves = totalMoves - 1;
+		if (targetPosition.y > position.y) {
+			int heightDelta = (int)targetPosition.y - (int)position.y;
+			currentMovesUp = totalMovesUp - heightDelta;
+			currentMoves = totalMoves - heightDelta;
+		}
+		else if (targetPosition.y < position.y) {
+			int heightDelta = (int)position.y - (int)targetPosition.y;
+			currentMovesDown = totalMovesDown - heightDelta;
+			currentMoves = totalMoves -  heightDelta;
+		}
+		// calculate if this is still straight on the path
+		PathSearch (distance, targetPosition, currentMoves, currentMovesUp, currentMovesDown, path);
+	}
+
+	void PathSearch (int distance, Vector3 position, int currentMoves, int currentMovesUp, int currentMovesDown, List<Vector3> path) {
+
+		float distanceToUnit = Vector3.Distance (position, transform.position);
+
+		if (currentMoves < 0 || currentMovesUp < 0 || currentMovesDown < 0 || (int)position.y <= 0 
+			|| boardManager.unitMap[(int)position.x, (int)position.z] != null && boardManager.unitMap[(int)position.x, (int)position.z] != this ||
+			!previousPath && pathToUnit != null && pathToUnit.distance + 5 > distanceToUnit) {
+			return;
+		}
+		// this is a legitimate movement
+
+		//check in visitedPositions
+		//if position not visited, add it with distance
+		//if position was visited, compare distances, if strictly less, replace
+		//if position was visited, and distance of current move is more, return
+		bool visited = false;
+		foreach (Vector3 visitedPosition in visitedPositions.Keys) {
+			if (visitedPosition == position) {
+				visited = true;
+				if (visitedPositions [visitedPosition] > distance) {
+					visitedPositions [visitedPosition] = distance;
+				} else {
+					return;
+				}
+			}
+		}
+		if (!visited) {
+			visitedPositions.Add (position, distance);
+		}
+
+		List<Vector3> pathCopy = new List<Vector3> (path);
+		//if straight, remove the last vector in the path, since it is the same direction
+		//if (straight && pathCopy.Count > 0) {
+		//	pathCopy.RemoveAt (pathCopy.Count - 1);
+		//}
+		pathCopy.Add (position + Vector3.up);
+
+		CheckPath(new PathValue(distance, position, position, pathCopy));
+		
+		if (position.x > 0) {
+			Vector3 targetPosition = new Vector3 (position.x-1, boardManager.heightMap[(int)position.x-1, (int)position.z], position.z);
+			pathQueue.Enqueue (new PathValue(distance + 1, targetPosition, position, pathCopy));
+
+		}
+		if (position.x < boardManager.dimensions.x - 1) {
+			Vector3 targetPosition = new Vector3 (position.x+1, boardManager.heightMap[(int)position.x+1, (int)position.z], position.z);
+			pathQueue.Enqueue (new PathValue (distance + 1, targetPosition, position, pathCopy));
+		}
+		if (position.z > 0) {
+			Vector3 targetPosition = new Vector3 (position.x, boardManager.heightMap[(int)position.x, (int)position.z-1], position.z-1);
+			pathQueue.Enqueue (new PathValue (distance + 1, targetPosition, position, pathCopy));
+
+		}
+		if (position.z < boardManager.dimensions.z - 1) {
+			Vector3 targetPosition = new Vector3 (position.x, boardManager.heightMap[(int)position.x, (int)position.z+1], position.z+1);
+			//if (distanceToUnit <= Vector3.Distance (targetPosition, transform.position)) {
+			pathQueue.Enqueue (new PathValue (distance + 1, targetPosition, position, pathCopy));
+			//}
+		}
+	}
+
+	void CheckPath (PathValue pathValue)
+	{
+		Targetable targetable = getTargetablility (Targetable.UNABLE, targetUnit.transform.position, pathValue.position + Vector3.up);
+		if (targetable <= Targetable.UNABLE) {
+			return;
+		}
+
+		if (pathToUnit != null && !previousPath) {
+			float distanceToPath = Vector3.Distance (pathToUnit.position, transform.position);
+			float distanceToNewPath = Vector3.Distance (transform.position, pathValue.position);
+			if (distanceToPath < distanceToNewPath) {
+				pathToUnit = pathValue;
+				return;
+			} else if (distanceToPath == distanceToNewPath) {
+				if (pathValue.distance < pathToUnit.distance) {
+					pathToUnit = pathValue;
+					return;
+				}
+			}
+		} 
+		pathToUnit = pathValue;
+		previousPath = false;
+	}
+
 }
 
 public enum Targetable
@@ -473,3 +673,19 @@ public class TargetAction
 		tile = null;
 	}
 }
+
+public class PathValue
+{
+	public int distance;
+
+	public Vector3 position;
+	public Vector3 previousPosition;
+	public List<Vector3> path;
+
+	public PathValue (int distance, Vector3 position, Vector3 previousPosition, List<Vector3> path) {
+		this.distance = distance;
+		this.position = position;
+		this.previousPosition = previousPosition;
+		this.path = path;
+	}
+} 

@@ -162,6 +162,9 @@ public abstract class Unit : MonoBehaviour
 			boardManager.enemyUnits.Remove (this);
 		}
 
+		spriteRenderer.enabled = false;
+
+
 	}
 
 	//resets all temporary (current) values, then adds StatusEffects to them

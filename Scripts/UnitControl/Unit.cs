@@ -134,6 +134,9 @@ public abstract class Unit : MonoBehaviour
 		// calculate the final damage using the tempDef value
 		int finalDamage = Mathf.Max (damage - currentDefense, 1);
 
+		DamageDisplayer dd = GetComponentInChildren<DamageDisplayer> ();
+		dd.ShowRegularDamage (finalDamage);
+
 		currentHealth = currentHealth - finalDamage;
 
 		// do in another class?

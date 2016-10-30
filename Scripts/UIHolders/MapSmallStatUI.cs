@@ -32,10 +32,10 @@ public class MapSmallStatUI : MonoBehaviour {
 		unit = selectedUnit;
 		nameText.text = selectedUnit.getName ();
 		maxHealthText.text = unit.maxHealth.ToString();
-		currHealthText.text = unit.currentHealth.ToString();
+		currHealthText.text = unit.maxHealth.ToString();
 		healthSlider.maxValue = unit.maxHealth;
-		healthSlider.value = unit.currentHealth;
-		movText.text = unit.canMove ? "M" : "";
-		actText.text = unit.canAttack ? "A" : "";
+		healthSlider.value = unit.maxHealth;
+		movText.text = "";
+		actText.text = "";
 	}
 }

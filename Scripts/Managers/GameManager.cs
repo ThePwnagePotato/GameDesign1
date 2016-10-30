@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 // StateType describes what kind of state the game is in
 public enum GameStateType
@@ -53,9 +54,20 @@ public class GameManager : MonoBehaviour
 	//handles game logic, order, turns etc.
 	//gives info to other classes
 
+	[Header("Settings")]
+	public float maxScrollSpeed;
+
 	[Header("Dependencies")]
 	public GameObject highlighter;
 	public BoardManager boardManager;
+	public CameraController mainCamera;
+	public GameObject mainCanvas;
+	public GameObject playerTurnTransition;
+	public GameObject enemyTurnTransition;
+	public GameObject winTransition;
+	public GameObject loseTransition;
+	public Text turnText;
+	public SceneLoader sceneLoader;
 
 	public GameObject selectedUIHolder;
 	public SelectedUI selectedUI;
@@ -63,14 +75,41 @@ public class GameManager : MonoBehaviour
 	public FriendlyUnitsUI friendlyUnitsUI;
 
 	private List<GameObject> spawnedObjects;
+	private int turn;
 	public Stack<GameState> gameStack;
 
 	void Start ()
 	{
 		gameStack = new Stack<GameState>();
+		turn = 0;
 		spawnedObjects = new List<GameObject>();
 		Push (new GameState(GameStateType.ROOT));
+		StartCoroutine (LevelStartAnimation());
+	}
+
+	IEnumerator LevelStartAnimation () {
+		mainCamera.transform.position += Vector3.up * 3 * mainCamera.defaultState.size;
+		while (mainCamera.transform.position != mainCamera.defaultState.position) {
+			mainCamera.transform.position = Vector3.MoveTowards (mainCamera.transform.position, mainCamera.defaultState.position, maxScrollSpeed);
+			yield return new WaitForFixedUpdate();
+		}
+		StartCoroutine (PlayerTurnStart());
+	}
+
+	IEnumerator PlayerTurnStart () {
+		turn++;
+		turnText.text = "Turn " + turn.ToString();
+		GameObject obj = Instantiate (playerTurnTransition) as GameObject;
+		obj.transform.SetParent (mainCanvas.transform, false);
+		yield return new WaitForSeconds ((int)1.5);
 		Push (new GameState(GameStateType.PLAYERTURN));
+	}
+
+	IEnumerator EnemyTurnStart () {
+		GameObject obj = Instantiate (enemyTurnTransition) as GameObject;
+		obj.transform.SetParent (mainCanvas.transform, false);
+		yield return new WaitForSeconds ((int)1.5);
+		Push (new GameState(GameStateType.ENEMYTURN));
 	}
 
 	void Update ()
@@ -170,6 +209,8 @@ public class GameManager : MonoBehaviour
 	}
 
 	public void Pop () {
+		friendlyUnitsUI.Clear ();
+		friendlyUnitsUI.updateValues ();
 		if (gameStack.Count == 0)
 			return;
 		GameState gameState = gameStack.Peek ();
@@ -197,8 +238,14 @@ public class GameManager : MonoBehaviour
 			}
 			while (gameStack.Peek ().type != GameStateType.ROOT)
 				gameStack.Pop ();
-			GameState newState = new GameState (GameStateType.PLAYERTURN);
-			Push (newState);
+			// enter win condition evaluation here
+			if (boardManager.enemyUnits.Count <= 0) {
+				StartCoroutine( ExecuteWin () );
+			}
+			else if (boardManager.friendlyUnits.Count <= 0) {
+				StartCoroutine( ExecuteLose () );
+			}
+			else StartCoroutine(PlayerTurnStart ());
 			break;
 		case GameStateType.ENEMYINTURN:
 			gameStack.Pop ();
@@ -244,8 +291,14 @@ public class GameManager : MonoBehaviour
 	public void EndPlayerTurn () {
 		while (gameStack.Peek ().type != GameStateType.ROOT)
 			Pop ();
-		GameState newState = new GameState (GameStateType.ENEMYTURN);
-		Push (newState);
+		// win if all enemy units have been defeated
+		if (boardManager.enemyUnits.Count <= 0) {
+			StartCoroutine( ExecuteWin () );
+		}
+		else if (boardManager.friendlyUnits.Count <= 0) {
+			StartCoroutine( ExecuteLose () );
+		}
+		else StartCoroutine(EnemyTurnStart ());
 	}
 
 	void ResetSpawnedObjects () {
@@ -253,5 +306,21 @@ public class GameManager : MonoBehaviour
 			DestroyObject (spawned);
 		}
 		spawnedObjects.Clear ();
+	}
+
+	IEnumerator ExecuteWin () {
+		GameObject obj = Instantiate (winTransition) as GameObject;
+		obj.transform.SetParent (mainCanvas.transform, false);
+		yield return new WaitForSeconds (3);
+		SaveData.saveData.currentSave.chapter = 1;
+		SaveData.saveData.currentSave.skillPoints++;
+		sceneLoader.LoadScene ("World_Map");
+	}
+
+	IEnumerator ExecuteLose () {
+		GameObject obj = Instantiate (loseTransition) as GameObject;
+		obj.transform.SetParent (mainCanvas.transform, false);
+		yield return new WaitForSeconds (3);
+		sceneLoader.LoadScene ("World_Map");
 	}
 }

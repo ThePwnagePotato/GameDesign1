@@ -154,7 +154,7 @@ public abstract class Unit : MonoBehaviour
 	public void Die ()
 	{
 		isAlive = false;
-
+		animator.DeathAnimation ();
 		//remove from unitmap
 		boardManager.unitMap[(int)transform.position.x, (int)transform.position.z] = null;
 		//remove from friendly/enemy list
@@ -163,8 +163,7 @@ public abstract class Unit : MonoBehaviour
 		} else {
 			boardManager.enemyUnits.Remove (this);
 		}
-
-		animator.enabled = false;
+		GetComponentInChildren<Collider> ().enabled = false;
 	}
 
 	//resets all temporary (current) values, then adds StatusEffects to them

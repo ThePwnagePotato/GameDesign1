@@ -55,8 +55,10 @@ public class PlayerController : MonoBehaviour
 		// UI has priority over gameworld, so we need to keep track of whether we are hovering over the UI
 		bool overUI = UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject ();
 
+		if (gameManager.gameStack.Count == 0)
+			return;
 		GameState gameState = gameManager.gameStack.Peek ();
-		if (gameState.type != GameStateType.DIALOGUE || gameState.type != GameStateType.ESCMENU) {
+		if (gameState.type != GameStateType.DIALOGUE && gameState.type != GameStateType.ESCMENU && gameState.type != GameStateType.ROOT) {
 			CameraControl ();
 		}
 
@@ -151,7 +153,7 @@ public class PlayerController : MonoBehaviour
 	void attemptHoverMenu(GameState gameState) {
 		// display info window on the right for the unit we are hovering over
 		if (gameState.type == GameStateType.ANIMATION || gameState.type == GameStateType.ENEMYINTURN || gameState.type == GameStateType.ENEMYTURN ||
-			gameState.type == GameStateType.ENEMYMOVING || gameState.type == GameStateType.ENEMYWAITFORATTACK) {
+			gameState.type == GameStateType.ENEMYMOVING || gameState.type == GameStateType.ENEMYWAITFORATTACK || gameState.type == GameStateType.ROOT) {
 			if (wasHovering) {
 				hoverUIHolder.SetActive (false);
 				wasHovering = false;
@@ -217,7 +219,8 @@ public class PlayerController : MonoBehaviour
 				clickedTarget += Vector3.up;
 			// check if it's a valid move, activate if it is
 			Ability ability = gameState.evoker.GetComponentInChildren<Ability> ();
-			if (!gameState.evoker.GetComponentInParent<Unit> ().canAttack && ability.cooldown <= 0)
+			Unit unit = gameState.evoker.GetComponentInParent<Unit> ();
+			if (!unit.canAttack || ability.cooldown > 0 || !unit.isFriendly())
 				return;
 			if (ability.getPossibleTargets ().Contains (clickedTarget)) {
 				// pop off the SELECTEDABILITY gamestate
@@ -258,12 +261,14 @@ public class PlayerController : MonoBehaviour
 
 			}
 			Debug.Log ("Attempt unit move");
-
+			Unit sUnit = gameManager.gameStack.Peek().evoker.GetComponent<Unit>();
 			bool isReachable = false;
 			List<ReachableTile> possibleMoves = unit.GetPossibleMoves();
 			foreach (ReachableTile tile in possibleMoves)
-				if (tile.straight && tile.position == clickedTarget) {
+				if (tile.straight && tile.position == clickedTarget && (tile.position.x == sUnit.transform.position.x || tile.position.z == sUnit.transform.position.z )) {
 					unit.SetMoveStats (tile);
+					if (unit.GetPossibleMoves ().Count < 2)
+						unit.canMove = false;
 					isReachable = true;
 					break;
 				}

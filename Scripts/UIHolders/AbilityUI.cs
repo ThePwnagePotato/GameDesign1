@@ -28,10 +28,7 @@ public class AbilityUI : MonoBehaviour {
 		if (gameManager.gameStack.Peek ().type == GameStateType.SELECTEDABILITY)
 			gameManager.Pop ();
 		if (gameManager.gameStack.Peek ().type == GameStateType.SELECTEDUNIT
-			&& gameManager.gameStack.Peek().evoker.GetComponent<Unit>() == unit
-			&& gameManager.gameStack.Peek().evoker.GetComponent<Unit>().isFriendly()
-			&& unit.canAttack
-			&& ability.cooldown <= 0) {
+			&& gameManager.gameStack.Peek().evoker.GetComponent<Unit>() == unit) {
 				GameState gameState = new GameState (GameStateType.SELECTEDABILITY, ability.gameObject);
 				gameManager.Push (gameState);
 		}

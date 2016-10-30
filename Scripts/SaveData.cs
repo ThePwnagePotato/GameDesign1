@@ -32,6 +32,12 @@ public class SaveData : MonoBehaviour {
 			Destroy (this.gameObject);
 	}
 
+	public void LoadDemoSaves () {
+		saveSlots[0] = new Save (0, 0, characterAmount, 1, 0); // regular start
+		saveSlots[1] = new Save (0, 99, characterAmount, 1, 0); // start in chap 1 with lots of skill points
+		saveSlots[2] = new Save (1, 99, characterAmount, 2, 0); // start in chap 2 with lots of skill points and almost maxed out
+	}
+
 	public void StartNewSave () {
 		saveData.currentSave = new Save (saveData.startChapter, saveData.startSkillPoints, saveData.characterAmount, saveData.startAbilityProgress, saveData.startPlaytime);
 	}

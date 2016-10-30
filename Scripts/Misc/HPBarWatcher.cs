@@ -17,7 +17,11 @@ public class HPBarWatcher : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		slider.value = unit.currentHealth;
-		hpText.text = unit.currentHealth.ToString();
+		if (unit.currentHealth <= 0)
+			gameObject.SetActive (false);
+		else {
+			slider.value = unit.currentHealth;
+			hpText.text = unit.currentHealth.ToString ();
+		}
 	}
 }

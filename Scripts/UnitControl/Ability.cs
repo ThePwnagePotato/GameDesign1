@@ -102,6 +102,7 @@ public abstract class Ability : MonoBehaviour
 	{
 		//after activating, set canMove and canAttack to false
 		Unit caster = GetComponentInParent<Unit> ();
+		caster.animator.PlayAttackAnimation ();
 		caster.finishedAbility = false;
 		caster.canMove = false;
 		caster.canAttack = false;

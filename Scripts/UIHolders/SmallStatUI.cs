@@ -29,8 +29,8 @@ public class SmallStatUI : MonoBehaviour {
 	public void UpdateValues(Unit selectedUnit) {
 		unit = selectedUnit;
 		if (!unit.isAlive || (!unit.canAttack && !unit.canMove)) {
-			unitSelectButton.interactable = false;
-			backgroundImage.color = new Color (0.5f, 0.5f, 0.5f);
+			unitSelectButton.interactable = true;
+			backgroundImage.color = new Color (0.6f, 0.6f, 0.6f);
 		} else {
 			unitSelectButton.interactable = true;
 			backgroundImage.color = new Color (1, 1, 1);

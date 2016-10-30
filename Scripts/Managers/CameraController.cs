@@ -22,7 +22,7 @@ public class CameraController : MonoBehaviour
 
 	private Vector3 focusPoint;
 	private Camera _camera;
-	private CameraInfo defaultState;
+	public CameraInfo defaultState;
 	private float currentAngle;
 	private int zoomLevel;
 	private float cameraTargetSize;
@@ -48,7 +48,7 @@ public class CameraController : MonoBehaviour
 	}
 
 	// Use this for initialization
-	void Start ()
+	void Awake ()
 	{
 		_camera = GetComponent<Camera> ();
 		focusPoint.x = 0.5f * boardManager.dimensions.x;
@@ -57,7 +57,7 @@ public class CameraController : MonoBehaviour
 		cameraAnchor.transform.position += focusPoint;
 		// the projection of the vector (from the top of the map to the outer edge) onto the plane vertically dissecting the camera 
 		Vector3 proj = Vector3.ProjectOnPlane (new Vector3 (boardManager.dimensions.x, -boardManager.dimensions.y, boardManager.dimensions.z), new Vector3 (-1, 0, 1));
-		_camera.orthographicSize = 0.5f * (Vector3.Project (proj, cameraAnchor.transform.up).magnitude) + verticalPadding; // stage always fits in vision
+		_camera.orthographicSize = 0.9f * (Vector3.Project (proj, cameraAnchor.transform.up).magnitude) + verticalPadding; // stage always fits in vision
 		defaultState = new CameraInfo ();
 		defaultState.Save (cameraAnchor.transform, _camera);
 		currentAngle = 0;

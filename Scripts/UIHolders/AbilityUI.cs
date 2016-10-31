@@ -57,6 +57,6 @@ public class AbilityUI : MonoBehaviour {
 		totalUpMoveText.text = selectedAbility.upRange().ToString();
 		totalDownMoveText.text = selectedAbility.downRange().ToString();
 		totalSideMoveText.text = selectedAbility.sideRange().ToString();
-		cooldownText.text = selectedAbility.cooldown.ToString();
+		cooldownText.text = (selectedAbility.cooldown == -1) ? selectedAbility.maxCooldown().ToString() : selectedAbility.cooldown.ToString();
 	}
 }

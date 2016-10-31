@@ -11,13 +11,13 @@ public class KnifeThrow : Ability {
 
 	public override string getName ()
 	{
-		return "Knife Throw";
+		return "Shuriken Throw";
 	}
 
 	public override string[] getDescription ()
 	{
 		return new string[] {
-			"Throw a knife, dealing some damage",
+			"Throw a shuriken, dealing some damage",
 			"Weakens enemy, lowering their power"
 		};
 	}

@@ -232,7 +232,9 @@ public class GameManager : MonoBehaviour
 			break;
 		case GameStateType.ENEMYTURN:
 			Debug.Log ("TURN: Enemy turn ended");
-			foreach (Unit unit in boardManager.enemyUnits) {
+
+			for (int i = boardManager.enemyUnits.Count - 1; i >= 0; i--) {
+				Unit unit = boardManager.enemyUnits [i];
 				if (unit.isAlive)
 					unit.EndTurn ();
 			}

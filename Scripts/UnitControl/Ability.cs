@@ -215,13 +215,13 @@ public abstract class Ability : MonoBehaviour
  * 
  * Mage:	Fireball (basic) 				
  * 			Heal
- * 			Empower
- * 			Blizzard
+ * 			Empower (boosts next attack)
+ * 			Blizzard (slows enemy)
  * 
  * 
  * Rogue:	Stab (basic)
- * 			baskstepAttack
- * 			knifethrow
+ * 			baskstepAttack (can move after attacking)
+ * 			knifethrow (weakenes enemy)
  * 			Bleed attack (inflicts bleeding)
  * 			
  * 
@@ -229,12 +229,12 @@ public abstract class Ability : MonoBehaviour
  * Ranger:	Shoot (bow) (basic)
  * 			Fast attack (couple arrows in a row)
  * 			Snipe (long range high damage)
- * 			RootShot
+ * 			RootShot (roots enemy)
  * 			
  * 
  * Tank:	Stab (basic)
  * 			Taunt (draws aggro from enemy)
- * 			self buff, then debuff ()
+ * 			self buff (increase power, def, moves, then debuff ()
  * 			utility (stun attack)
  * 			
  * 

@@ -123,6 +123,10 @@ public class Taunt : Ability {
 	public override void HitTarget (Unit caster, Vector3 targetPosition) {
 		Unit target = gameManager.boardManager.unitMap[(int) targetPosition.x, (int) targetPosition.z];
 		if (target != null) {
+			DamageDisplayer dd = target.GetComponentInChildren<DamageDisplayer> ();
+			if (dd != null) {
+				dd.ShowText ("Taunted");
+			}
 			
 			GameObject effect = Instantiate (taunted, target.gameObject.transform) as GameObject;
 			effect.GetComponent<StatusEffect> ().initialize(caster, caster.currentPower, 4);

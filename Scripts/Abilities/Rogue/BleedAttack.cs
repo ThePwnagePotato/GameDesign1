@@ -157,6 +157,11 @@ public class BleedAttack : Ability {
 
 			target.TakeDamage (finalDamage);
 
+			DamageDisplayer dd = target.GetComponentInChildren<DamageDisplayer> ();
+			if (dd != null) {
+				dd.ShowText ("Bleeding");
+			}
+
 			GameObject addEffect = Instantiate (bleeding, target.gameObject.transform) as GameObject;
 			addEffect.GetComponent<StatusEffect> ().initialize(caster, caster.currentPower, 3);
 		}

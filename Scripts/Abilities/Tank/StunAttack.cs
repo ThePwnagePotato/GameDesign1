@@ -151,6 +151,11 @@ public class StunAttack : Ability {
 
 			target.TakeDamage (finalDamage);
 
+			DamageDisplayer dd = target.GetComponentInChildren<DamageDisplayer> ();
+			if (dd != null) {
+				dd.ShowText ("Stunned");
+			}
+
 			GameObject addEffect = Instantiate (stunned, target.gameObject.transform) as GameObject;
 			addEffect.GetComponent<StatusEffect> ().initialize(caster, caster.currentPower, 1);
 		}

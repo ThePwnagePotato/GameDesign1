@@ -153,6 +153,11 @@ public class KnifeThrow : Ability {
 
 			target.TakeDamage (finalDamage);
 
+			DamageDisplayer dd = target.GetComponentInChildren<DamageDisplayer> ();
+			if (dd != null) {
+				dd.ShowText ("Weakened");
+			}
+
 			GameObject addEffect = Instantiate (weakness, target.gameObject.transform) as GameObject;
 			addEffect.GetComponent<StatusEffect> ().initialize(caster, caster.currentPower, 2);
 		}

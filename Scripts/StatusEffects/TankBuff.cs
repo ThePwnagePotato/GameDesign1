@@ -60,6 +60,11 @@ public class TankBuff : StatusEffect {
 		target.currentMovesSide += Mathf.Max(2, power / 10);;
 	}
 	public override void OnRemoval () {
+		DamageDisplayer dd = target.GetComponentInChildren<DamageDisplayer> ();
+		if (dd != null) {
+			dd.ShowText ("Fatigued");
+		}
+
 		GameObject effect = Instantiate (fatigued, target.gameObject.transform) as GameObject;
 		effect.GetComponent<StatusEffect> ().initialize(_evoker, _power, 1);
 	}

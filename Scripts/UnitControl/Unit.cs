@@ -136,8 +136,17 @@ public abstract class Unit : MonoBehaviour
 		// calculate the final damage using the tempDef value
 		int finalDamage = Mathf.Max (damage - currentDefense, 1);
 
+		//play hit sound
+		AudioSource hitSound = GetComponent<AudioSource> ();
+		if (hitSound != null) {
+			hitSound.Play ();
+		}
+
+		//display damage
 		DamageDisplayer dd = GetComponentInChildren<DamageDisplayer> ();
-		dd.ShowRegularDamage (finalDamage);
+		if (dd != null) {
+			dd.ShowRegularDamage (finalDamage);
+		}
 
 		currentHealth = currentHealth - finalDamage;
 

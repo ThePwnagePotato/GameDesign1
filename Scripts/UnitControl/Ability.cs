@@ -110,6 +110,12 @@ public abstract class Ability : MonoBehaviour
 		//also set the cooldown to -1
 		cooldown = -1;
 
+		//play soundeffect
+		AudioSource audio = GetComponent<AudioSource>();
+		if (audio != null) {
+			audio.Play ();
+		}
+
 		// first create and push a ANIMATION gamestate to restrict input and whatever
 		GameState gameState = new GameState (GameStateType.ANIMATION, this.gameObject);
 		//gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();

@@ -120,7 +120,13 @@ public abstract class EnemyUnit : Unit {
 			//temp target tile
 			ReachableTile targetTile = null;
 
-			List<Vector3> path = pathToUnit.path;
+			List<Vector3> path;
+			if (pathToUnit != null) {
+				path = pathToUnit.path;
+			} else {
+				canMove = false;
+				return;
+			}
 
 			//go through the path in order to find if it is possible to move there
 			//if not, break;
